@@ -6,7 +6,7 @@ tableOfContents: false
 editUrl: false
 next: false
 hero:
-  title: osvauld Docs
+  title: Documentation
   tagline: Guides, resources, and API references to help you build with osvauld.
   actions:
     - text: Get started
@@ -19,46 +19,12 @@ hero:
   facepile:
     tagline: Powered by osvauld and our open-source contributors.
     linkText: Join us!
-    link: /en/contribute/
+    link: https://github.com/osvauld
 ---
-
-import { CardGrid } from '@astrojs/starlight/components'
-import Card from '../../components/Landing/Card.astro'
-import ListCard from '../../components/Landing/ListCard.astro'
-import SplitCard from '../../components/Landing/SplitCard.astro'
 import Discord from '../../components/Landing/Discord.astro'
+import { Image } from 'astro:assets';
+import osvauld from '../../assets/cards.png';
 
-<CardGrid>
-  <Card title="What will you build with osvauld?" icon="laptop">
-    Explore osvauld starter themes for blogs, portfolios, docs, landing pages, SaaS, marketing, ecommerce sites, and more!
-  </Card>
 
-  <Card title="Take a guided tour" icon="star">
-    Complete our introductory Build a Blog Tutorial to learn the basics and create your first osvauld site.
-  </Card>
-
-  <SplitCard title="Start a new project" icon="rocket">
-    ```sh
-    # create a new project with npm
-    npm create osvauld@latest
-    ```
-    
-    Our installation guide has step-by-step instructions for installing osvauld using our CLI wizard, creating a new project from an existing osvauld GitHub repository, and for installing osvauld manually.
-  </SplitCard>
-
-  <ListCard title="Learn" icon="open-book">
-    - osvauld's main features
-    - Island architecture
-    - osvauld components
-    - The osvauld template syntax
-  </ListCard>
-
-  <ListCard title="Extend" icon="puzzle">
-    - Add integrations like React, and Tailwind
-    - Create type safe content collections
-    - Enhance navigation with view transitions
-    - Connect a headless CMS to your project
-  </ListCard>
-</CardGrid>
-
+<Image src={osvauld} alt="osvauld dashboard."/>
 <Discord title="Have a question or want to get involved?" cta="Join our Discord"/>

@@ -6,6 +6,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "osvauld",
+      customCss: ["./src/styles/custom.css"],
       social: {
         github: "https://github.com/osvauld",
         linkedin: "https://www.linkedin.com/company/osvauld",
@@ -16,7 +17,7 @@ export default defineConfig({
         {
           label: "Introduction",
           items: [
-            { label: "Discovery FAQ", link: "/introduction/discovery-faq/" },
+            { label: "Discovery FAQ", link: "/introduction/example" },
             { label: "Roadmap", link: "/introduction/roadmap/" },
             { label: "Security", link: "/introduction/security/" },
             { label: "Release notes", link: "/introduction/release-notes/" },
