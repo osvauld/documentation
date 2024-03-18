@@ -1,10 +1,8 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import astroD2 from 'astro-d2'
 // https://astro.build/config
 export default defineConfig({
   integrations: [
-    astroD2(),
     starlight({
       title: "osvauld",
       customCss: ["./src/styles/custom.css"],
@@ -43,6 +41,7 @@ export default defineConfig({
           label: "System Design",
           items: [
             {label: "Registration", link: "/system-design/registration/"},
+            {label: "Login", link: "/system-design/login/"},
           ]
         }
         // {

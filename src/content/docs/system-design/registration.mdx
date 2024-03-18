@@ -2,8 +2,11 @@
 title: User Registration in Osvauld
 ---
 
-import { Image } from 'astro:assets';
-import regisration from 'assets/dynamic/registration/users-registration.svg';
+import { Image  } from 'astro:assets';
+
+
+import registration from '../../../assets/dynamic/registration/user-registration.svg';
+
 
 
 In Osvauld, user registration is initiated by the admin and completed by the user through the web extension. Follow the steps below to register a new user:
@@ -25,7 +28,10 @@ In Osvauld, user registration is initiated by the admin and completed by the use
 <div style="background-color: #23262f; padding: 10px; border-radius: 5px;">
   <strong>Note:</strong> The system-generated password is a one-time use password, which is only valid for registration. After the registration is complete, the password has no other use.
 </div>
-<Image src={registration} alt="osvauld dashboard."/>
+# User Registration Flow
+
+The following diagram illustrates the user registration sequence in our application
+<Image src={registration} alt="user registration."/>
 ## User Steps
 
 1. Download and install the Osvauld web extension in your browser.

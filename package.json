@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "osvauld_docs",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -12,7 +12,6 @@
   "dependencies": {
     "@astrojs/starlight": "^0.21.1",
     "astro": "^4.3.5",
-    "astro-d2": "^0.1.1",
     "sharp": "^0.32.5"
   }
 }
