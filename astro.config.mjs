@@ -42,6 +42,7 @@ export default defineConfig({
           items: [
             {label: "ERD", link: "/system-design/erd/"},
             {label: "What is a folder?" , link: "/system-design/folder/"},
+            {label: 'What is a Credential?', link: "/system-design/credential/"},
             {label: "Registration Flow", link: "/system-design/registration/"},
             {label: "Login Flow", link: "/system-design/login/"},
           ]
