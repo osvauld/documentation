@@ -47,6 +47,8 @@ export default defineConfig({
             {label: "Login Flow", link: "/system-design/login/"},
             {label: "Sharing Credentials with users", link: "/system-design/sharing-credential-users/"},
             {label: "Sharing Credentials with groups", link: "/system-design/sharing-credentials-groups/"},
+            {label: "Sharing Folder with users", link: "/system-design/sharing-folder-with-users/"},
+            {label: "Sharing Folder with groups", link: "/system-design/sharing-folder-with-groups/"},
           ]
         },
         
