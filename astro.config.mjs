@@ -40,10 +40,13 @@ export default defineConfig({
         {
           label: "System Design",
           items: [
-            {label: "Registration", link: "/system-design/registration/"},
-            {label: "Login", link: "/system-design/login/"},
+            {label: "ERD", link: "/system-design/erd/"},
+            {label: "What is a folder?" , link: "/system-design/folder/"},
+            {label: "Registration Flow", link: "/system-design/registration/"},
+            {label: "Login Flow", link: "/system-design/login/"},
           ]
-        }
+        },
+        
         // {
         //   label: "Installation",
         //   items: [

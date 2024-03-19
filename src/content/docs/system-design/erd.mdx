@@ -1,0 +1,151 @@
+---
+title: Database Schema
+---
+import { Image  } from 'astro:assets';
+
+
+import erd from '../../../assets/dynamic/erd/erd.svg';
+
+
+The following image shows the ER diagram of the database schema:
+
+<Image src={erd} alt="Entity Relation Diagram"/>
+
+
+
+The database schema consists of the following tables:
+
+## users
+
+The `users` table stores information about the users of the system. It contains fields such as:
+
+- `id` (primary key)
+- `username`
+- `name`
+- `encryption_key` (encryption public key of the user)
+- `device_key` (signing public key)
+- `temp_password` (assigned when user is created by admin)
+- `registration_challenge` (challenge given during registration time)
+- `signed_up`
+- `type` (admin/user)
+- `status` (status of the user)
+
+## folders
+
+The `folders` table represents the folders that is  created by users to organize their credentials. It includes fields like:
+- `id` (primary key)
+- `created_at`
+- `updated_at`
+- `name`
+- `description`
+- `created_by` (foreign key referencing the `users` table)
+
+## folder_access
+
+The `folder_access` table maintains the access permissions for folders. When a new credential is added to a folder, this table is referred to, and the credential is automatically shared with users where the folder was shared. The access type is inherited from the folder access and can come directly or from a group. The table contains fields like:
+
+- `id` (primary key)
+- `created_at`
+- `updated_at`
+- `folder_id` (foreign key referencing the `folders` table)
+- `user_id` (foreign key referencing the `users` table)
+- `access_type` (inherited from folder access)
+- `group_id` (foreign key referencing the `groupings` table)
+
+
+
+## credentials
+
+The `credentials` table stores the metadata of credentials, such as:
+
+- `id` (primary key)
+- `name`
+- `description`
+- `credential_type` (login/other)
+- `folder_id` (foreign key referencing the `folders` table)
+- `domain` (for login credentials)
+- `created_by` (foreign key referencing the `users` table)
+- `created_at`
+- `updated_by` (foreign key referencing the `users` table)
+- `updated_at`
+
+## fields
+
+The `fields` table stores all the credential fields. It includes fields like:
+
+- `id` (primary key)
+- `field_name` (e.g., username)
+- `field_value` (e.g., eric_bachman)
+- `field_type` (meta: username, urls, etc.; sensitive: passwords, API keys; additional: domain)
+- `credential_id` (foreign key referencing the `credentials` table)
+- `user_id` (foreign key referencing the `users` table)
+- `created_at`
+- `created_by` (foreign key referencing the `users` table)
+- `updated_at`
+- `updated_by` (foreign key referencing the `users` table)
+<div style="background-color: #23262f; padding: 10px; border-radius: 5px;">
+  <strong>Note:</strong> 
+A credential can contain multiple fields, and there will be a copy (encrypted with their encryption public key) for every shared user for a single credential.
+</div>
+
+## credential_access
+
+The `credential_access` table is one of the most important tables in the schema. It stores the access permissions for credentials. Each credential is individually shared with users, and every fetch query goes through this table first and then to the `credentials` and `fields` tables. Access can come through direct sharing of a credential to a user, direct sharing of a folder, sharing a credential to a group, or sharing a folder to a group. The table includes fields such as:
+
+- `id` (primary key)
+- `created_at`
+- `updated_at`
+- `credential_id` (foreign key referencing the `credentials` table)
+- `user_id` (foreign key referencing the `users` table)
+- `access_type` (owner/reader)
+- `group_id` (foreign key referencing the `groupings` table)
+- `folder_id` (foreign key referencing the `folders` table)
+
+## groupings
+
+The `groupings` table represents groups that can be created to manage access permissions. It includes fields such as:
+
+- `id` (primary key)
+- `created_at`
+- `updated_at`
+- `name` (name of the group)
+- `created_by` (foreign key referencing the `users` table)
+
+## group_list
+
+The `group_list` table stores the mapping between users and groups. It contains fields like:
+
+- `id` (primary key)
+- `grouping_id` (foreign key referencing the `groupings` table)
+- `user_id` (foreign key referencing the `users` table)
+- `access_type` (admin/member)
+- `created_at`
+
+## session_table
+
+The `session_table` maintains the user sessions. When a user logs in, it maintains the challenge to be verified. It includes fields such as:
+
+- `id` (primary key)
+- `user_id` (foreign key referencing the `users` table)
+- `public_key`
+- `challenge` (challenge to be verified during login)
+- `device_id`
+- `session_id`
+- `created_at`
+- `updated_at`
+
+
+## field_archive
+
+The `field_archive` table serves as an archive for older fields when a credential is edited. It contains fields similar to the `fields` table, along with additional fields like:
+
+- `id` (primary key)
+- `field_id` (foreign key referencing the `fields` table)
+- `field_name`
+- `field_value`
+- `field_type`
+- `create_at`
+- `created_by` (foreign key referencing the `users` table)
+- `updated_at`
+- `updated_by` (foreign key referencing the `users` table)
+- `version`
