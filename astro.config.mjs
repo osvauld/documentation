@@ -45,6 +45,8 @@ export default defineConfig({
             {label: 'What is a Credential?', link: "/system-design/credential/"},
             {label: "Registration Flow", link: "/system-design/registration/"},
             {label: "Login Flow", link: "/system-design/login/"},
+            {label: "Sharing Credentials with users", link: "/system-design/sharing-credential-users/"},
+            {label: "Sharing Credentials with groups", link: "/system-design/sharing-credentials-groups/"},
           ]
         },
         
