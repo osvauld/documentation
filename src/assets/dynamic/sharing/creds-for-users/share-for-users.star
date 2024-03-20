@@ -10,7 +10,7 @@ Background Service -> WASM Service: 4. Request to decrypt the credential
 WASM Service."Decrypts the credential"
 WASM Service -> Background Service: 5. Return the decrypted credential
 Background Service -> WASM Service: 6. for every user Request to encrypt the credential with user's public key
-WASM Service."Encrypts the credential with the user's public key"
+WASM Service."Encrypts the credential\nwith the user's public key"
 WASM Service -> Background Service: 7. Return the encrypted credential
 
 Background Service -> User: 9. Return the encrypted credentials for each user

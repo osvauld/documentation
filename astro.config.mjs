@@ -49,6 +49,9 @@ export default defineConfig({
             {label: "Sharing Credentials with groups", link: "/system-design/sharing-credentials-groups/"},
             {label: "Sharing Folder with users", link: "/system-design/sharing-folder-with-users/"},
             {label: "Sharing Folder with groups", link: "/system-design/sharing-folder-with-groups/"},
+            {label: "Adding Users to a Group", link: "/system-design/adding-user-to-group/"},
+            {label: "Editing a Credential", link: "/system-design/editing-credential/"},
+            {label: "Adding a Credential", link: "/system-design/adding-credential/"},
           ]
         },
         

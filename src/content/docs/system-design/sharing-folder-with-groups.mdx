@@ -26,6 +26,20 @@ The sequence diagram below shows how a user can share a folder with a group.
 
 8. The client sends the selected folder,  and group members to the background service.
 9. The background service sends the credential fields to the WASM module for decryption.
+```json
+[
+    {
+        "credentialId": "credential_id",
+        "fields": [
+            {
+            "fieldId": "field_id", 
+            "fieldValue": "encrypted_field_value"
+            }
+    ]
+    }
+]
+```
+10. The WASM module, which has the user's private key loaded in memory, decrypts the credential fields.
 
 ```json
 [
@@ -34,13 +48,12 @@ The sequence diagram below shows how a user can share a folder with a group.
         "fields": [
             {
             "fieldId": "field_id", 
-            "fieldValue": "field_value"
+            "fieldValue": "decrypted_field_value"
             }
     ]
     }
 ]
 ```
-10. The WASM module, which has the user's private key loaded in memory, decrypts the credential fields.
 11. After decryption, the background service sends the decrypted fields to be encrypted using each group member's public key to the WASM module.
 12. The background service sends the encrypted credential fields back to the client.
 ```json
@@ -52,7 +65,7 @@ The sequence diagram below shows how a user can share a folder with a group.
         "fields": [
             {
             "fieldId": "field_id", 
-            "fieldValue": "field_value"
+            "fieldValue": "encrypted_field_value"
             }
         ]
     }
