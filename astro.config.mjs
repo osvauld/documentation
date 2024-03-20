@@ -35,6 +35,7 @@ export default defineConfig({
           label: "Installation",
           items: [
             {label: "First User Creation", link: "/installation/first-user-creation/"},
+            {label: "Docker server installation", link: "/installation/docker-setup/"},
           ]
         },
         {
