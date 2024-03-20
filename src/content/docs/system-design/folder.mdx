@@ -22,7 +22,7 @@ The `folder_access` table manages the access permissions for folders. The releva
 - `pk`: The primary key of the folder access entry.
 - `folder_id`: A foreign key referencing the `pk` of the corresponding folder.
 - `user_id`: A foreign key referencing the user who has been granted access to the folder.
-- `access_type`: The type of access the user has to the folder (e.g., "owner", "read").
+- `access_type`: The type of access the user has to the folder (e.g., "manager", "read").
 - `group_id`: A foreign key referencing the group that has been granted access to the folder if any.
 
 ## Credential Sharing
@@ -52,7 +52,7 @@ When a folder is shared with a group, all members of the group inherit the acces
 When a new folder is created, the following steps occur:
 
 1. A new entry is inserted into the `folder` table with the provided metadata, such as the folder name and the user who created it.
-2. An entry is added to the `folder_access` table, granting the creator of the folder an access type of "owner".
+2. An entry is added to the `folder_access` table, granting the creator of the folder an access type of "manager".
 
 ## Sharing a Folder
 
