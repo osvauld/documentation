@@ -1,0 +1,99 @@
+---
+title: Sharing a Folder with Users
+---
+
+import { Image } from 'astro:assets';
+import sharing from '../../../assets/dynamic/sharing/folder-for-users/share-folder-users.svg';
+
+The sequence diagram below shows how a user can share a folder with other users.
+
+## Sequence Diagram
+<Image src={sharing} alt="Sequence diagram for sharing a folder with users"/>
+
+## User Selection
+
+1. The user selects the folder  and initiates the share process.
+2. The client sends a request to the server to fetch the credential fields for the folder.
+3. The server returns the required credential fields to the client.
+
+## User and Access Type Selection
+
+4. The user selects the required users to share the folder with.
+5. For each selected user, the user specifies the access type ( read, manager).
+
+## Background Service Processing
+
+6. The client sends the fetched credential fields,assoiciated credential id and users to the background service.
+7. The background service sends the credential fields to the WASM module for decryption.
+```json
+[
+    {
+        "credentialId": "credential_id",
+        "fields": [
+            {
+            "fieldId": "field_id", 
+            "fieldValue": "encrypted_field_value"
+            }
+    ]
+    }
+]
+```
+8. The WASM module, which has the user's private key loaded in memory, decrypts the credential fields.
+9. After decryption, the background service sends the decrypted fields to be encrypted using each user's public key to the WASM module.
+10. The background service sends the encrypted credential fields back to the client.
+
+```json
+[{
+    "userId": "user_id",
+    "credentials":[
+    {
+        "credentialId": "credential_id"
+        "fields": [
+            {
+            "fieldId": "field_id", 
+            "fieldValue": "encrypted_field_value"
+            }
+        ]
+    }
+]
+}]
+```
+## Server Processing
+
+11. The client sends the encrypted credential fields, user IDs, and folder ID to the server.
+
+``` json
+{
+    "folderId": "folder_id",
+    "userData": [{
+        "accessType": "access_type",
+        "userId": "user_id",
+        "credentials":[
+            {
+                "credentialId": "credential_id",
+                "fields": [
+                    {
+                    "fieldId": "field_id", 
+                    "fieldValue": "encrypted_field_value"
+                    }
+                ]
+            }
+        ]    
+}]
+}
+```
+12. The server processes the sharing request.
+13. The server adds access to the `folder_access` table for the shared folder and users.
+14. The server adds access to the `access_list` table for each credential in the folder and the shared users.
+15. The server adds the encrypted credential fields to the `fields` table for each user.
+16. The server returns the sharing response (success/failure) to the user.
+
+<div style="background-color: #23262f; padding: 10px; border-radius: 5px;">
+<strong>Note:</strong>
+For every user the sharing is success when all the credentials of the folder are successfully shared with the user. So that is made into a single txn.
+</div>
+
+<div style="background-color: #23262f; padding: 10px; border-radius: 5px;">
+<strong>Note:</strong>
+From now on, when a new credential is added to the folder, it will be automatically shared with the users who have access to the folder.
+</div>

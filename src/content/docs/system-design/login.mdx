@@ -1,0 +1,33 @@
+---
+title: User Login Flow
+---
+import { Image  } from 'astro:assets';
+
+import login from '../../../assets/dynamic/login/login.svg';
+
+# User Login Flow
+
+The following diagram illustrates the user login flow in our application:
+
+
+<Image src={login} alt="user login."/>
+The user login process involves the following steps:
+
+1. The User enters the passphrase in the extension and sends message to background service to initiate authentication.
+2. The Background Service initiates the WASM module.
+3. The WASM Service returns after initialization.
+4. The Background Service sends the passphrase and encrypted keys to the WASM Service(stored in local storage).
+5. The WASM Service decrypts the key pairs.
+6. The WASM Service saves the decrypted keys in the global context(in memory).
+7. The WASM Service returns success if the decryption is successful.
+8. The Background Service requests a challenge for the public key from the Server.
+9. The Server returns the challenge.
+10. The Background Service requests the WASM Service to sign the challenge.
+11. The WASM Service signs the challenge using the decrypted private key.
+12. The WASM Service returns the signed challenge to the Background Service.
+13. The Background Service sends the signed challenge and public key to the Server.
+14. The Server verifies the signature.
+15. The Server returns a JWT token to the Background Service.
+16. The Background Service informs the User of successful login and stores the JWT token.
+
+For more details on each step, refer to the sequence diagram above.

@@ -1,0 +1,61 @@
+---
+title: User Registration in Osvauld
+---
+
+import { Image  } from 'astro:assets';
+
+
+import registration from '../../../assets/dynamic/registration/user-registration.svg';
+
+
+
+In Osvauld, user registration is initiated by the admin and completed by the user through the web extension. Follow the steps below to register a new user:
+
+## Admin Steps
+
+1. Log in to the Osvauld extension, open the dashboard and navigate to the "All Users" tab in the "Groups" section.
+
+2. Click on the "Add User" button to create a new user.
+
+3. Provide the following information for the new user:
+   - Username
+   - Name
+
+4. The system will automatically generate a password for the user.
+
+5. Username, generated password and baseurl will be automatically copied to the clipboard and share it with the user through a secure channel.
+
+<div style="background-color: #23262f; padding: 10px; border-radius: 5px;">
+  <strong>Note:</strong> The system-generated password is a one-time use password, which is only valid for registration. After the registration is complete, the password has no other use.
+</div>
+# User Registration Flow
+
+The following diagram illustrates the user registration sequence in our application
+<Image src={registration} alt="user registration."/>
+## User Steps
+
+1. Download and install the Osvauld web extension in your browser.
+
+2. Open the extension and enter the base URL (the URL where the backend instance is hosted) without the trailing slash. For example, if the backend is hosted at <span style="color: #ff6b6b;">`https://yourdomain.com`</span>, enter <span style="color: #ff6b6b;">`https://yourdomain.com`</span>.
+
+3. Enter the username and the system-generated password provided by the admin.
+
+4. The extension will send the credentials to the backend for validation.
+
+5. If the login is verified, the backend will send a challenge string in response.
+
+6. After the login is verified, the user is prompted to set a passphrase.
+
+7. Once the passphrase is validated, the client service sends a request to the background service to generate a key pair (both encryption and signing keys) and encrypt the key pair using the passphrase through the WASM module.
+
+8. The WASM module returns the encrypted private keys and public keys, which are stored in the local storage.
+
+9. A request is sent to the WASM module to sign the challenge using the passphrase-encrypted sign private key, passphrase, and challenge. The WASM module returns the signed challenge.
+
+10. The final registration is completed by sending the signed challenge, encryption public key, and sign public key to the backend, after verification of the challenge, they are stored.
+
+11. The user is then redirected to the login page.
+
+That's it! The user registration process is now complete. The user can log in to Osvauld using their passphrase and access the application.
+
+If you encounter any issues or have further questions, contact us on discord.
