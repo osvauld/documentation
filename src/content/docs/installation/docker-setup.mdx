@@ -1,25 +1,40 @@
 ---
-title: "Docket Setup"
+title: "Docker Setup"
 ---
 
-### Pull image
-```docker pull osvauld/backend:0.1.0```
+## Pull Image
 
-### Start Instance
-<div style="background-color: #23262f; padding: 10px; border-radius: 5px;">
-  <strong>Important:</strong> Osvauld requires a postgres instance running
-</div>
+To pull the Osvauld backend image, run the following command:
 
-
+```bash
+docker pull osvauld/backend:0.1.0
 ```
+
+Start Instance
+
+<div style="background-color: #23262f; padding: 10px; border-radius: 5px;"> <strong>Important:</strong> Osvauld requires a PostgreSQL instance running. </div>
+
+
+To start the Osvauld backend instance, use the following command:
+
+```bash
 docker run --name osvauld_backend \
-    -d \
-    -p 80:8000 \
-    -e MASTER_DB_HOST=<db_host> \
-    -e MASTER_DB_NAME=<db_name> \
-    -e MASTER_DB_USER=<db_user> \
-    -e MASTER_DB_PASSWORD=<db_password> \
-    -e MASTER_DB_PORT=<db_port> \
-    -e MASTER_SSL_MODE=require \
-    osvauld/backend:0.1.0
-```
+  -d \
+  -p 80:8000 \
+  -e MASTER_DB_HOST=<db_host> \
+  -e MASTER_DB_NAME=<db_name> \
+  -e MASTER_DB_USER=<db_user> \
+  -e MASTER_DB_PASSWORD=<db_password> \
+  -e MASTER_DB_PORT=<db_port> \
+  -e MASTER_SSL_MODE=require \
+  osvauld/backend:0.1.0
+  ```
+Replace the following placeholders with your actual values:
+
+-   `db_host>`: The hostname or IP address of your PostgreSQL instance.
+-    `db_name`: The name of the database to use.
+-    `db_user`: The username for accessing the database.
+-    `db_password`: The password for the specified user.
+-    `db_port`: The port number on which the PostgreSQL instance is running.
+
+The backend will start and listen on port 80. Make sure to configure the appropriate environment variables for connecting to your PostgreSQL instance.
