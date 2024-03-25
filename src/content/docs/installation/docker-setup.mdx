@@ -2,6 +2,7 @@
 title: "Docker Setup"
 ---
 
+<div style="background-color: #23262f; padding: 10px; border-radius: 5px;"> <strong>Important:</strong> Osvauld requires a PostgreSQL instance running. </div>
 ## Pull Image
 
 To pull the Osvauld backend image, run the following command:
@@ -10,11 +11,12 @@ To pull the Osvauld backend image, run the following command:
 docker pull osvauld/backend:0.1.0
 ```
 
-Start Instance
 
-<div style="background-color: #23262f; padding: 10px; border-radius: 5px;"> <strong>Important:</strong> Osvauld requires a PostgreSQL instance running. </div>
+## Run Migration
+Connect to the PostgreSQL Server and execute the following query:
+[query link](https://github.com/osvauld/osvauld_be/blob/main/db/migration/models.sql)
 
-
+## Start Instance
 To start the Osvauld backend instance, use the following command:
 
 ```bash
@@ -38,3 +40,4 @@ Replace the following placeholders with your actual values:
 -    `db_port`: The port number on which the PostgreSQL instance is running.
 
 The backend will start and listen on port 80. Make sure to configure the appropriate environment variables for connecting to your PostgreSQL instance.
+
