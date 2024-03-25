@@ -16,8 +16,7 @@ export default defineConfig({
         {
           label: "Introduction",
           items: [
-            { label: "Discovery FAQ", link: "/introduction/example" },
-            { label: "Roadmap", link: "/introduction/roadmap/" },
+            { label: "Overview", link: "/introduction/overview" },
             // { label: "Security", link: "/introduction/security/" },
             // { label: "Release notes", link: "/introduction/release-notes/" },
             // {
@@ -36,6 +35,7 @@ export default defineConfig({
           items: [
             {label: "Docker server installation", link: "/installation/docker-setup/"},
             {label: "First User Creation", link: "/installation/first-user-creation/"},
+            {label: "Extension setup", link: "/installation/extension-setup/"},
           ]
         },
         {

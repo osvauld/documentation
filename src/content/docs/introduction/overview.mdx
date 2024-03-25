@@ -1,0 +1,38 @@
+---
+title: "osvauld: Secure, Shareable Credential Management"
+---
+
+## Purpose
+
+osvauld is designed from the ground up to facilitate secure credential sharing within organizations.
+
+## The Problem
+
+Credentials are often shared insecurely, leading to:
+
+* **Security risks:** Exposure of sensitive data to unauthorized parties.
+* **Management difficulties:** Lack of centralized control and visibility over credential usage.
+* **Inefficient key rotation:** Cumbersome and time-consuming to update credentials.
+
+## What osvauld Offers
+
+* **Fine-grained access control:** Precise control over who can view and modify specific credentials.
+* **Comprehensive access visibility:**  Robust audit logging to track all credential activity.
+* **Easy key rotation:** Streamlined processes for updating credentials.
+* **Self Hosted**: osvauld can be self-hosted, ensuring maximum control over data.
+
+## Key Principles
+
+* **Zero-knowledge architecture:** osvauld never has access to unencrypted credentials, ensuring maximum privacy and security.
+* **OpenPGP standard:** Adherence to well-established encryption protocols ([https://sequoia-pgp.org/](https://sequoia-pgp.org/)).
+* **Client-side decryption:**  Credentials are decrypted only within the user's device.
+
+
+## Technical Stack
+
+* **Frontend:** Svelte (extension)
+* **Backend:** Go
+* **Cryptography:** Rust (crypto primitives, WebAssembly)
+* **Integration testing:** Python 
+* **Website:** Astro
+* **Documentation:** Starlight
