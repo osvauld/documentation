@@ -33,9 +33,8 @@ export default defineConfig({
         {
           label: "Installation",
           items: [
-            {label: "Docker server installation", link: "/installation/docker-setup/"},
-            {label: "First User Creation", link: "/installation/first-user-creation/"},
-            {label: "Extension setup", link: "/installation/extension-setup/"},
+            {label: "Setting up osvauld", link: "/installation/setting-up-osvauld/"},
+            {label: "Setting up dev server", link: "/installation/setting-up-dev-server/"},
           ]
         },
         {
