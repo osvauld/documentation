@@ -27,7 +27,8 @@ docker run --name osvauld_backend \
   -e MASTER_DB_PASSWORD=<db_password> \
   -e MASTER_DB_PORT=<db_port> \
   -e MASTER_SSL_MODE=require \
-  osvauld/backend:0.1.0
+  -e AUTH_SECRET=<auth_secret> \
+  osvauld/backend:<version>
   ```
 Replace the following placeholders with your actual values:
 
@@ -36,6 +37,7 @@ Replace the following placeholders with your actual values:
 -    `db_user`: The username for accessing the database.
 -    `db_password`: The password for the specified user.
 -    `db_port`: The port number on which the PostgreSQL instance is running.
+-    `auth_secret`: The secret for generating tokens. Should have a minimum length of 32 characters.
 
 The backend will start and listen on port 80. Make sure to configure the appropriate environment variables for connecting to your PostgreSQL instance.
 
