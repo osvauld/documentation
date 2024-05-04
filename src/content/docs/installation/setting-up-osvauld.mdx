@@ -21,6 +21,7 @@ To start the Osvauld backend instance, use the following command:
 docker run --name osvauld_backend \
   -d \
   -p 80:8000 \
+  -p 443:8000 \
   -e MASTER_DB_HOST=<db_host> \
   -e MASTER_DB_NAME=<db_name> \
   -e MASTER_DB_USER=<db_user> \
