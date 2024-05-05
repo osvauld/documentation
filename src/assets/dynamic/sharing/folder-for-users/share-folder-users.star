@@ -13,6 +13,8 @@ Background Service -> WASM Service: 6.Request to encrypt the credential fields w
 WASM Service."Encrypts the credential fields with the user's public key"
 WASM Service -> Background Service: 7.Return the encrypted credential fields
 Background Service -> User: 8.Return the encrypted credential fields for each user
-User -> Server: 9.Send the sharing payload (encrypted credential fields, user IDs, and folder ID)
-Server."Process the request"
-Server -> User: 10.Return the sharing response (success/failure)
+User -> Background Service: 9. Hash and Sign the payload
+Background Service -> User: 10. Return Signed Payload
+User -> Server: 11. Send the payload (encrypted credential fields, user ID,   folderID and signature)
+Server."Processes the request verifies signature"
+Server -> User: 12. Return the response (success/failure)

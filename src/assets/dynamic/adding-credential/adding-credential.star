@@ -1,4 +1,4 @@
-shape: sequence_diagram
+ishape: sequence_diagram
 
 Server
 User
@@ -12,6 +12,8 @@ Background Service -> WASM Service: 4. Request to encrypt the fields with each u
 WASM Service."Encrypts the fields\nwith each user's public key"
 WASM Service -> Background Service: 5. Return the encrypted fields for each user
 Background Service -> User: 6. Return the encrypted fields for each user
-User -> Server: 7. Send the payload (encrypted fields for each user, name, description, domain)
-Server."Processes the request"
+User -> Background Service: 7. Hash and Sign the payload
+Background Service -> User: 8. Return Signed Payload
+User -> Server: 9. Send the payload (encrypted fields for each user, name, description, domain and signature)
+Server."Processes the request verifies signature"
 Server -> User: 8. Return the response (success/failure)

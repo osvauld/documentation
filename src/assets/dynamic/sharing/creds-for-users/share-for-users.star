@@ -14,6 +14,9 @@ WASM Service."Encrypts the credential\nwith the user's public key"
 WASM Service -> Background Service: 7. Return the encrypted credential
 
 Background Service -> User: 9. Return the encrypted credentials for each user
-User -> Server: 10. Send the sharing payload (encrypted credentials and user IDs)
-Server."Processes the sharing request"
-Server -> User: 11. Return the sharing response (success/failure)
+User -> Background Service: 8. Hash and Sign the payload
+Background Service -> User: 9. Return Signed Payload
+User -> Server: 10. Send the payload (encrypted credential fields, user ID, and group IDs and signature)
+Server."Processes the request verifies signature"
+Server -> User: 11. Return the response (success/failure)
+
