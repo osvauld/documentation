@@ -57,10 +57,11 @@ import addUserToGroup from '../../../assets/dynamic/sharing/add-user-to-group/ad
 ]
 }]
 ```
-
+12.  The client then sends the whole payload to hash and then sign
+13. The client sends the payload to the server with signature in the header.
 ## Server Processing
 
-12. The user sends the payload (encrypted credential fields, user ID, and group ID) to the server.
+14. The user sends the payload (encrypted credential fields, user ID, and group ID) to the server.
 ``` json
 {
     "groupId": "group_id",
@@ -79,12 +80,12 @@ import addUserToGroup from '../../../assets/dynamic/sharing/add-user-to-group/ad
     ]
 }
 ```
-13. The server processes the request.
-14. For each credential:
+15. The server processes the request after verifying the signature.
+16. For each credential:
     - The server infers the access type from the group.
     - The server adds entries to the `credential_access` table.
     - The server adds entries to the `fields` table.
-15. The server returns the response (success/failure) to the user.
+17. The server returns the response (success/failure) to the user.
 
 <div style="background-color: #23262f; padding: 10px; border-radius: 5px;">
 <strong>Note:</strong>

@@ -52,6 +52,7 @@ export default defineConfig({
             {label: "Adding Users to a Group", link: "/system-design/adding-user-to-group/"},
             {label: "Editing a Credential", link: "/system-design/editing-credential/"},
             {label: "Adding a Credential", link: "/system-design/adding-credential/"},
+            {label: "modifying permissions and deletion", link: "/system-design/modifying-permissions/"},
           ]
         },
         

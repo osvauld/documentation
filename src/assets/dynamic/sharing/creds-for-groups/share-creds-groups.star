@@ -8,11 +8,13 @@ Server -> user: 4. returns the required users
 User -> Background Service: Send selected credentials and users to share with
 Background Service -> WASM Service: Request to decrypt the credential
 WASM Service."Decrypts the credential"
-WASM Service -> Background Service: Return the decrypted credential
-Background Service -> WASM Service: Request to encrypt the credential with member's public key
+WASM Service -> Background Service: 5. Return the decrypted credential
+Background Service -> WASM Service: 6. Request to encrypt the credential with member's public key
 WASM Service."Encrypts the credential with the member's public key"
-WASM Service -> Background Service: Return the encrypted credential
+WASM Service -> 7. Background Service: Return the encrypted credential
 Background Service -> User: Return the encrypted credentials for each group member
-User -> Server: Send the sharing payload (encrypted credentials, user IDs, and group ID)
-Server."Processes the sharing request"
-Server -> User: Return the sharing response (success/failure)
+User -> Background Service: 8. Hash and Sign the payload
+Background Service -> User: 9. Return Signed Payload
+User -> Server: 10. Send the payload (encrypted credential fields, user ID, and group ID and signature)
+Server."Processes the request verifies signature"
+Server -> User: 11. Return the response (success/failure)
