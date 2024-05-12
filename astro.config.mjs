@@ -9,7 +9,7 @@ export default defineConfig({
       social: {
         github: "https://github.com/osvauld",
         linkedin: "https://www.linkedin.com/company/osvauld",
-        discord: "https://discord.com/invite/umffkNPd",
+        discord: "https://discord.com/invite/kV6gBeM6Fm",
         instagram: "https://www.instagram.com/osvauld/",
       },
       sidebar: [
