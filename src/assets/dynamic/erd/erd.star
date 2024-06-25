@@ -10,6 +10,7 @@ users: {
   signed_up: boolean
   type: varchar
   status: varchar
+  created_by: uuid {constraint: foreign_key}
 }
 
 folders: {
@@ -32,28 +33,23 @@ credentials: {
   updated_by: uuid {constraint: foreign_key}
 }
 
-fields: {
+
+
+field_data: {
   shape: sql_table
   id: uuid {constraint: primary_key}
-  field_name: varchar
-  field_value: text
   field_type: varchar
+  field_name: varchar
   credential_id: uuid {constraint: foreign_key}
-  user_id: uuid {constraint: foreign_key}
   created_by: uuid {constraint: foreign_key}
   updated_by: uuid {constraint: foreign_key}
 }
 
-field_archive: {
+field_values: {
   shape: sql_table
-  id: uuid {constraint: primary_key}
   field_id: uuid {constraint: foreign_key}
-  field_name: varchar
-  field_value: text
-  field_type: varchar
-  created_by: uuid {constraint: foreign_key}
-  updated_by: uuid {constraint: foreign_key}
-  version: integer
+  field_value: varchar
+  user_id: uuid {constraint: foreign_key}
 }
 
 groupings: {
@@ -100,6 +96,27 @@ session_table: {
   session_id: varchar
 }
 
+environments: {
+  shape: sql_table
+  id: uuid {constraint: primary_key}
+  cli_user: uuid {constraint: foreign_key}
+  name: varchar
+}
+
+environment_fields: {
+  shape: sql_table
+  id: uuid {constraint: primary_key}
+  field_name: varchar
+  field_value: varchar
+  parent_field_value_id: uuid {constraint: foreign_key}
+  env_id: uuid {constraint: foreign_key}
+  credential_id: uuid {constraint: foreign_key}
+}
+
+environments.id -> environment_fields.env_id
+environment_fields.credential_id -> credentials.id
+environment_fields.parent_field_value_id -> field_values.id
+
 users.id -> group_list.user_id
 users.id -> credential_access.user_id
 users.id -> folder_access.user_id
@@ -109,10 +126,11 @@ folders.id -> credentials.folder_id
 folders.id -> credential_access.folder_id
 folders.id -> folder_access.folder_id
 
-credentials.id -> fields.credential_id
+credentials.id -> field_data.credential_id
 credentials.id -> credential_access.credential_id
 
-fields.id -> field_archive.field_id
+field_data.id -> field_values.field_id
+
 
 groupings.id -> group_list.grouping_id
 groupings.id -> credential_access.group_id

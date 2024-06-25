@@ -53,6 +53,7 @@ export default defineConfig({
             {label: "Editing a Credential", link: "/system-design/editing-credential/"},
             {label: "Adding a Credential", link: "/system-design/adding-credential/"},
             {label: "modifying permissions and deletion", link: "/system-design/modifying-permissions/"},
+            {label: "Environments", link: "/system-design/environments/"},
           ]
         },
         
