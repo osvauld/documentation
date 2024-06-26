@@ -57,6 +57,12 @@ export default defineConfig({
           ]
         },
         
+        {
+          label: "Migration",
+          items: [
+            {label: "Migrating from 0.1 to 0.2", link: "/migration-guide/v1/"},
+          ]
+        },
         // {
         //   label: "Installation",
         //   items: [
