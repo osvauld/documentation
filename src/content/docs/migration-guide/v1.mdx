@@ -1,0 +1,72 @@
+---
+title: "Updating from version v0.1.1 to v0.2.0"
+---
+
+# Updating to v0.2.0
+
+Osvauld version v0.2.0 includes schema changes from v0.1.1 
+
+Users are required to run a data migration scripts along with updating the backend docker image
+
+## Updating backend image
+You can pull the image for v0.2.0 from dockerhub
+
+```bash
+docker pull osvauld/backend:v0.2.0
+```
+
+Update the backend with the new image. The schema changes to the database will be done automatically along with the docker image update
+
+stop the already running image:
+```bash
+docker stop osvauld_backend
+```
+start the latest image, it will run db migation
+```bash
+docker run --name osvauld_backend \
+  -d \
+  -p 80:8000 \
+  -p 443:8000 \
+  -e MASTER_DB_HOST=<db_host> \
+  -e MASTER_DB_NAME=<db_name> \
+  osvauld/backend:v0.2.0
+```
+
+
+## Migrating Data 
+
+Migrating data to support the new backend image requires a python script execution
+
+### Download Script
+download the script
+```bash
+wget https://raw.githubusercontent.com/osvauld/osvauld_be/develop/scripts/migrate_v011_to_v020.py
+```
+
+### Install dependencies
+
+The python script requires the dependency `psycopg2`. You can install it via pip
+
+```bash
+pip install psycopg2-binary
+```
+
+### Edit connection parameters in the script
+
+Edit the connection parameters in the script with you database parameters
+
+The parameters are present at line number 5 in the script
+
+```python
+# Connection parameters
+dbname = "osvauld"
+user = "postgres"
+password = "password"
+host = "host_url"
+```
+
+### Run the Script
+
+```bash
+python migrate_v011_to_v020.py
+```

@@ -53,9 +53,16 @@ export default defineConfig({
             {label: "Editing a Credential", link: "/system-design/editing-credential/"},
             {label: "Adding a Credential", link: "/system-design/adding-credential/"},
             {label: "modifying permissions and deletion", link: "/system-design/modifying-permissions/"},
+            {label: "Environments", link: "/system-design/environments/"},
           ]
         },
         
+        {
+          label: "Migration",
+          items: [
+            {label: "Migrating from 0.1 to 0.2", link: "/migration-guide/v1/"},
+          ]
+        },
         // {
         //   label: "Installation",
         //   items: [
