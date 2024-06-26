@@ -17,13 +17,31 @@ docker pull osvauld/backend:v0.2.0
 
 Update the backend with the new image. The schema changes to the database will be done automatically along with the docker image update
 
+stop the already running image:
+```bash
+docker stop osvauld_backend
+```
+start the latest image, it will run db migation
+```bash
+docker run --name osvauld_backend \
+  -d \
+  -p 80:8000 \
+  -p 443:8000 \
+  -e MASTER_DB_HOST=<db_host> \
+  -e MASTER_DB_NAME=<db_name> \
+  osvauld/backend:v0.2.0
+```
+
 
 ## Migrating Data 
 
 Migrating data to support the new backend image requires a python script execution
 
 ### Download Script
-You can download the script from: 
+download the script
+```bash
+wget https://raw.githubusercontent.com/osvauld/osvauld_be/develop/scripts/migrate_v011_to_v020.py
+```
 
 ### Install dependencies
 
