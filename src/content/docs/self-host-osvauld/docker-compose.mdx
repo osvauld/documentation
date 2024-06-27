@@ -17,7 +17,7 @@ title: "Docker-Compose installation"
 You can obtain the docker compose file by command line download
 
 ```bash
-wget https://github.com/osvauld/osvauld_be/blob/main/docker-compose-prod.yml
+wget https://raw.githubusercontent.com/osvauld/osvauld_be/main/docker-compose-prod.yml
 ```
 
 ### Configurations
@@ -33,7 +33,7 @@ Run the command below to start the Osvauld backend and related services
 
 
 ```bash
-docker-compose -f docker-compose-prod.yml up
+docker compose -f docker-compose-prod.yml up -d
 ```
 
 The backend will start and listen on port 8000. 
