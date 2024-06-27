@@ -17,9 +17,10 @@ docker pull osvauld/backend:v0.2.0
 
 Update the backend with the new image. The schema changes to the database will be done automatically along with the docker image update
 
-stop the already running image:
+stop and delete the already running image:
 ```bash
 docker stop osvauld_backend
+docker rm osvauld_backend
 ```
 start the latest image, it will run db migation
 ```bash
@@ -29,6 +30,11 @@ docker run --name osvauld_backend \
   -p 443:8000 \
   -e MASTER_DB_HOST=<db_host> \
   -e MASTER_DB_NAME=<db_name> \
+  -e MASTER_DB_USER=<db_user> \
+  -e MASTER_DB_PASSWORD=<db_password> \
+  -e MASTER_DB_PORT=<db_port> \
+  -e MASTER_SSL_MODE=require \
+  -e AUTH_SECRET=<auth_secret> \
   osvauld/backend:v0.2.0
 ```
 
