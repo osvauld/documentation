@@ -63,6 +63,14 @@ export default defineConfig({
             {label: "Migrating from 0.1 to 0.2", link: "/migration-guide/v1/"},
           ]
         },
+        {
+          label: "Self Hosting Osvauld",
+          items: [
+            {label: "Docker", link: "/self-host-osvauld/docker/"},
+            {label: "Docker Compose", link: "/self-host-osvauld/docker-compose/"},
+            {label: "Configurations", link: "/self-host-osvauld/configurations/"},
+          ]
+        },
         // {
         //   label: "Installation",
         //   items: [
