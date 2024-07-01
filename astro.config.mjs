@@ -34,7 +34,6 @@ export default defineConfig({
           label: "Installation",
           items: [
             {label: "Setting up osvauld", link: "/installation/setting-up-osvauld/"},
-            {label: "Setting up dev server", link: "/installation/setting-up-dev-server/"},
           ]
         },
         {
@@ -61,6 +60,20 @@ export default defineConfig({
           label: "Migration",
           items: [
             {label: "Migrating from 0.1 to 0.2", link: "/migration-guide/v1/"},
+          ]
+        },
+        {
+          label: "Self Hosting Osvauld",
+          items: [
+            {label: "Docker", link: "/self-host-osvauld/docker/"},
+            {label: "Docker Compose", link: "/self-host-osvauld/docker-compose/"},
+            {label: "Configurations", link: "/self-host-osvauld/configurations/"},
+          ]
+        },
+        {
+          label: "Contributing",
+          items: [
+            {label: "Setting up dev server", link: "/contributing/setting-up-dev-server/"},
           ]
         },
         // {

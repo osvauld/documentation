@@ -2,49 +2,19 @@
 title: "Setting up osvauld"
 ---
 
-## Setting up backend
+import { Image } from 'astro:assets';
+import extension_chrome_store from '../../../assets/extension_chrome_store.png';
 
-<div style="background-color: #23262f; padding: 10px; border-radius: 5px;"> <strong>Important:</strong> Osvauld requires a PostgreSQL instance running. </div>
-### Pull Image
+## Self Hosting Backend
 
-To pull the Osvauld backend image, run the following command:
+Self-hosting Osvauld lets you retain data on your own infrastructure and network. Choose from the below deployment options listed below to get started.
 
-```bash
-docker pull osvauld/backend:latest
-```
-If desired, you may replace the latest tag with an alternative Docker image tag of your choosing. 
-For older versions, please refer to this link[here](https://hub.docker.com/r/osvauld/backend/tags)
+ - [Docker](/self-host-osvauld/docker/)
+ - [Docker Compose](/self-host-osvauld/docker-compose/)
 
-### Start Instance
-To start the Osvauld backend instance, use the following command:
 
-```bash
-docker run --name osvauld_backend \
-  -d \
-  -p 80:8000 \
-  -p 443:8000 \
-  -e MASTER_DB_HOST=<db_host> \
-  -e MASTER_DB_NAME=<db_name> \
-  -e MASTER_DB_USER=<db_user> \
-  -e MASTER_DB_PASSWORD=<db_password> \
-  -e MASTER_DB_PORT=<db_port> \
-  -e MASTER_SSL_MODE=require \
-  -e AUTH_SECRET=<auth_secret> \
-  osvauld/backend:<version>
-  ```
-Replace the following placeholders with your actual values:
 
--    `db_host>`: The hostname or IP address of your PostgreSQL instance.
--    `db_name`: The name of the database to use.
--    `db_user`: The username for accessing the database.
--    `db_password`: The password for the specified user.
--    `db_port`: The port number on which the PostgreSQL instance is running.
--    `auth_secret`: The secret for generating tokens. Should have a **minimum length of 32 characters**.
--    `version`: The docker image tag for the image that was pulled.
-
-The backend will start and listen on port 80. Make sure to configure the appropriate environment variables for connecting to your PostgreSQL instance.
-
-## Setup first user
+## Setup Admin user
 
 When setting up your self-hosted Osvauld application for the first time, you need to create an initial admin user to access the admin panel. Follow the steps below to create the first admin user:
 
@@ -89,6 +59,8 @@ That's it! You have now successfully created the first admin user for your self-
 
 If you encounter any issues or have further questions, please reach out to us on Discord. 
 
-### Installing the extension
+## Installing the extension
 
 To install the Osvauld web extension, go to this [link](https://chromewebstore.google.com/detail/osvauld/jjlmehbdndojkfglfimhldnbpdhjphfi)
+
+<Image src={extension_chrome_store} alt="chromestore extension screenshot"/>

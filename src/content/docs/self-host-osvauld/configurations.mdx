@@ -1,0 +1,25 @@
+---
+title: "Configurations"
+---
+
+## Configurations
+<strong> How to configure environment variables for self-hosted Osvauld.</strong>
+<p>
+
+Osvauld accepts all configurations via environment variables. For a minimal self-hosted instance, at least MASTER_DB_NAME, MASTER_DB_USER, MASTER_DB_PASSWORD, MASTER_DB_HOST and AUTH_SECRET must be defined. However, you can configure additional settings to activate more features as needed.
+
+</p>
+### All configurations
+
+| Variable Name      | Description       | Mandatory | Default Value |
+|--------------------|-------------------|-----------|---------------|
+| MASTER_DB_HOST     | The hostname or IP address of your PostgreSQL instance. | Yes       |               |
+| MASTER_DB_NAME     | The name of the database to use.     | Yes       |               |
+| MASTER_DB_USER     | The username for accessing the database     | Yes       |               |
+| MASTER_DB_PASSWORD | The password for the specified user | Yes       |               |
+| AUTH_SECRET        | The secret for generating tokens. Should have a minimum length of 32 characters.   | Yes       |               |
+| MASTER_DB_PORT     | The port number on which the PostgreSQL instance is running.     | No        | 5432          |
+| MASTER_SSL_MODE    | ssl connection mode for postgres [refer](https://www.postgresql.org/docs/current/libpq-ssl.html) | No        | disable       |
+| SERVER_PORT        | port number for backend server to run       | No        | 8000          |
+
+

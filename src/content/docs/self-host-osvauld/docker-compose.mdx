@@ -1,0 +1,43 @@
+---
+title: "Docker-Compose installation"
+---
+
+## Docker Compose Installation
+
+<div style="background-color: #23262f; padding: 10px; border-radius: 5px;"> <strong>Important:</strong> This Docker Compose configuration is not designed for high-availability production scenarios. It includes just the essential components needed to set up a proof of concept (POC). </div>
+
+### Prerequisites:
+
+- Basic knowledge of [Docker](https://www.docker.com/)
+- Have Docker installed on your system. If not, follow the installation guide [here](https://docs.docker.com/get-docker/).
+- Have Docker compose installed on you system. If not, follow the installation guide [here](https://docs.docker.com/compose/install/).
+
+### Download docker compose file
+
+You can obtain the docker compose file by command line download
+
+```bash
+wget https://raw.githubusercontent.com/osvauld/osvauld_be/main/docker-compose-prod.yml
+```
+
+### Configurations
+You can add configurations as environment variables in the docker compose file.
+
+All configuration for osvauld can be found at [here](/self-host-osvauld/configurations/)
+
+By default docker compose uses the <strong>latest</strong> version of osvauld backend. If required you can change the version in the docker compose file
+
+
+### Start Your Container
+Run the command below to start the Osvauld backend and related services
+
+
+```bash
+docker compose -f docker-compose-prod.yml up -d
+```
+
+The backend will start and listen on port 8000. 
+
+### Setup admin user
+Once the backend server is up and running you will need to setup an admin user.<br/>
+Follow the [setting up osvauld](/installation/setting-up-osvauld) guide for finishing you setup

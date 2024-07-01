@@ -1,0 +1,55 @@
+---
+title: "Docker installation"
+---
+
+## Docker Setup
+
+<div style="background-color: #23262f; padding: 10px; border-radius: 5px;"> <strong>Important:</strong> Osvauld requires a PostgreSQL instance running. </div>
+
+### Prerequisites:
+
+- Basic knowledge of [Docker](https://www.docker.com/)
+- Have Docker installed on your system. If not, follow the installation guide [here](https://docs.docker.com/get-docker/).
+
+### Pull Image
+
+To pull the Osvauld backend image, run the following command:
+
+```bash
+docker pull osvauld/backend:latest
+```
+If desired, you may replace the latest tag with an alternative Docker image tag of your choosing. 
+For older versions, please refer to this link [here](https://hub.docker.com/r/osvauld/backend/tags)
+
+### Start Instance
+To start the Osvauld backend instance, use the following command:
+
+```bash
+docker run --name osvauld_backend \
+  -d \
+  -p 80:8000 \
+  -p 443:8000 \
+  -e MASTER_DB_HOST=<db_host> \
+  -e MASTER_DB_NAME=<db_name> \
+  -e MASTER_DB_USER=<db_user> \
+  -e MASTER_DB_PASSWORD=<db_password> \
+  -e AUTH_SECRET=<auth_secret> \
+  osvauld/backend:<version>
+  ```
+Replace the following placeholders with your actual values:
+
+-    `db_host>`: The hostname or IP address of your PostgreSQL instance.
+-    `db_name`: The name of the database to use.
+-    `db_user`: The username for accessing the database.
+-    `db_password`: The password for the specified user.
+-    `db_port`: The port number on which the PostgreSQL instance is running.
+-    `auth_secret`: The secret for generating tokens. Should have a **minimum length of 32 characters**.
+-    `version`: The docker image tag for the image that was pulled.
+
+The backend will start and listen on port 80. Make sure to configure the appropriate environment variables for connecting to your PostgreSQL instance.
+
+All configuration for osvauld can be found at [here](/self-host-osvauld/configurations/)
+
+### Setup admin user
+Once the backend server is up and running you will need to setup an admin user.<br/>
+Follow the [setting up osvauld](/installation/setting-up-osvauld) guide for finishing you setup
