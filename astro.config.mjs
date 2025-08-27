@@ -1,133 +1,113 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+
+import d2 from "astro-d2";
+
 // https://astro.build/config
 export default defineConfig({
-  integrations: [
-    starlight({
-      title: "osvauld",
-      customCss: ["./src/styles/custom.css"],
-      social: {
-        github: "https://github.com/osvauld",
-        linkedin: "https://www.linkedin.com/company/osvauld",
-        discord: "https://discord.com/invite/kV6gBeM6Fm",
-        instagram: "https://www.instagram.com/osvauld/",
+  integrations: [starlight({
+    title: "Osvauld Technical Documentation",
+    customCss: ["./src/styles/custom.css"],
+    sidebar: [
+      {
+        label: "Introduction",
+        items: [
+          { label: "Philosophy", link: "/introduction/philosophy" },
+          { label: "What makes this possible", link: "/introduction/what-makes-this-possible" },
+        ],
       },
-      sidebar: [
-        {
-          label: "Introduction",
-          items: [
-            { label: "Overview", link: "/introduction/overview" },
-            // { label: "Security", link: "/introduction/security/" },
-            // { label: "Release notes", link: "/introduction/release-notes/" },
-            // {
-            //   label: "Incident reports",
-            //   link: "/introduction/incident-reports/",
-            // },
-            // {
-            //   label: "Talk to a human",
-            //   link: "/introduction/talk-to-a-human/",
-            // },
-          ], 
-        },
-
-        {
-          label: "Installation",
-          items: [
-            {label: "Setting up osvauld", link: "/installation/setting-up-osvauld/"},
-          ]
-        },
-        {
-          label: "System Design",
-          items: [
-            {label: "ERD", link: "/system-design/erd/"},
-            {label: "What is a folder?" , link: "/system-design/folder/"},
-            {label: 'What is a Credential?', link: "/system-design/credential/"},
-            {label: "Registration Flow", link: "/system-design/registration/"},
-            {label: "Login Flow", link: "/system-design/login/"},
-            {label: "Sharing Credentials with users", link: "/system-design/sharing-credential-users/"},
-            {label: "Sharing Credentials with groups", link: "/system-design/sharing-credentials-groups/"},
-            {label: "Sharing Folder with users", link: "/system-design/sharing-folder-with-users/"},
-            {label: "Sharing Folder with groups", link: "/system-design/sharing-folder-with-groups/"},
-            {label: "Adding Users to a Group", link: "/system-design/adding-user-to-group/"},
-            {label: "Editing a Credential", link: "/system-design/editing-credential/"},
-            {label: "Adding a Credential", link: "/system-design/adding-credential/"},
-            {label: "modifying permissions and deletion", link: "/system-design/modifying-permissions/"},
-            {label: "Environments", link: "/system-design/environments/"},
-          ]
-        },
-        
-        {
-          label: "Migration",
-          items: [
-            {label: "Migrating from 0.1 to 0.2", link: "/migration-guide/v1/"},
-          ]
-        },
-        {
-          label: "Self Hosting Osvauld",
-          items: [
-            {label: "Docker", link: "/self-host-osvauld/docker/"},
-            {label: "Docker Compose", link: "/self-host-osvauld/docker-compose/"},
-            {label: "Configurations", link: "/self-host-osvauld/configurations/"},
-          ]
-        },
-        {
-          label: "Contributing",
-          items: [
-            {label: "Setting up dev server", link: "/contributing/setting-up-dev-server/"},
-          ]
-        },
-        // {
-        //   label: "Installation",
-        //   items: [
-        //     { label: "Debian 12", link: "/installation/debian-12/" },
-        //     { label: "Docker", link: "/installation/docker/" },
-        //     { label: "AWS AMI", link: "/installation/aws-ami/" },
-        //   ],
-        // },
-        // {
-        //   label: "Update",
-        //   items: [
-        //     { label: "Update your osvauld instance", link: "/update/" },
-        //     { label: "Update for Ubuntu", link: "/update/ubuntu/" },
-        //     { label: "Update for Docker", link: "/update/docker/" },
-        //   ],
-        // },
-        // {
-        //   label: "Upgrade",
-        //   items: [
-        //     {
-        //       label: "Migrate to CentOS 7 package",
-        //       link: "/upgrade/centos-7-package/",
-        //     },
-        //     {
-        //       label: "Migrate to Debian package",
-        //       link: "/upgrade/debian-package/",
-        //     },
-        //     {
-        //       label: "Migrate to Ubuntu package",
-        //       link: "/upgrade/ubuntu-package/",
-        //     },
-        //   ],
-        // },
-        // {
-        //   label: "Backup",
-        //   items: [
-        //     { label: "Backup your osvauld instance", link: "/backup/" },
-        //     { label: "From source", link: "/backup/from-source/" },
-        //     { label: "DEB/RPM package", link: "/backup/deb-rpm-package/" },
-        //     { label: "Docker", link: "/backup/docker/" },
-        //   ],
-        // },
-        // {
-        //   label: "Installation Issues",
-        //   items: [
-        //     {
-        //       label: "Community forum",
-        //       link: "/installation-issues/community-forum/",
-        //     },
-        //   ],
-        // },
-      ],
-    }),
-  ],
+      {
+        label: "How it works",
+        items: [
+          { label: "Creating your identity", link: "/how-it-works/creating-your-identity" },
+          { label: "Connecting with peers", link: "/how-it-works/connecting-to-peers" },
+          { label: "Data Flow", link: "/architecture/data-flow" },
+        ],
+      },
+      {
+        label: "Identity & Cryptography",
+        items: [
+          { label: "Triple-Key Architecture", link: "/identity/triple-key-system" },
+          { label: "Key Generation", link: "/identity/key-generation" },
+          { label: "Identity Verification", link: "/identity/verification" },
+          { label: "Data Encryption Model", link: "/identity/encryption-model" },
+        ],
+      },
+      {
+        label: "Peer-to-Peer Networking",
+        items: [
+          { label: "Iroh Integration", link: "/networking/iroh-integration" },
+          { label: "Handshake Protocol", link: "/networking/handshake-protocol" },
+          { label: "Connection Types", link: "/networking/connection-types" },
+          { label: "Node Discovery", link: "/networking/node-discovery" },
+        ],
+      },
+      {
+        label: "Permission System",
+        items: [
+          { label: "UCAN Architecture", link: "/permissions/ucan-architecture" },
+          { label: "Permission Types", link: "/permissions/permission-types" },
+          { label: "Delegation Chains", link: "/permissions/delegation-chains" },
+          { label: "Permission Validation", link: "/permissions/validation" },
+        ],
+      },
+      {
+        label: "Data Synchronization",
+        items: [
+          { label: "CRDT Implementation", link: "/sync/crdt-implementation" },
+          { label: "Synchronization Strategy", link: "/sync/sync-strategy" },
+          { label: "Permission-Validated Operations", link: "/sync/permission-validation" },
+          { label: "Conflict Resolution", link: "/sync/conflict-resolution" },
+        ],
+      },
+      {
+        label: "Sovereign Nodes",
+        items: [
+          { label: "Purpose & Architecture", link: "/sovereign-nodes/architecture" },
+          { label: "Setup & Authorization", link: "/sovereign-nodes/setup" },
+          { label: "Multi-User Support", link: "/sovereign-nodes/multi-user" },
+          { label: "Operational Model", link: "/sovereign-nodes/operations" },
+        ],
+      },
+      {
+        label: "Applications",
+        items: [
+          { label: "Collaborative Editor", link: "/applications/collaborative-editor" },
+          { label: "Document Lifecycle", link: "/applications/document-lifecycle" },
+          { label: "Real-time Collaboration", link: "/applications/real-time-collab" },
+          { label: "Future Applications", link: "/applications/future-apps" },
+        ],
+      },
+      {
+        label: "Security",
+        items: [
+          { label: "Threat Model", link: "/security/threat-model" },
+          { label: "Attack Scenarios", link: "/security/attack-scenarios" },
+          { label: "Security Best Practices", link: "/security/best-practices" },
+          { label: "Known Limitations", link: "/security/limitations" },
+        ],
+      },
+      {
+        label: "Technical Reference",
+        items: [
+          { label: "Data Structures", link: "/reference/data-structures" },
+          { label: "API Reference", link: "/reference/api" },
+          { label: "Error Handling", link: "/reference/errors" },
+          { label: "Configuration", link: "/reference/configuration" },
+          { label: "Performance", link: "/reference/performance" },
+        ],
+      },
+      {
+        label: "Development",
+        items: [
+          { label: "Setting up Development", link: "/development/setup" },
+          { label: "Building Applications", link: "/development/building-apps" },
+          { label: "Testing", link: "/development/testing" },
+          { label: "Contributing", link: "/development/contributing" },
+        ],
+      },
+    ],
+  }), d2({
+    layout: "elk"
+  })],
 });
