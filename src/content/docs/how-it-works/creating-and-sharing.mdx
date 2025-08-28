@@ -1,0 +1,452 @@
+
+---
+title: "Creating & Sharing Resources"
+description: "How users create documents and share them with cryptographic permissions"
+---
+
+When users create documents or other resources in Osvauld, they become the cryptographic owner with full control over access permissions. The system uses a combination of symmetric encryption for data protection and UCAN tokens for access control.
+
+## Resource Creation Process
+
+### Root Authority Establishment
+
+When a user creates a new document, they automatically become the root authority with a self-issued UCAN token:
+
+```json
+{
+  "alg": "EdDSA",
+  "typ": "JWT"
+}
+{
+  "aud": "alice_did",
+  "cap": {
+    "livnote:resource:document_uuid": {
+      "crud/delete": [{}],
+      "crud/read": [{}], 
+      "crud/update": [{}],
+      "ucan/share": [{}]
+    }
+  },
+  "exp": 2702046575,
+  "iss": "alice_did",
+  "ucv": "0.10.0-canary"
+}
+```
+
+Key properties of the root token:
+- **Self-Issued**: Issuer and audience are identical (`alice_did`)
+- **Full Capabilities**: All CRUD operations plus sharing rights
+- **Long Lifetime**: 30-year validity period
+- **Resource-Specific**: Tied to the specific document UUID
+- **Root of Trust**: No proof field needed as this establishes authority
+
+### Data Encryption
+
+The document content uses hybrid encryption:
+
+1. **Generate AES Key**: Random 256-bit AES-GCM key for the document
+2. **Encrypt Content**: Document data encrypted with AES key
+3. **Encrypt AES Key**: AES key encrypted with owner's PGP public key
+4. **Store Separately**: Encrypted content and encrypted key stored as separate records
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    creation: "#e1f5fe"
+    creation_border: "#0277bd"
+    encryption: "#f3e5f5" 
+    encryption_border: "#7b1fa2"
+    storage: "#e8f5e8"
+    storage_border: "#2e7d32"
+    main_flow: "#1976d2"
+  }
+}
+
+creation_section: "Resource Creation" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.creation}
+    stroke: ${colors.creation_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  create_doc: "Create Document" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "User creates new document\nGenerate unique UUID\nInitialize empty content": {
+      style.font-size: 32
+    }
+  }
+  
+  issue_root_ucan: "Issue Root UCAN" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Self-issued token\nFull capabilities\n30-year lifetime": {
+      style.font-size: 32
+    }
+  }
+  
+  establish_ownership: "Establish Ownership" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Root authority created\nOwner has complete control\nBasis for future delegation": {
+      style.font-size: 32
+    }
+  }
+  
+  create_doc -> issue_root_ucan -> establish_ownership: {
+    style.stroke-width: 2
+    style.stroke: ${colors.creation_border}
+  }
+}
+
+encryption_section: "Data Encryption" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.encryption}
+    stroke: ${colors.encryption_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  generate_aes: "Generate AES Key" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Random 256-bit key\nAES-256-GCM\nUnique per document": {
+      style.font-size: 32
+    }
+  }
+  
+  encrypt_content: "Encrypt Content" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Document data + AES key\nAuthenticated encryption\nIntegrity protection": {
+      style.font-size: 32
+    }
+  }
+  
+  encrypt_key: "Encrypt AES Key" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "AES key + Owner's PGP key\nHybrid encryption\nKey recovery for owner": {
+      style.font-size: 32
+    }
+  }
+  
+  generate_aes -> encrypt_content -> encrypt_key: {
+    style.stroke-width: 2
+    style.stroke: ${colors.encryption_border}
+  }
+}
+
+storage_section: "Storage" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.storage}
+    stroke: ${colors.storage_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  store_content: "Store Encrypted Content" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Document table\nEncrypted blob\nMetadata (ID, timestamps)": {
+      style.font-size: 32
+    }
+  }
+  
+  store_permissions: "Store Permissions" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "UCAN tokens\nEncrypted AES keys\nUser access records": {
+      style.font-size: 32
+    }
+  }
+  
+  ready_access: "Ready for Access" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Owner can decrypt\nShare with others\nCollaborate securely": {
+      style.font-size: 32
+    }
+  }
+  
+  store_content -> store_permissions -> ready_access: {
+    style.stroke-width: 2
+    style.stroke: ${colors.storage_border}
+  }
+}
+
+creation_section -> encryption_section -> storage_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+## Resource Sharing Process
+
+### Delegated UCAN Creation
+
+When Alice shares a document with Bob, she creates a delegated UCAN token:
+
+```json
+{
+  "alg": "EdDSA", 
+  "typ": "JWT"
+}
+{
+  "aud": "bob_did",
+  "cap": {
+    "livnote:resource:document_uuid": {
+      "crud/read": [{}],
+      "crud/update": [{}], 
+      "ucan/share": [{}]
+    }
+  },
+  "exp": 2702046588,
+  "iss": "alice_did",
+  "prf": ["root_token_cid"],
+  "ucv": "0.10.0-canary"
+}
+```
+
+Key properties of the delegated token:
+- **Specific Audience**: Targeted to Bob's DID
+- **Subset of Capabilities**: Alice can grant fewer permissions than she has
+- **Proof Reference**: CID pointing to Alice's root token
+- **Same Lifetime**: Long-term access matching root token
+- **Delegation Chain**: Links back to root authority
+
+### AES Key Re-encryption
+
+Along with the UCAN token, Alice must provide Bob access to the encrypted data:
+
+1. **Decrypt AES Key**: Alice decrypts the document's AES key using her PGP private key
+2. **Re-encrypt for Bob**: Encrypt the same AES key with Bob's PGP public key  
+3. **Store Access Record**: Save Bob's UCAN token and encrypted AES key
+4. **Enable Collaboration**: Bob can now decrypt and collaborate on the document
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    alice_shares: "#e1f5fe"
+    alice_shares_border: "#0277bd"
+    delegation: "#f3e5f5"
+    delegation_border: "#7b1fa2" 
+    bob_access: "#e8f5e8"
+    bob_access_border: "#2e7d32"
+    main_flow: "#1976d2"
+  }
+}
+
+alice_shares_section: "Alice Initiates Share" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.alice_shares}
+    stroke: ${colors.alice_shares_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  select_document: "Select Document" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Choose document to share\nAlice has root UCAN\nDecide permissions for Bob": {
+      style.font-size: 32
+    }
+  }
+  
+  choose_permissions: "Choose Permissions" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "crud/read: Yes\ncrud/update: Yes\nucan/share: Yes": {
+      style.font-size: 32
+    }
+  }
+  
+  initiate_process: "Initiate Share Process" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Must create UCAN\nMust re-encrypt AES key\nMust connect to Bob": {
+      style.font-size: 32
+    }
+  }
+  
+  select_document -> choose_permissions -> initiate_process: {
+    style.stroke-width: 2
+    style.stroke: ${colors.alice_shares_border}
+  }
+}
+
+delegation_section: "Token & Key Delegation" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.delegation}
+    stroke: ${colors.delegation_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  create_ucan: "Create Delegated UCAN" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Issue token for Bob\nSubset of Alice's permissions\nProof references root token": {
+      style.font-size: 32
+    }
+  }
+  
+  decrypt_aes: "Decrypt AES Key" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Use Alice's PGP key\nDecrypt document's AES key\nTemporary plaintext key": {
+      style.font-size: 32
+    }
+  }
+  
+  reencrypt_aes: "Re-encrypt for Bob" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Encrypt with Bob's PGP key\nSame AES key, different wrapper\nBob can now decrypt": {
+      style.font-size: 32
+    }
+  }
+  
+  send_to_bob: "Send to Bob" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "UCAN token\nEncrypted AES key\nDocument access granted": {
+      style.font-size: 32
+    }
+  }
+  
+  create_ucan -> decrypt_aes -> reencrypt_aes -> send_to_bob: {
+    style.stroke-width: 2
+    style.stroke: ${colors.delegation_border}
+  }
+}
+
+bob_access_section: "Bob Gains Access" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.bob_access}
+    stroke: ${colors.bob_access_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  receive_share: "Receive Share" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "UCAN token received\nEncrypted AES key received\nDocument appears in Bob's list": {
+      style.font-size: 32
+    }
+  }
+  
+  decrypt_document: "Decrypt & Access" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Decrypt AES key with PGP\nDecrypt document content\nLoad into editor": {
+      style.font-size: 32
+    }
+  }
+  
+  collaborate: "Ready to Collaborate" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Real-time editing\nSync with Alice\nCan further share (if permitted)": {
+      style.font-size: 32
+    }
+  }
+  
+  receive_share -> decrypt_document -> collaborate: {
+    style.stroke-width: 2
+    style.stroke: ${colors.bob_access_border}
+  }
+}
+
+alice_shares_section -> delegation_section -> bob_access_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+## Permission Validation During Sync
+
+When Bob and Alice collaborate on the shared document, each CRDT operation requires permission validation:
+
+1. **Present UCAN**: Bob sends his delegated UCAN token with edit operations
+2. **Validate Structure**: Alice verifies token format and signature
+3. **Check Audience**: Confirms token is intended for Bob's DID
+4. **Validate Proof Chain**: Resolves proof CID and validates back to root token
+5. **Check Capabilities**: Ensures Bob has required permission (e.g., `crud/update`)
+6. **Apply Operation**: If valid, accept the CRDT operation
+
+## Transitive Sharing
+
+When Bob (with `ucan/share` permission) wants to share the document with Carol:
+
+1. **Bob creates delegated UCAN** for Carol using his token as proof
+2. **Re-encrypts AES key** for Carol's PGP public key
+3. **Carol's token contains proof chain**: Bob's token → Alice's root token
+4. **Validation requires full chain**: Carol → Bob → Alice verification
+
+## Key Security Properties
+
+**Cryptographic Ownership**: Root UCAN establishes mathematical ownership, not just database records
+
+**Granular Permissions**: Each capability can be granted or withheld independently
+
+**Proof Chain Integrity**: Delegation chains provide cryptographic audit trail back to root authority
+
+**Data Confidentiality**: AES encryption ensures only authorized users can decrypt content
+
+**Key Separation**: UCAN tokens control access rights while AES keys control data decryption
+
+**Revocation Capability**: Future implementation can revoke access by invalidating UCAN chains
+
+This architecture ensures that resource sharing maintains both cryptographic security and fine-grained access control while enabling real-time collaboration between authorized users.

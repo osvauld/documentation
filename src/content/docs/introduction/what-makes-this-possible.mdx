@@ -1,0 +1,76 @@
+---
+title: "What Makes This Possible"
+description: "The technological breakthroughs that enable sovereign applications"
+---
+
+## The Identity Paradigm Shift
+
+Traditional applications required third-party identity authorities to protect servers from adversarial clients. Without authentication, malicious users could abuse server resources, spam systems, or overwhelm infrastructure. Companies like Google provided convenient SSO solutions that verified legitimate users while handling the complexity of identity management.
+
+This created centralized bottlenecks where all users converge on single points of control - Google's authentication servers, the application's central database, shared infrastructure that everyone depends on.
+
+**Peer-to-peer connections flip this model entirely.**
+
+Instead of all users connecting through central servers, trusted peers connect directly to each other. You collaborate only with people you explicitly choose to trust - there's no shared infrastructure that unknown parties can abuse. The fundamental shift is from universal access (anyone can use the service if they authenticate) to selective trust (you only connect with chosen collaborators).
+
+## Absolutely Free by Design
+
+Osvauld applications are fundamentally free because there are no ongoing server costs. Traditional applications require massive infrastructure - cloud storage, compute servers, databases, content delivery networks, and support staff. These costs get passed to users through subscriptions or advertising.
+
+Since Osvauld applications run entirely peer-to-peer, there's nothing to host. No monthly AWS bills, no database licensing fees, no bandwidth charges. The applications are completely free by design - no purchase required, no subscriptions, no hidden costs.
+
+Currently, there's one centralized dependency - Iroh's node resolution service that helps peers find each other initially. But even this can be decentralized as the technology matures, removing the last external infrastructure requirement.
+
+## Solving the Synchronization Problem
+
+The biggest limitation of traditional P2P systems was synchronization gaps. You could access and edit documents when offline, but if your collaborator made changes while you were disconnected, you wouldn't receive those updates until they came back online at the same time as you.
+
+This created frustrating scenarios where changes would get stuck on offline devices, requiring both peers to be online simultaneously to sync updates - massively affecting the user experience.
+
+**Sovereign nodes solve this with affordable always-on infrastructure.**
+
+With single-board computers like Raspberry Pi becoming incredibly cheap and capable, users can run their own dedicated devices for backup and synchronization. These aren't servers in the traditional sense - they're your personal infrastructure that you control completely.
+
+A sovereign node can decrypt and store copies of your documents, which is exactly why documents always remain synced with the latest changes. It can buffer updates from offline collaborators, merge changes effectively, and help peers find each other. Multiple users can share a single sovereign node, splitting costs while maintaining individual data sovereignty.
+
+## Cryptographically-Backed Permissions
+
+Traditional applications used Access Control Lists (ACLs) - simple lists of who can access what. These lists weren't cryptographically verified, meaning the server could modify permissions arbitrarily or administrators could bypass restrictions.
+
+Osvauld uses User Controlled Authorization Networks (UCANs) where permissions are cryptographically signed tokens. When you grant someone access to a document, you're creating mathematical proof of that permission. The permission can't be forged, modified by third parties, or revoked without your cryptographic signature.
+
+## Reliable Peer-to-Peer Connections
+
+Earlier P2P attempts failed because connecting peers reliably across the internet was nearly impossible. NAT traversal, firewall penetration, and peer discovery were unsolved problems.
+
+Modern networking protocols like Iroh solve this. Built on QUIC with sophisticated NAT traversal and DHT-based discovery, direct peer connections now work as reliably as traditional client-server connections. Users connect to each other without requiring servers in the middle.
+
+## Conflict-Free Collaboration
+
+Real-time collaboration without servers required solving the fundamental problem of conflicting edits. When multiple people edit simultaneously, whose changes should win?
+
+Conflict-free Replicated Data Types (CRDTs) solve this mathematically. Systems like Yjs guarantee that all participants converge to identical states regardless of edit timing or network conditions. This enables Google Docs-level collaboration performance without Google.
+
+## Why Now?
+
+Several factors have converged to make sovereign applications practical:
+
+**AI Development Tools**: With AI assistance, small teams can build sophisticated applications without the massive engineering overhead that previously required venture funding and corporate infrastructure.
+
+**Mature Desktop Frameworks**: Tools like Tauri enable building native desktop applications with web technologies, combining the best of both worlds without browser limitations.
+
+**Network Infrastructure Evolution**: Modern internet infrastructure better supports direct peer connections, making P2P protocols more reliable.
+
+**User Privacy Awareness**: After years of surveillance capitalism, users increasingly value applications that don't track or monetize their behavior.
+
+## The Result
+
+Applications built on Osvauld work like traditional software but operate fundamentally differently:
+
+- Direct peer-to-peer connections instead of servers
+- Cryptographic identity instead of corporate authentication  
+- Mathematical conflict resolution instead of server arbitration
+- User-controlled permissions instead of platform policies
+
+This isn't limited to document editing. The same architecture enables secure messaging, file synchronization, password management, and any application where users need to collaborate or share data without corporate intermediaries.
+

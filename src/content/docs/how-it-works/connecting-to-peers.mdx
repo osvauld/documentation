@@ -1,0 +1,675 @@
+---
+title: "Connecting with Others"
+description: "How peers establish secure, authenticated connections through the handshake protocol"
+---
+
+Unlike traditional applications where users connect through central servers, Osvauld users establish direct peer-to-peer connections through cryptographic handshakes. This process ensures that only authorized users can connect while maintaining complete decentralization.
+
+## Two Connection Pathways
+
+There are two ways users can connect to each other:
+
+### 1. Direct Connection via One-Time Token
+
+A user generates a temporary connection token that others can use to establish trust and connect directly.
+
+### 2. Delegated Connection via Resource Sharing
+
+When a user shares a resource that's already shared with others, those collaborators receive delegated connection tokens to connect directly with the new user.
+
+## One-Time Connection Token
+
+### Token Structure
+
+The one-time connection token is a UCAN with specific characteristics:
+
+```json
+{
+  "alg": "EdDSA",
+  "typ": "JWT"
+}
+{
+  "aud": "*",
+  "cap": {
+    "livnote:user-connect:alice_user_id": {"use": [{}]}
+  },
+  "exp": 1756453132,
+  "iss": "alice_did",
+  "ucv": "0.10.0-canary"
+}
+```
+
+Key properties:
+- **Algorithm (`alg`)**: EdDSA signature algorithm
+- **Type (`typ`)**: JWT token type
+- **Issuer (`iss`)**: The user's UCAN public key as a DID
+- **Audience (`aud`)**: Wildcard `*` allowing anyone to use it
+- **Expiration (`exp`)**: Unix timestamp for 24-hour validity period
+- **Capability (`cap`)**: `user-connect` permission for the issuer's user ID
+- **UCAN Version (`ucv`)**: Version 0.10.0-canary
+
+## Permanent Connection Token
+
+After successful handshake, users exchange permanent tokens with extended capabilities:
+
+```json
+{
+  "alg": "EdDSA",
+  "typ": "JWT"
+}
+{
+  "aud": "bob_did",
+  "cap": {
+    "livnote:user-connect:alice_user_id": {"use": [{}]},
+    "livnote:user-share:alice_user_id": {"use": [{}]}
+  },
+  "exp": 2702146687,
+  "iss": "alice_did",
+  "ucv": "0.10.0-canary"
+}
+```
+
+Key properties:
+- **Specific Audience**: Targeted to the recipient's DID instead of wildcard
+- **Dual Capabilities**: Both `user-connect` and `user-share` permissions
+- **Long Lifetime**: 30-year validity (exp: 2702146687)
+- **Bidirectional**: Both users issue similar tokens to each other
+
+## Delegated Connection Token
+
+When sharing resources creates transitive connections, delegated tokens contain embedded proof chains:
+
+```json
+{
+  "alg": "EdDSA",
+  "typ": "JWT"
+}
+{
+  "aud": "carol_did",
+  "cap": {
+    "livnote:user-connect:bob_user_id": {"use": [{}]}
+  },
+  "exp": 2702146687,
+  "iss": "alice_did",
+  "prf": ["parent_token_cid"],
+  "fct": {
+    "proof": "alice_permanent_token_for_bob"
+  },
+  "ucv": "0.10.0-canary"
+}
+```
+
+Key properties:
+- **Specific Audience**: Targeted to Carol's DID instead of wildcard
+- **Connect Capability**: Permission for Carol to connect to Bob
+- **Long Lifetime**: 30-year validity matching permanent tokens
+- **Proof Reference (`prf`)**: CID of parent token in standard UCAN proof field
+- **Embedded Proof (`fct.proof`)**: Full parent token embedded in facts field
+- **Delegated Authority**: Alice issues token allowing Carol-Bob connection
+- **Chain Validation**: Bob can verify the delegation chain back to Alice's authority
+
+This dual-proof mechanism (both CID reference and embedded token) ensures the delegation chain can be validated even when the proof resolver cannot find the parent token by CID.
+
+## Connection Flow Scenarios
+
+### Scenario 1: First-Time Connection
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    alice: "#e1f5fe"
+    alice_border: "#0277bd"
+    bob: "#f3e5f5"
+    bob_border: "#7b1fa2"
+    handshake: "#e8f5e8"
+    handshake_border: "#2e7d32"
+    permanent: "#fce4ec"
+    permanent_border: "#c2185b"
+    main_flow: "#1976d2"
+  }
+}
+
+alice_section: "Alice Generates Token" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.alice}
+    stroke: ${colors.alice_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 2
+  
+  generate_token: "Generate One-Time Token" {
+    style.font-size: 34
+    style.font-color: black
+    width: 300
+    "24hr validity\nwildcard audience\nuser-connect capability": {
+      style.font-size: 32
+    }
+  }
+  
+  share_oob: "Share Out-of-Band" {
+    style.font-size: 34
+    style.font-color: black
+    width: 300
+    "QR code\nmessage\nemail": {
+      style.font-size: 32
+    }
+  }
+  
+  generate_token -> share_oob: {
+    style.stroke-width: 2
+    style.stroke: ${colors.alice_border}
+  }
+}
+
+bob_section: "Bob Uses Token" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.bob}
+    stroke: ${colors.bob_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  receives_token: "Receives Token" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Out-of-band channel\nparses UCAN token": {
+      style.font-size: 32
+    }
+  }
+  
+  discovers_alice: "Discovers Alice" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Via Iroh discovery\nusing device ID": {
+      style.font-size: 32
+    }
+  }
+  
+  initiates_connection: "Initiates Connection" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "QUIC connection\ndevice key auth": {
+      style.font-size: 32
+    }
+  }
+  
+  receives_token -> discovers_alice -> initiates_connection: {
+    style.stroke-width: 2
+    style.stroke: ${colors.bob_border}
+  }
+}
+
+handshake_section: "Handshake Process" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.handshake}
+    stroke: ${colors.handshake_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  bob_to_alice: "Bob to Alice" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "FirstConnectRequest\nToken + Bob's identity\nSigned UCAN pub key": {
+      style.font-size: 32
+    }
+  }
+  
+  alice_validates: "Alice Validates" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Verify one-time token\nCheck signature & expiration\nValidate Bob's PGP signature": {
+      style.font-size: 32
+    }
+  }
+  
+  alice_to_bob: "Alice to Bob" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "FirstConnectResponse\nPermanent UCAN + Alice's identity\nDevice list & signed UCAN pub": {
+      style.font-size: 32
+    }
+  }
+  
+  bob_validates: "Bob Validates" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Verify Alice's PGP signature\nValidate permanent UCAN\nStore connection info": {
+      style.font-size: 32
+    }
+  }
+  
+  bob_to_alice -> alice_validates -> alice_to_bob -> bob_validates: {
+    style.stroke-width: 2
+    style.stroke: ${colors.handshake_border}
+  }
+}
+
+permanent_section: "Permanent Connection" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.permanent}
+    stroke: ${colors.permanent_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  issue_ucans: "Both Issue UCANs" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Connect + Share capabilities\nSpecific audience (not wildcard)\n30-year lifetime": {
+      style.font-size: 32
+    }
+  }
+  
+  store_each_other: "Store Each Other" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Identities in local DB\nDevice information\nPermanent UCAN tokens": {
+      style.font-size: 32
+    }
+  }
+  
+  ready_collaborate: "Ready to Collaborate" {
+    style.font-size: 34
+    style.font-color: black 
+    width: 280
+    "Can share resources\nReal-time collaboration\nFuture connections": {
+      style.font-size: 32
+    }
+  }
+  
+  issue_ucans -> store_each_other -> ready_collaborate: {
+    style.stroke-width: 2
+    style.stroke: ${colors.permanent_border}
+  }
+}
+
+alice_section -> bob_section -> handshake_section -> permanent_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+### Scenario 2: Delegated Connection
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    existing: "#e1f5fe"
+    existing_border: "#0277bd"
+    alice_shares: "#f3e5f5"
+    alice_shares_border: "#7b1fa2"
+    carol_access: "#e8f5e8"
+    carol_access_border: "#2e7d32"
+    delegated_handshake: "#fce4ec"
+    delegated_handshake_border: "#c2185b"
+    main_flow: "#1976d2"
+  }
+}
+
+existing_section: "Existing Connection" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.existing}
+    stroke: ${colors.existing_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 2
+  
+  alice_bob_connected: "Alice <-> Bob" {
+    style.font-size: 34
+    style.font-color: black
+    width: 300
+    "Already connected\nPermanent UCANs exchanged\nTrust established": {
+      style.font-size: 32
+    }
+  }
+  
+  shared_document: "Shared Document" {
+    style.font-size: 34
+    style.font-color: black
+    width: 300
+    "Both have access\nReal-time collaboration\nCRDT synchronization": {
+      style.font-size: 32
+    }
+  }
+  
+  alice_bob_connected -> shared_document: {
+    style.stroke-width: 2
+    style.stroke: ${colors.existing_border}
+  }
+}
+
+alice_shares_section: "Alice Shares with Carol" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.alice_shares}
+    stroke: ${colors.alice_shares_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  generate_resource: "Generate Resource UCAN" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Document access for Carol\ncrud/read, crud/update\nucan/share permissions": {
+      style.font-size: 32
+    }
+  }
+  
+  generate_delegated: "Generate Connection Token" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Delegated connect capability\nEmbedded proof chain\nCarol -> Bob connection": {
+      style.font-size: 32
+    }
+  }
+  
+  send_to_carol: "Send to Carol" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Resource UCAN\nDelegated connection token\nBob's identity & devices": {
+      style.font-size: 32
+    }
+  }
+  
+  generate_resource -> generate_delegated -> send_to_carol: {
+    style.stroke-width: 2
+    style.stroke: ${colors.alice_shares_border}
+  }
+}
+
+carol_access_section: "Carol Gets Access" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.carol_access}
+    stroke: ${colors.carol_access_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  resource_access: "Resource Access" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Can read/edit document\nEncrypted AES key\nReal-time collaboration": {
+      style.font-size: 32
+    }
+  }
+  
+  connection_token: "Connection Token" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Can connect to Bob\nEmbedded proof: Alice's authority\n30-year validity": {
+      style.font-size: 32
+    }
+  }
+  
+  bob_identity: "Bob's Identity" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "PGP public key\nDevice information\nUCAN public key": {
+      style.font-size: 32
+    }
+  }
+  
+  resource_access -> connection_token -> bob_identity: {
+    style.stroke-width: 2
+    style.stroke: ${colors.carol_access_border}
+  }
+}
+
+delegated_handshake_section: "Carol-Bob Handshake" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.delegated_handshake}
+    stroke: ${colors.delegated_handshake_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  carol_initiates: "Carol Initiates" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Using delegated token\nFinds Bob via Iroh discovery\nEstablishes QUIC connection": {
+      style.font-size: 32
+    }
+  }
+  
+  embedded_proof: "Embedded Proof Chain" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Token contains Alice's authority\nCID references & facts field\nParent token embedded": {
+      style.font-size: 32
+    }
+  }
+  
+  bob_validates: "Bob Validates Chain" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Verifies back to Alice\nChecks delegation permissions\nValidates proof integrity": {
+      style.font-size: 32
+    }
+  }
+  
+  direct_connection: "Direct Connection" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Carol <-> Bob established\nPermanent UCAN exchange\nReady for collaboration": {
+      style.font-size: 32
+    }
+  }
+  
+  carol_initiates -> embedded_proof -> bob_validates -> direct_connection: {
+    style.stroke-width: 2
+    style.stroke: ${colors.delegated_handshake_border}
+  }
+}
+
+existing_section -> alice_shares_section -> carol_access_section -> delegated_handshake_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+## Connection Establishment Process
+
+### QUIC Connection Setup
+
+Before any handshake messages, peers establish a secure transport connection:
+
+1. **Peer Discovery**: Using Iroh's default discovery mechanism to find the target device by its device key (node ID)
+2. **QUIC Connection**: Direct encrypted connection using device keys for authentication
+3. **Channel Security**: Device keys encrypt the QUIC transport layer
+
+### Identity Verification During Handshake
+
+All handshake messages include PGP signature verification:
+
+```rust
+// Extract UCAN public key from PGP-signed message
+let peer_ucan_pub = crypto_utils::verify_clear_text_message(
+    &payload.peer_user.public_key,    // PGP public key
+    &payload.signed_ucan_pub,         // PGP-signed UCAN public key (10min validity)
+).await?;
+```
+
+This process:
+1. **Parses PGP Certificate**: Validates the peer's PGP public key format
+2. **Verifies Cleartext Signature**: Uses PGP to verify the signed UCAN public key
+3. **Checks Signature Validity**: PGP signature has 10-minute expiration for freshness
+4. **Extracts Message**: Returns the original UCAN public key if signature is valid
+5. **Binds Identity**: Cryptographically links PGP identity to UCAN permissions
+
+## Handshake Message Types
+
+The handshake protocol uses different message flows depending on whether this is a first-time connection or an existing relationship:
+
+### First-Time Connection Flow
+
+When users connect for the first time (marked as `first_sync = false` in the database), they exchange complete identity information:
+
+**FirstConnectRequest** - Initial connection with one-time or delegated token:
+```rust
+FirstConnectRequest {
+    devices: Vec<Device>,           // Initiator's device list
+    issued_ucan: String,            // Permanent UCAN for responder
+    signed_ucan_pub: String,        // Initiator's UCAN pub key, PGP-signed
+    one_time_ucan: String,          // Connection token (one-time or delegated)
+    peer_device: Device,            // Initiator's current device
+    peer_user: User,                // Initiator's user identity
+    connection_type: ConnectionType, // Purpose of connection
+}
+```
+
+**FirstConnectResponse** - Complete identity exchange:
+```rust
+FirstConnectResponse {
+    peer_user: User,                // Responder's identity
+    peer_device: Device,            // Responder's current device  
+    devices: Vec<Device>,           // Responder's complete device list
+    ucan_token: String,             // Initiator's permanent UCAN
+    issued_ucan: String,            // Responder's permanent UCAN for initiator
+    signed_ucan_pub: String,        // Responder's UCAN pub key, PGP-signed
+}
+```
+
+After this exchange:
+- Both users mark each other as `first_sync = true`
+- Complete device lists are stored
+- Permanent UCANs with connect + share capabilities are exchanged
+- Future connections use the simpler UcanAndUserExchange flow
+
+### Regular Connection Flow
+
+For established connections (`first_sync = true`), only current session information is exchanged:
+
+**UcanAndUserExchange** - Used for both initiator and responder:
+```rust
+UcanAndUserExchange {
+    ucan_token: String,             // Permanent UCAN for peer
+    peer_user: User,                // Sender's identity
+    peer_device: Device,            // Sender's current device
+    connection_type: ConnectionType, // Connection purpose
+    signed_ucan_pub: String,        // Sender's UCAN pub key, PGP-signed (10min validity)
+}
+```
+
+This simpler flow is used because:
+- Identities are already known and stored
+- Only current device/session info needs verification
+- Permanent UCANs are already established
+
+## Handshake Validation Steps
+
+### Token Validation
+
+1. **Structure Check**: Parse UCAN format and verify required fields
+2. **Signature Verification**: Validate cryptographic signature
+3. **Expiration Check**: Ensure token hasn't expired
+4. **Capability Check**: Confirm `user-connect` permission exists
+5. **Audience Validation**: For permanent tokens, verify audience matches presenter
+
+### Identity Verification
+
+1. **PGP Signature Check**: Verify signed UCAN public key with PGP certificate
+2. **UCAN Key Extraction**: Extract and validate UCAN public key from signature
+3. **Consistency Check**: Ensure UCAN key matches token issuer/audience
+
+### Delegation Chain Validation
+
+For delegated connections, validate the embedded proof chain:
+
+1. **Parse Embedded Proof**: Extract parent token from facts field
+2. **CID Verification**: Ensure embedded proof CID matches proof reference
+3. **Recursive Validation**: Follow chain back to root authority
+4. **Capability Inheritance**: Verify each link has necessary permissions
+
+## Connection Types and Actions
+
+After handshake completion, connections can serve different purposes:
+
+- **UserSync**: General user data synchronization
+- **LiveEdit**: Real-time document collaboration
+- **DeviceSync**: Synchronizing between user's own devices
+- **AddDevice**: Adding a new device to user's identity
+
+## Security Properties
+
+The handshake protocol ensures:
+
+**Mutual Authentication**: Both peers prove their identities cryptographically
+
+**Perfect Forward Secrecy**: QUIC channels use ephemeral keys for transport encryption
+
+**Capability-Based Access**: UCAN tokens provide precise permission control
+
+**Delegation Integrity**: Proof chains ensure delegated permissions are legitimate
+
+**Replay Protection**: Token expiration prevents reuse of old credentials
+
+**Identity Consistency**: PGP signatures bind UCAN keys to stable identities
+
+## What Happens After Handshake
+
+Once the handshake completes successfully:
+
+1. **Persistent Storage**: Each peer stores the other's identity and UCAN tokens in their local database
+2. **Connection Ready**: Peers can now share resources and collaborate
+3. **Future Connections**: Subsequent connections use permanent UCANs instead of one-time tokens
+4. **Resource Sharing**: Users can grant each other access to documents and other resources
+5. **Delegation Capability**: Each user can now delegate connection permissions to others on behalf of their peer
+
+The handshake establishes not just connectivity, but a cryptographic trust relationship that enables all future collaboration between the peers.

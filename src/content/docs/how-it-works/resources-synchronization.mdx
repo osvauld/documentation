@@ -1,0 +1,551 @@
+---
+title: "Resource Synchronization & Addition"
+description: "How shared documents synchronize state and new resources propagate through collaboration networks"
+---
+
+When users collaborate on shared documents, they need two distinct synchronization processes: syncing changes to existing shared resources, and adding new resources to existing collaborations. Both processes ensure that collaborators maintain consistent views of their shared workspace while preserving cryptographic security.
+
+## Resource State Synchronization
+
+Resource synchronization handles keeping shared documents up-to-date between collaborators. After user sync completes with manifest comparison, peers begin parallel state synchronization for all resources that need updating.
+
+### Vector Clock Change Detection
+
+Vector clocks serve as lightweight "dirty bits" to determine which resources need synchronization. Each document maintains a simple vector clock that increments when changes occur, allowing peers to quickly identify resources that have diverged without examining detailed content.
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    detection: "#e1f5fe"
+    detection_border: "#0277bd"
+    parallel: "#f3e5f5"
+    parallel_border: "#7b1fa2"
+    state_sync: "#e8f5e8"
+    state_sync_border: "#2e7d32"
+    result: "#fce4ec"
+    result_border: "#c2185b"
+    main_flow: "#1976d2"
+  }
+}
+
+detection_section: "Change Detection Phase" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.detection}
+    stroke: ${colors.detection_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  vector_compare: "Vector Clock Compare" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Alice: Doc1[v:12], Doc2[v:8]\nBob: Doc1[v:12], Doc2[v:15]\nDoc2 needs sync": {
+      style.font-size: 32
+    }
+  }
+  
+  identify_resources: "Identify Resources Needing Sync" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Compare all shared resources\nMark diverged documents\nPrepare sync task list": {
+      style.font-size: 32
+    }
+  }
+  
+  prepare_parallel: "Prepare Parallel Sync" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Create sync tasks\nOne per resource needing update\nReady for parallel execution": {
+      style.font-size: 32
+    }
+  }
+  
+  vector_compare -> identify_resources -> prepare_parallel: {
+    style.stroke-width: 2
+    style.stroke: ${colors.detection_border}
+  }
+}
+
+parallel_section: "Parallel Resource Processing" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.parallel}
+    stroke: ${colors.parallel_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  missing_resources: "Send Missing Resources" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Resources peer doesn't have\nUCAN tokens + encrypted keys\nParallel ResourceAddRequest": {
+      style.font-size: 32
+    }
+  }
+  
+  state_vector_requests: "State Vector Requests" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "For each resource needing sync\nSend Yjs state vectors\nParallel processing": {
+      style.font-size: 32
+    }
+  }
+  
+  concurrent_execution: "Concurrent Execution" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "All sync operations parallel\nResource addition + state sync\nMaximize throughput": {
+      style.font-size: 32
+    }
+  }
+  
+  missing_resources -> concurrent_execution
+  state_vector_requests -> concurrent_execution: {
+    style.stroke-width: 2
+    style.stroke: ${colors.parallel_border}
+  }
+}
+
+state_sync_section: "Resource Update Protocol" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.state_sync}
+    stroke: ${colors.state_sync_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  state_vector_request: "StateVectorRequest" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Initiator sends state vectors\nResource ID + UCAN token\nYjs state summary": {
+      style.font-size: 32
+    }
+  }
+  
+  updates_response: "UpdatesResponse" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Responder calculates updates\nSends needed operations\nUCAN token for validation": {
+      style.font-size: 32
+    }
+  }
+  
+  final_update_merge: "FinalUpdateMerge" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Final updates + metadata\nVector clocks + share records\nResource keys distribution": {
+      style.font-size: 32
+    }
+  }
+  
+  vector_clock_response: "VectorClockResponse" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Final state confirmation\nUpdate & add clocks\nShare records + keys": {
+      style.font-size: 32
+    }
+  }
+  
+  state_vector_request -> updates_response -> final_update_merge -> vector_clock_response: {
+    style.stroke-width: 2
+    style.stroke: ${colors.state_sync_border}
+  }
+}
+
+result_section: "Synchronized State" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.result}
+    stroke: ${colors.result_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  consistent_state: "CRDT Convergence" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Yjs guarantees convergence\nBoth peers identical state\nVector clocks synchronized": {
+      style.font-size: 32
+    }
+  }
+  
+  persist_updates: "Persist Updates" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Save merged CRDT state\nUpdate local vector clocks\nEncrypt and store": {
+      style.font-size: 32
+    }
+  }
+  
+  ready_collaborate: "Ready for Live Collaboration" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Documents fully synchronized\nReal-time editing ready\nConsistent baseline established": {
+      style.font-size: 32
+    }
+  }
+  
+  consistent_state -> persist_updates -> ready_collaborate: {
+    style.stroke-width: 2
+    style.stroke: ${colors.result_border}
+  }
+}
+
+detection_section -> parallel_section -> state_sync_section -> result_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+### Yjs State Vector Exchange Protocol
+
+The actual synchronization uses Yjs state vectors, which provide precise CRDT state information rather than simple version numbers. When a resource needs syncing:
+
+1. **State Vector Request**: One peer sends its Yjs state vectors for the resource - this contains the complete state summary of all CRDT operations applied locally.
+
+2. **Update Calculation**: The receiving peer compares these state vectors with its local CRDT state to identify exactly which operations the sender is missing.
+
+3. **Bidirectional Response**: The peer sends back both the calculated update operations AND its own state vectors, enabling bidirectional synchronization in a single round trip.
+
+4. **Apply and Validate**: The original sender applies the updates, compares the result with the received state vectors, and returns any remaining differences to ensure perfect convergence.
+
+This process leverages Yjs's built-in synchronization algorithm, which guarantees that both peers converge to identical CRDT states regardless of the order of operations or network conditions.
+
+### Parallel Synchronization Architecture
+
+After user sync manifest comparison completes, all resource synchronization happens in parallel:
+
+**Resource Addition**: Missing resources are sent concurrently using ResourceAddRequest messages with UCAN tokens and re-encrypted AES keys.
+
+**State Synchronization**: Resources that need updating begin state vector exchanges simultaneously, with each resource sync operating independently.
+
+**Chunked Transfer**: All data transfers use the 8KB chunked protocol over QUIC bi-directional streams, ensuring reliable delivery of large payloads.
+
+**Error Isolation**: Failed sync operations for one resource don't affect synchronization of other resources, providing resilient parallel processing.
+
+## Adding Resources to Collaborations
+
+When users create new documents or want to share existing ones with their collaboration network, the resource addition process ensures all appropriate collaborators gain access while maintaining cryptographic security.
+
+### New Resource Creation and Distribution
+
+When Alice creates a new document and shares it with existing collaborators, the resource propagates through the network during the parallel sync phase:
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    creation: "#e1f5fe"
+    creation_border: "#0277bd"
+    propagation: "#f3e5f5"
+    propagation_border: "#7b1fa2"
+    parallel_add: "#e8f5e8"
+    parallel_add_border: "#2e7d32"
+    integration: "#fce4ec"
+    integration_border: "#c2185b"
+    main_flow: "#1976d2"
+  }
+}
+
+creation_section: "Resource Creation" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.creation}
+    stroke: ${colors.creation_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  create_document: "Alice Creates Document" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Generate unique UUID\nCreate root UCAN token\nGenerate AES encryption key": {
+      style.font-size: 32
+    }
+  }
+  
+  initial_content: "Add Initial Content" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Document text/data\nEncrypt with AES key\nInitialize Yjs CRDT state": {
+      style.font-size: 32
+    }
+  }
+  
+  prepare_sharing: "Prepare for Sharing" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Identify target collaborators\nReady for distribution\nPrepare UCAN tokens and keys": {
+      style.font-size: 32
+    }
+  }
+  
+  create_document -> initial_content -> prepare_sharing: {
+    style.stroke-width: 2
+    style.stroke: ${colors.creation_border}
+  }
+}
+
+propagation_section: "Permission and Key Preparation" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.propagation}
+    stroke: ${colors.propagation_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  create_ucans: "Create Delegated UCANs" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "For each target collaborator\nGrant appropriate permissions\nProof chain to Alice's root": {
+      style.font-size: 32
+    }
+  }
+  
+  reencrypt_keys: "Re-encrypt AES Keys" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Decrypt with Alice's PGP key\nEncrypt for each collaborator\nIndividual access keys": {
+      style.font-size: 32
+    }
+  }
+  
+  package_resources: "Package Resource Data" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "ResourceAddRequest messages\nUCAN + encrypted key + metadata\nInitial CRDT state": {
+      style.font-size: 32
+    }
+  }
+  
+  queue_for_sync: "Prepare for Distribution" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Ready distribution packages\nAwait sync opportunity\nPrepare for parallel delivery": {
+      style.font-size: 32
+    }
+  }
+  
+  create_ucans -> reencrypt_keys -> package_resources -> queue_for_sync: {
+    style.stroke-width: 2
+    style.stroke: ${colors.propagation_border}
+  }
+}
+
+parallel_add_section: "Parallel Resource Distribution" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.parallel_add}
+    stroke: ${colors.parallel_add_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  concurrent_sends: "Concurrent Distribution" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Send ResourceAddRequest\nTo all collaborators simultaneously\nParallel chunked transfer": {
+      style.font-size: 32
+    }
+  }
+  
+  peer_processing: "Peer Processing" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Validate UCAN tokens\nDecrypt AES keys\nInitialize local CRDT state": {
+      style.font-size: 32
+    }
+  }
+  
+  ack_responses: "Acknowledgment Responses" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "ResourceAddResponse\nSuccess/failure status\nError handling for failures": {
+      style.font-size: 32
+    }
+  }
+  
+  concurrent_sends -> peer_processing -> ack_responses: {
+    style.stroke-width: 2
+    style.stroke: ${colors.parallel_add_border}
+  }
+}
+
+integration_section: "Network Integration" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.integration}
+    stroke: ${colors.integration_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  resource_available: "Resource Available" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Document appears in all peer lists\nPermissions correctly established\nReady for collaboration": {
+      style.font-size: 32
+    }
+  }
+  
+  trigger_user_sync: "Trigger User Sync" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "New shared context created\nCollaborators discover each other\nConnection tokens exchanged": {
+      style.font-size: 32
+    }
+  }
+  
+  collaboration_ready: "Full Collaboration Ready" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Resource synchronization complete\nDirect peer connections established\nReal-time editing enabled": {
+      style.font-size: 32
+    }
+  }
+  
+  resource_available -> trigger_user_sync -> collaboration_ready: {
+    style.stroke-width: 2
+    style.stroke: ${colors.integration_border}
+  }
+}
+
+creation_section -> propagation_section -> parallel_add_section -> integration_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+### Integration with User Sync Cycles
+
+Resource addition happens after user network synchronization completes:
+
+**Post-Network Sync**: After user sync exchanges what each side is missing and both sides know what to expect, resource synchronization begins.
+
+**Known Expectations**: Both peers understand exactly which resources they need to send and receive based on the completed manifest comparison.
+
+**Initiator-Driven**: The sync initiator sends the first StateVectorRequest to begin the resource update process.
+
+**Bidirectional Exchange**: Both sides send missing resources to each other as determined during the user sync phase.
+
+## Message Protocol and Reliability
+
+### Resource Synchronization Messages
+
+The protocol defines specific message types for resource operations:
+
+```rust
+pub enum ResourceUpdateMsg {
+    // Initial message with state vector
+    StateVectorRequest {
+        resource_id: String,
+        state_vectors: String,
+        ucan_token: String,
+    },
+    // Response with updates and state vector
+    UpdatesResponse {
+        resource_id: String,
+        updates: String,
+        ucan_token: String,
+    },
+    FinalUpdateMerge {
+        resource_id: String,
+        updates: String,
+        vector_clocks: Vec<ResourceVectorClock>,
+        share_records: Vec<ShareRecord>,
+        resource_keys: Vec<ResourceKey>,
+    },
+    // Acknowledgment that sync is complete
+    VectorClockResponse {
+        resource_id: String,
+        update_clock: Vec<ResourceVectorClock>,
+        add_clock: Vec<ResourceVectorClock>,
+        share_records: Vec<ShareRecord>,
+        resource_keys: Vec<ResourceKey>,
+    },
+}
+```
+
+### Chunked Transfer and Error Handling
+
+All messages use the established 8KB chunked transfer protocol over QUIC:
+
+**Reliable Delivery**: QUIC's built-in reliability ensures chunks arrive in order without loss.
+
+**Large Payload Support**: CRDT states and updates can be arbitrarily large, handled transparently by the chunking mechanism.
+
+**Parallel Streams**: Each resource sync uses its own QUIC bi-directional stream, enabling true parallelism.
+
+**Error Recovery**: Failed transfers are retried with exponential backoff, and partial failures don't affect other concurrent operations.
+
+### State Validation and Consistency
+
+After synchronization operations complete, the system validates consistency:
+
+**CRDT State Integrity**: Validates that merged Yjs states are well-formed and internally consistent.
+
+**Vector Clock Alignment**: Ensures local vector clocks accurately reflect the new synchronized state.
+
+**Permission Validation**: Confirms that all resource access attempts use valid UCAN tokens with appropriate capabilities.
+
+**Content Decryption**: Verifies that shared AES keys successfully decrypt document content and produce valid data.
+
+This comprehensive synchronization approach ensures that both the discovery network and the content network remain consistent and secure while maximizing throughput through parallel processing and reliable transfer protocols.

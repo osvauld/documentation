@@ -1,0 +1,354 @@
+---
+title: "Synchronization" 
+description: "How users discover shared resources and connections across the network"
+---
+
+When users connect in Osvauld, they synchronize both their network knowledge and shared resource state. This process ensures users can discover collaborators and maintain up-to-date views of shared documents and permissions.
+
+## Synchronization Scope
+
+Synchronization focuses on **shared context** between two users rather than complete data sync. When Alice and Bob synchronize, they exchange:
+
+**User Information:**
+- Other users who have access to the same resources  
+- Device information for those mutual connections
+- Connection tokens to enable direct peer relationships
+
+**Resource Information:**
+- Shared documents and their current state
+- Permission changes and new collaborators
+- Vector clock information for conflict detection
+
+This creates a **transitive discovery network** where sharing documents enables collaborators to discover and connect to each other directly.
+
+## Manifest-Based Synchronization
+
+### Discovery Process
+
+User sync uses a three-phase manifest comparison:
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    manifest: "#e1f5fe"
+    manifest_border: "#0277bd"
+    compare: "#f3e5f5"
+    compare_border: "#7b1fa2"
+    sync: "#e8f5e8"
+    sync_border: "#2e7d32"
+    main_flow: "#1976d2"
+  }
+}
+
+manifest_section: "Generate Manifests" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.manifest}
+    stroke: ${colors.manifest_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  alice_manifest: "Alice Creates Manifest" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Find shared resources with Bob\nGet all users with those resources\nList their known devices": {
+      style.font-size: 32
+    }
+  }
+  
+  send_manifest: "Send to Bob" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "UserManifestRequest\nUsers + devices + resources\nBob's shared context": {
+      style.font-size: 32
+    }
+  }
+  
+  bob_manifest: "Bob Creates Manifest" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Same process for Alice\nFind shared resources\nGet mutual collaborators": {
+      style.font-size: 32
+    }
+  }
+  
+  alice_manifest -> send_manifest -> bob_manifest: {
+    style.stroke-width: 2
+    style.stroke: ${colors.manifest_border}
+  }
+}
+
+compare_section: "Compare Manifests" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.compare}
+    stroke: ${colors.compare_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  find_gaps: "Find Differences" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Users Alice knows but Bob doesn't\nUsers Bob knows but Alice doesn't\nDevice differences for common users": {
+      style.font-size: 32
+    }
+  }
+  
+  create_comparison: "Create Comparison Result" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Local missing items\nRemote missing items\nResources needing sync": {
+      style.font-size: 32
+    }
+  }
+  
+  send_response: "Send Response" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "UserManifestResponse\nWhat Bob has that Alice needs\nAck to proceed": {
+      style.font-size: 32
+    }
+  }
+  
+  find_gaps -> create_comparison -> send_response: {
+    style.stroke-width: 2
+    style.stroke: ${colors.compare_border}
+  }
+}
+
+sync_section: "Exchange Data" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.sync}
+    stroke: ${colors.sync_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  create_tokens: "Create Delegated Tokens" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "For each unknown user\nGenerate connection UCAN\nEnable direct peer connections": {
+      style.font-size: 32
+    }
+  }
+  
+  transfer_data: "Transfer Missing Data" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "User identities + devices\nDelegated UCAN tokens\nDevice information": {
+      style.font-size: 32
+    }
+  }
+  
+  update_local: "Update Local Database" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Store new user identities\nSave device information\nMark users as non-owner": {
+      style.font-size: 32
+    }
+  }
+  
+  create_tokens -> transfer_data -> update_local: {
+    style.stroke-width: 2
+    style.stroke: ${colors.sync_border}
+  }
+}
+
+manifest_section -> compare_section -> sync_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+### Manifest Generation
+
+When Alice initiates sync with Bob, she creates a manifest containing both user and resource information by examining their shared context. The system first identifies all resources that both users have shared access to, then gathers information about other users who also have access to those same resources, along with their device information. This creates a snapshot of their mutual collaboration network.
+
+The manifest includes user identities with their associated devices, and resource metadata containing vector clocks and share record information. This allows both peers to understand not just who they mutually know, but also the current state of shared resources.
+
+### Manifest Comparison
+
+The comparison process identifies gaps in both user knowledge and resource state. For users, the system finds people that one peer knows but the other doesn't, as well as differences in device lists for users they both know. For resources, it compares metadata to determine which shared documents need synchronization.
+
+The comparison examines share records to detect permission changes and vector clocks to identify resources where content may have diverged. Resources requiring sync are those where either the collaboration permissions have changed or the content state differs between peers.
+
+## Delegated Connection Token Generation
+
+The key innovation in synchronization is automatic generation of delegated connection tokens with embedded proof chains. When Alice shares information about Carol with Bob, she creates a connection token that allows Bob to connect directly to Carol, even if Alice doesn't have a direct permanent token with Carol.
+
+### Embedded Proof Chain Mechanism
+
+Unlike traditional UCAN delegation that requires resolving proof CIDs, Osvauld embeds the complete proof chain within each token:
+
+1. **Alice's Token for Carol**: May itself be a delegated token (e.g., Alice ← Dave → Carol)
+2. **Generate Token for Bob**: Creates new token (Bob ← Alice → Carol path)
+3. **Embed Complete Chain**: The full proof chain is embedded in the `facts` field
+4. **Validation to Root**: Bob can validate all the way back to Carol's root authority
+
+### Token Creation Process
+
+For each user that one peer knows but the other doesn't, the system generates a delegated connection token. This process takes the existing UCAN token that Alice has for Carol (which may itself be delegated from another user) and creates a new token that allows Bob to connect directly to Carol.
+
+The key innovation is that Alice doesn't need a direct permanent token with Carol. Even if Alice's relationship with Carol goes through multiple delegation hops (like Alice ← Dave → Carol), the system can still create a valid token for Bob. The complete proof chain is embedded within the token itself, allowing Bob to validate his connection authority all the way back to Carol's root authority without needing to contact intermediate parties.
+
+### Transitive Trust Network with Proof Chains
+
+This creates a network where any user can delegate connection authority through embedded proof chains:
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    scenario: "#e1f5fe"
+    scenario_border: "#0277bd"
+    delegation: "#f3e5f5"
+    delegation_border: "#7b1fa2"
+    result: "#e8f5e8"
+    result_border: "#2e7d32"
+  }
+}
+
+proof_chain: "Embedded Proof Chain Example" {
+  style: {
+      font-color: black
+    }
+  scenario: "Initial Sharing Scenario" {
+    style: {
+      font-color: black
+      fill: ${colors.scenario}
+      stroke: ${colors.scenario_border}
+      font-size: 36
+    }
+    
+    "Dave shares Doc1 with Alice": {
+      style.font-size: 32
+      "Alice gets delegated token\nProof chain: Alice ← Dave (root)\nAlice can access Doc1"
+    }
+    
+    "Alice shares Doc1 with Carol": {
+      style.font-size: 32
+      "Carol gets delegated token\nProof chain: Carol ← Alice ← Dave\nCarol can access Doc1"
+    }
+  }
+  
+  sync_delegation: "Synchronization Delegation" {
+    style: {
+      font-color: black
+      fill: ${colors.delegation}
+      stroke: ${colors.delegation_border}
+      font-size: 36
+    }
+    
+    "Dave syncs with Alice": {
+      style.font-size: 32
+      "Alice creates token for Dave → Carol\nEmbeds Alice's token as parent proof\nProof chain: Dave ← Alice ← Bob"
+    }
+    
+    "Token Structure": {
+      style.font-size: 32
+      "iss: alice_did\naud: bob_did\ncap: connect to Carol\nprf: [alice_token_cid]\nfct: {proof: alice_full_token}"
+    }
+  }
+  
+  validation: "Bob Validates Connection to Carol" {
+    style: {
+      font-color: black
+      fill: ${colors.result}
+      stroke: ${colors.result_border}
+      font-size: 36
+    }
+    
+    "Recursive Validation": {
+      style.font-size: 32
+      "1. Verify Bob's token signed by Alice\n2. Extract Alice's token from facts\n3. Verify Alice's token signed by Dave\n4. Confirm Dave is root authority"
+    }
+    
+    "Direct Connection": {
+      style.font-size: 32
+      "Bob connects to Carol directly\nComplete proof chain embedded\nNo need to contact Alice or Dave"
+    }
+  }
+  
+  scenario -> sync_delegation -> validation
+}
+```
+
+## Sync Triggers and Timing
+
+User synchronization occurs in several scenarios:
+
+### Login Sync
+- **Trigger**: User logs into application
+- **Scope**: Connect to all known peers and sync
+- **Purpose**: Get updated view of network and shared resources
+
+### Resource Share Sync  
+- **Trigger**: User shares a resource with someone new
+- **Scope**: Immediate sync with new collaborator
+- **Purpose**: Exchange network knowledge and enable discovery
+
+### Document Open Sync
+- **Trigger**: User opens a shared document
+- **Scope**: Connect to known collaborators on that document  
+- **Purpose**: Prepare for real-time collaboration session
+
+### Network Discovery Benefits
+
+This synchronization approach provides several advantages:
+
+**Reduced Network Hops**: Users can connect directly rather than routing through intermediaries
+
+**Offline Resilience**: Multiple paths to the same resource through different collaborators
+
+**Scalable Discovery**: Network knowledge spreads organically through collaboration
+
+**Privacy Preservation**: Users only learn about others in their shared context
+
+## Data Storage and Management
+
+After synchronization, newly discovered users are stored with specific flags:
+
+- **`first_sync: false`**: Mark for full handshake on first connection
+- **Device Information**: Complete device lists for direct connection
+
+The system maintains a clear distinction between:
+- **Direct Connections**: Users who directly shared resources
+- **Transitive Connections**: Users discovered through mutual collaborators
+- **Device vs User Identity**: Separate tracking of user identities and their devices
+
+## Resource Synchronization
+
+While this document covers the user and network discovery aspects of synchronization, the actual resource content synchronization (CRDT state transfer, vector clock resolution, and document merging) is covered in a separate **Resource Synchronization** document. That process handles:
+
+- Transferring actual document content and CRDT states
+- Resolving vector clock differences for shared resources
+- Managing encrypted AES key distribution for new collaborators
+- Handling permission changes and access revocation
+
+This separation allows user network discovery to work independently of resource content sync, enabling efficient synchronization patterns based on different use cases.

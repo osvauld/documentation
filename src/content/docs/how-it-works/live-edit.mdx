@@ -1,0 +1,1221 @@
+---
+title: "Live Collaboration & Real-time Synchronization"
+description: "How peers establish real-time editing sessions and maintain synchronized document states"
+---
+
+When users open shared documents in Osvauld, the system automatically discovers collaborators and attempts to establish real-time editing sessions. This process enables immediate synchronization of every keystroke while maintaining connection resilience and handling document switching gracefully.
+
+## Connection Establishment for Collaboration
+
+When a user opens a shared document, the system triggers a collaborative session setup process that discovers potential collaborators and establishes connections for real-time editing.
+
+### Shared User Discovery
+
+The document opening process queries the local database to find all users who have access to the current document, along with their associated devices:
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    document_open: "#e1f5fe"
+    document_open_border: "#0277bd"
+    discovery: "#f3e5f5"
+    discovery_border: "#7b1fa2"
+    connection: "#e8f5e8"
+    connection_border: "#2e7d32"
+    result: "#fce4ec"
+    result_border: "#c2185b"
+    main_flow: "#1976d2"
+  }
+}
+
+document_open_section: "Document Opening" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.document_open}
+    stroke: ${colors.document_open_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  user_opens_doc: "User Opens Document" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Select document from list\nLoad into editor interface\nTrigger collaboration setup": {
+      style.font-size: 32
+    }
+  }
+  
+  load_doc_state: "Load Document State" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Decrypt document content\nInitialize Yjs CRDT state\nPrepare for editing": {
+      style.font-size: 32
+    }
+  }
+  
+  trigger_collaboration: "Trigger Collaboration Setup" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Query shared users\nIdentify collaborator devices\nInitiate connection process": {
+      style.font-size: 32
+    }
+  }
+  
+  user_opens_doc -> load_doc_state -> trigger_collaboration: {
+    style.stroke-width: 2
+    style.stroke: ${colors.document_open_border}
+  }
+}
+
+discovery_section: "Shared User Discovery" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.discovery}
+    stroke: ${colors.discovery_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  query_database: "Query Database" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Find users with document access\nGet UCAN token holders\nExclude current user/device": {
+      style.font-size: 32
+    }
+  }
+  
+  get_devices: "Get User Devices" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "For each shared user\nRetrieve all their devices\nCollect device node IDs": {
+      style.font-size: 32
+    }
+  }
+  
+  filter_devices: "Filter Active Devices" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Remove offline devices\nSkip current user's devices\nPrepare connection targets": {
+      style.font-size: 32
+    }
+  }
+  
+  prepare_requests: "Prepare Live Edit Requests" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Create device ID list\nQueue connection attempts\nSet collaboration intent": {
+      style.font-size: 32
+    }
+  }
+  
+  query_database -> get_devices -> filter_devices -> prepare_requests: {
+    style.stroke-width: 2
+    style.stroke: ${colors.discovery_border}
+  }
+}
+
+connection_section: "Live Edit Connection Requests" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.connection}
+    stroke: ${colors.connection_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  send_requests: "Send Live Edit Requests" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Parallel connection attempts\nTo all shared user devices\nFire-and-forget pattern": {
+      style.font-size: 32
+    }
+  }
+  
+  establish_quic: "Establish QUIC Connections" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Direct peer-to-peer links\nCryptographic authentication\nReliable transport layer": {
+      style.font-size: 32
+    }
+  }
+  
+  complete_handshake: "Complete Handshake" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Exchange user identities\nVerify UCAN permissions\nEstablish secure channel": {
+      style.font-size: 32
+    }
+  }
+  
+  trigger_document_check: "Trigger Document Check" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Send LiveEditConnected event\nInitiate document verification\nPrepare for state sync": {
+      style.font-size: 32
+    }
+  }
+  
+  send_requests -> establish_quic -> complete_handshake -> trigger_document_check: {
+    style.stroke-width: 2
+    style.stroke: ${colors.connection_border}
+  }
+}
+
+result_section: "Connection State Management" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.result}
+    stroke: ${colors.result_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  connections_established: "Connections Established" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Multiple peer connections\nReady for document check\nAwaiting synchronization": {
+      style.font-size: 32
+    }
+  }
+  
+  update_frontend: "Update Frontend" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Show shared users list\nDisplay connection status\nEnable collaborative features": {
+      style.font-size: 32
+    }
+  }
+  
+  ready_for_collab: "Ready for Collaboration" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Document check protocol ready\nState synchronization prepared\nReal-time editing enabled": {
+      style.font-size: 32
+    }
+  }
+  
+  connections_established -> update_frontend -> ready_for_collab: {
+    style.stroke-width: 2
+    style.stroke: ${colors.result_border}
+  }
+}
+
+document_open_section -> discovery_section -> connection_section -> result_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+### Connection State Categories
+
+The system maintains two distinct categories of peer connections:
+
+**Active Connections**: Peers currently editing the same document who receive immediate updates for every keystroke and change.
+
+**Inactive Connections**: Peers who are connected but editing different documents, who receive periodic state synchronization updates.
+
+This categorization enables efficient resource usage by sending real-time updates only to collaborators who need them while maintaining document consistency across all connected peers.
+
+## Document Check Protocol
+
+When connections are established, peers must verify whether they're editing the same document before enabling real-time synchronization. This verification prevents unnecessary real-time updates between peers working on different documents.
+
+### Document Verification Process
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    initiator: "#e1f5fe"
+    initiator_border: "#0277bd"
+    verification: "#f3e5f5"
+    verification_border: "#7b1fa2"
+    synchronization: "#e8f5e8"
+    synchronization_border: "#2e7d32"
+    categorization: "#fce4ec"
+    categorization_border: "#c2185b"
+    main_flow: "#1976d2"
+  }
+}
+
+initiator_section: "Document Check Initiation" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.initiator}
+    stroke: ${colors.initiator_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  connection_ready: "Connection Established" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Live edit connection complete\nHandshake successful\nReady for document check": {
+      style.font-size: 32
+    }
+  }
+  
+  send_doc_check: "Send Document Check" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "LiveEditMessage::DocumentCheck\nInclude current resource_id\nRequest peer verification": {
+      style.font-size: 32
+    }
+  }
+  
+  await_response: "Await Response" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Peer validates resource_id\nChecks against current document\nPrepares match/mismatch response": {
+      style.font-size: 32
+    }
+  }
+  
+  connection_ready -> send_doc_check -> await_response: {
+    style.stroke-width: 2
+    style.stroke: ${colors.initiator_border}
+  }
+}
+
+verification_section: "Peer Verification" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.verification}
+    stroke: ${colors.verification_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  receive_check: "Receive Document Check" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Parse resource_id from request\nCheck against current document\nDetermine match status": {
+      style.font-size: 32
+    }
+  }
+  
+  generate_state_vectors: "Generate State Vectors" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "If document matches\nExtract Yjs state vectors\nPrepare for synchronization": {
+      style.font-size: 32
+    }
+  }
+  
+  send_response: "Send Check Response" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "DocumentCheckResponse\nis_match + state_vectors\nEnable/disable real-time sync": {
+      style.font-size: 32
+    }
+  }
+  
+  process_outcome: "Process Outcome" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Match: proceed to sync\nMismatch: mark as inactive\nUpdate connection category": {
+      style.font-size: 32
+    }
+  }
+  
+  receive_check -> generate_state_vectors -> send_response -> process_outcome: {
+    style.stroke-width: 2
+    style.stroke: ${colors.verification_border}
+  }
+}
+
+synchronization_section: "State Vector Exchange" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.synchronization}
+    stroke: ${colors.synchronization_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  initiate_sync: "Initiate State Sync" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "If documents match\nSend StateVectorExchange\nBegin CRDT synchronization": {
+      style.font-size: 32
+    }
+  }
+  
+  exchange_updates: "Exchange Updates" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "UpdateExchange messages\nApply peer's changes\nGenerate local differences": {
+      style.font-size: 32
+    }
+  }
+  
+  bidirectional_sync: "Bidirectional Sync" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "UpdateExchangeResponse\nBoth peers converge\nIdentical CRDT states": {
+      style.font-size: 32
+    }
+  }
+  
+  activate_connection: "Activate Connection" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Add to active connections\nEnable real-time updates\nStart collaborative editing": {
+      style.font-size: 32
+    }
+  }
+  
+  initiate_sync -> exchange_updates -> bidirectional_sync -> activate_connection: {
+    style.stroke-width: 2
+    style.stroke: ${colors.synchronization_border}
+  }
+}
+
+categorization_section: "Connection Categorization" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.categorization}
+    stroke: ${colors.categorization_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  document_match: "Document Match Result" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Same document: Active connection\nDifferent document: Inactive\nNo document: Inactive": {
+      style.font-size: 32
+    }
+  }
+  
+  connection_management: "Update Connection Lists" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Active: real-time updates\nInactive: periodic sync\nDynamic recategorization": {
+      style.font-size: 32
+    }
+  }
+  
+  collaboration_ready: "Collaboration Active" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Real-time editing enabled\nKeystroke-level sync\nAwareness updates": {
+      style.font-size: 32
+    }
+  }
+  
+  document_match -> connection_management -> collaboration_ready: {
+    style.stroke-width: 2
+    style.stroke: ${colors.categorization_border}
+  }
+}
+
+initiator_section -> verification_section -> synchronization_section -> categorization_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+### Document Check Message Flow
+
+The document verification uses a specific message protocol:
+
+**DocumentCheck**: Sent by the connection initiator with the current `resource_id`
+**DocumentCheckResponse**: Peer responds with `is_match` boolean and `state_vectors` if matched
+**StateVectorExchange**: If matched, begin immediate CRDT synchronization
+**UpdateExchange**: Bidirectional update exchange for state convergence
+
+This protocol ensures that peers only engage in expensive real-time synchronization when they're actually collaborating on the same document.
+
+## Real-time Synchronization
+
+Once peers are categorized as active connections (editing the same document), every change is immediately broadcast to maintain synchronized document states across all collaborators.
+
+### Keystroke-Level Collaboration
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    input: "#e1f5fe"
+    input_border: "#0277bd"
+    broadcast: "#f3e5f5"
+    broadcast_border: "#7b1fa2"
+    application: "#e8f5e8"
+    application_border: "#2e7d32"
+    awareness: "#fce4ec"
+    awareness_border: "#c2185b"
+    main_flow: "#1976d2"
+  }
+}
+
+input_section: "User Input Events" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.input}
+    stroke: ${colors.input_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  keystroke_event: "Keystroke Event" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Character typed in editor\nYjs generates CRDT operation\nLocal state immediately updated": {
+      style.font-size: 32
+    }
+  }
+  
+  generate_update: "Generate Update" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Serialize CRDT operation\nCreate update payload\nInclude client_id and doc_type": {
+      style.font-size: 32
+    }
+  }
+  
+  emit_to_system: "Emit to System" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Tauri event: sync-update\nTrigger broadcast mechanism\nUpdate local Yjs buffer": {
+      style.font-size: 32
+    }
+  }
+  
+  keystroke_event -> generate_update -> emit_to_system: {
+    style.stroke-width: 2
+    style.stroke: ${colors.input_border}
+  }
+}
+
+broadcast_section: "Update Broadcasting" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.broadcast}
+    stroke: ${colors.broadcast_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  validate_active_note: "Validate Active Note" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Check if update is for current document\nIgnore updates for inactive documents\nPrevent stale update broadcasting": {
+      style.font-size: 32
+    }
+  }
+  
+  get_active_connections: "Get Active Connections" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Retrieve list of active collaborators\nPeers editing same document\nReady for immediate updates": {
+      style.font-size: 32
+    }
+  }
+  
+  create_live_edit_message: "Create LiveEdit Message" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "DocumentUpdate message\nCRDT operations + metadata\nClient ID and document type": {
+      style.font-size: 32
+    }
+  }
+  
+  send_to_all_active: "Send to All Active Peers" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Parallel transmission\nChunked over QUIC\nReliable delivery guaranteed": {
+      style.font-size: 32
+    }
+  }
+  
+  validate_active_note -> get_active_connections -> create_live_edit_message -> send_to_all_active: {
+    style.stroke-width: 2
+    style.stroke: ${colors.broadcast_border}
+  }
+}
+
+application_section: "Remote Application" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.application}
+    stroke: ${colors.application_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  receive_update: "Receive Update" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Parse DocumentUpdate message\nExtract CRDT operations\nValidate message integrity": {
+      style.font-size: 32
+    }
+  }
+  
+  validate_document: "Validate Document Match" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Check if update is for current document\nIgnore updates for other documents\nEnsure update relevance": {
+      style.font-size: 32
+    }
+  }
+  
+  apply_to_crdt: "Apply to CRDT" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Apply operations to local Yjs state\nCRDT guarantees consistency\nUpdate local document buffer": {
+      style.font-size: 32
+    }
+  }
+  
+  emit_to_frontend: "Emit to Frontend" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "live-updates event\nUpdate editor interface\nMaintain user experience": {
+      style.font-size: 32
+    }
+  }
+  
+  receive_update -> validate_document -> apply_to_crdt -> emit_to_frontend: {
+    style.stroke-width: 2
+    style.stroke: ${colors.application_border}
+  }
+}
+
+
+input_section -> broadcast_section -> application_section
+```
+
+### Real-time Message Types
+
+The system uses specific message types for different aspects of real-time collaboration:
+
+**DocumentUpdate**: Contains CRDT operations for document content changes, client ID, and document type
+**AwarenessUpdate**: Contains cursor position, selection state, and user presence information
+
+Both message types are sent immediately upon local changes and applied directly to peer's document states, ensuring sub-second synchronization across all active collaborators.
+
+## Connection Resilience and Reconciliation
+
+The system includes multiple mechanisms to maintain stable collaboration sessions even when network conditions are poor or connections are temporarily lost.
+
+### Periodic Reconciliation
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    timer: "#e1f5fe"
+    timer_border: "#0277bd"
+    reconciliation: "#f3e5f5"
+    reconciliation_border: "#7b1fa2"
+    validation: "#e8f5e8"
+    validation_border: "#2e7d32"
+    recovery: "#fce4ec"
+    recovery_border: "#c2185b"
+    main_flow: "#1976d2"
+  }
+}
+
+timer_section: "Reconciliation Timer" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.timer}
+    stroke: ${colors.timer_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  start_timer: "Start Jittered Timer" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Base interval: 30 seconds\nRandom jitter: 0-29 seconds\nPrevent thundering herd": {
+      style.font-size: 32
+    }
+  }
+  
+  timer_tick: "Timer Tick Event" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Periodic reconciliation trigger\nCheck for active document\nValidate active connections": {
+      style.font-size: 32
+    }
+  }
+  
+  check_conditions: "Check Reconciliation Conditions" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Must have current document\nMust have active connections\nSkip if no collaboration": {
+      style.font-size: 32
+    }
+  }
+  
+  start_timer -> timer_tick -> check_conditions: {
+    style.stroke-width: 2
+    style.stroke: ${colors.timer_border}
+  }
+}
+
+reconciliation_section: "State Vector Reconciliation" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.reconciliation}
+    stroke: ${colors.reconciliation_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  get_local_vectors: "Get Local State Vectors" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Extract current Yjs state\nGenerate state vector summary\nPrepare for comparison": {
+      style.font-size: 32
+    }
+  }
+  
+  send_to_active: "Send to Active Connections" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "DocumentCheckResponse format\nis_match=true + state_vectors\nTrigger peer sync process": {
+      style.font-size: 32
+    }
+  }
+  
+  peer_comparison: "Peer State Comparison" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Peers compare state vectors\nIdentify any divergence\nGenerate needed updates": {
+      style.font-size: 32
+    }
+  }
+  
+  exchange_updates: "Exchange Missing Updates" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "StateVectorExchange protocol\nUpdateExchange messages\nRestore perfect sync": {
+      style.font-size: 32
+    }
+  }
+  
+  get_local_vectors -> send_to_active -> peer_comparison -> exchange_updates: {
+    style.stroke-width: 2
+    style.stroke: ${colors.reconciliation_border}
+  }
+}
+
+validation_section: "Connection Health Validation" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.validation}
+    stroke: ${colors.validation_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  check_connection_health: "Check Connection Health" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "QUIC connection status\nClose reason validation\nNetwork reachability test": {
+      style.font-size: 32
+    }
+  }
+  
+  detect_failures: "Detect Connection Failures" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Closed connections identified\nFailed message sends logged\nConnection cleanup triggered": {
+      style.font-size: 32
+    }
+  }
+  
+  mark_for_recovery: "Mark for Recovery" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Add to failed connection list\nRemove from active connections\nQueue reconnection attempt": {
+      style.font-size: 32
+    }
+  }
+  
+  check_connection_health -> detect_failures -> mark_for_recovery: {
+    style.stroke-width: 2
+    style.stroke: ${colors.validation_border}
+  }
+}
+
+recovery_section: "Automatic Recovery" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.recovery}
+    stroke: ${colors.recovery_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  attempt_reconnection: "Attempt Reconnection" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Fire-and-forget pattern\nLive edit connection request\nAsynchronous recovery": {
+      style.font-size: 32
+    }
+  }
+  
+  reestablish_session: "Re-establish Session" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "New QUIC connection\nDocument check protocol\nState synchronization": {
+      style.font-size: 32
+    }
+  }
+  
+  restore_collaboration: "Restore Collaboration" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Add back to active connections\nResume real-time updates\nTransparent to user": {
+      style.font-size: 32
+    }
+  }
+  
+  attempt_reconnection -> reestablish_session -> restore_collaboration: {
+    style.stroke-width: 2
+    style.stroke: ${colors.recovery_border}
+  }
+}
+
+timer_section -> reconciliation_section -> validation_section -> recovery_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+### Connection Health Monitoring
+
+The system continuously monitors connection health through:
+
+**Message Send Monitoring**: Failed message sends immediately trigger reconnection attempts
+**QUIC Connection Status**: Regular checks of underlying connection state
+**Timeout Detection**: Connections that become unresponsive are marked for recovery
+
+Failed connections are automatically removed from active connection lists and reconnection attempts are made asynchronously, ensuring that temporary network issues don't disrupt collaboration for other peers.
+
+## Document Switching and State Cleanup
+
+When users switch between documents, the system must gracefully handle connection state transitions and ensure all peers receive final synchronization updates before transitioning to new collaboration contexts.
+
+### Document Switch Protocol
+
+```d2
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+  colors: {
+    switch_trigger: "#e1f5fe"
+    switch_trigger_border: "#0277bd"
+    cleanup_active: "#f3e5f5"
+    cleanup_active_border: "#7b1fa2"
+    sync_inactive: "#e8f5e8"
+    sync_inactive_border: "#2e7d32"
+    transition: "#fce4ec"
+    transition_border: "#c2185b"
+    main_flow: "#1976d2"
+  }
+}
+
+switch_trigger_section: "Document Switch Trigger" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.switch_trigger}
+    stroke: ${colors.switch_trigger_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  user_switch: "User Switches Document" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Select different document\nClose current document\nTrigger note-change event": {
+      style.font-size: 32
+    }
+  }
+  
+  detect_change: "Detect Document Change" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Compare previous vs new resource_id\nIdentify actual document switch\nSkip if same document": {
+      style.font-size: 32
+    }
+  }
+  
+  initiate_cleanup: "Initiate Cleanup Process" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Handle previous document connections\nPrepare for new document setup\nMaintain connection state": {
+      style.font-size: 32
+    }
+  }
+  
+  user_switch -> detect_change -> initiate_cleanup: {
+    style.stroke-width: 2
+    style.stroke: ${colors.switch_trigger_border}
+  }
+}
+
+cleanup_active_section: "Active Connection Cleanup" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.cleanup_active}
+    stroke: ${colors.cleanup_active_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  get_active_connections: "Get Active Connections" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Retrieve list of active collaborators\nPeers currently editing same document\nConnections needing notification": {
+      style.font-size: 32
+    }
+  }
+  
+  send_document_changed: "Send DocumentChanged" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Notify each active peer\nLiveEditMessage::DocumentChange\nSignal document switch": {
+      style.font-size: 32
+    }
+  }
+  
+  peer_response: "Peer Response Handling" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Peers move connection to inactive\nStop sending real-time updates\nMaintain connection for future": {
+      style.font-size: 32
+    }
+  }
+  
+  clear_active_list: "Clear Active List" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Remove all active connections\nStop real-time broadcasting\nPrepare for new document": {
+      style.font-size: 32
+    }
+  }
+  
+  get_active_connections -> send_document_changed -> peer_response -> clear_active_list: {
+    style.stroke-width: 2
+    style.stroke: ${colors.cleanup_active_border}
+  }
+}
+
+sync_inactive_section: "Inactive Connection Sync" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.sync_inactive}
+    stroke: ${colors.sync_inactive_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 4
+  
+  get_inactive_connections: "Get Inactive Connections" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Retrieve inactive connection list\nPeers on different documents\nConnections needing final sync": {
+      style.font-size: 32
+    }
+  }
+  
+  generate_state_vectors: "Generate Final State Vectors" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Get current document state\nExtract Yjs state vectors\nPrepare final synchronization": {
+      style.font-size: 32
+    }
+  }
+  
+  broadcast_state_request: "Broadcast State Vector Request" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Send to all inactive connections\nResourceUpdateMsg::StateVectorRequest\nEnsure final consistency": {
+      style.font-size: 32
+    }
+  }
+  
+  complete_sync: "Complete Background Sync" {
+    style.font-size: 34
+    style.font-color: black
+    width: 250
+    "Standard resource sync protocol\nUpdatesResponse + FinalUpdateMerge\nMaintain document consistency": {
+      style.font-size: 32
+    }
+  }
+  
+  get_inactive_connections -> generate_state_vectors -> broadcast_state_request -> complete_sync: {
+    style.stroke-width: 2
+    style.stroke: ${colors.sync_inactive_border}
+  }
+}
+
+transition_section: "Document Transition" {
+  style: {
+    font-size: 40
+    font-color: black
+    stroke-width: 3
+    fill: ${colors.transition}
+    stroke: ${colors.transition_border}
+  }
+  
+  grid-rows: 1
+  grid-columns: 3
+  
+  clear_all_connections: "Clear All Connection Lists" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Reset active connections\nReset inactive connections\nClean slate for new document": {
+      style.font-size: 32
+    }
+  }
+  
+  load_new_document: "Load New Document" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Set new current document\nLoad CRDT states\nPrepare for collaboration": {
+      style.font-size: 32
+    }
+  }
+  
+  restart_collaboration: "Restart Collaboration Setup" {
+    style.font-size: 34
+    style.font-color: black
+    width: 280
+    "Discover new shared users\nSend live edit requests\nBegin new collaboration session": {
+      style.font-size: 32
+    }
+  }
+  
+  clear_all_connections -> load_new_document -> restart_collaboration: {
+    style.stroke-width: 2
+    style.stroke: ${colors.transition_border}
+  }
+}
+
+switch_trigger_section -> cleanup_active_section -> sync_inactive_section -> transition_section: {
+  style.stroke-width: 4
+  style.stroke: ${colors.main_flow}
+}
+```
+
+### State Transition Management
+
+During document switching, the system maintains connection state carefully:
+
+**Active → Inactive Transition**: Active collaborators are notified via DocumentChange messages and automatically moved to inactive status, stopping real-time updates but preserving the connection.
+
+**Final Synchronization**: Inactive connections receive final state vector synchronization to ensure they have the most recent document state before the user switches away.
+
+**Connection Preservation**: Established QUIC connections are preserved across document switches, allowing for efficient reconnection when users return to shared documents.
+
+### Document Switch Edge Cases
+
+The system handles several edge cases during document switching:
+
+**Same Document Switch**: If the user "switches" to the same document, the system detects this and skips the cleanup process entirely.
+
+**Null Document**: When closing all documents, the system clears all connection lists and stops collaboration processes.
+
+**Failed Notifications**: If DocumentChange notifications fail to send, the system continues with cleanup to prevent hanging in inconsistent states.
+
+## Message Protocol Summary
+
+The live collaboration system uses a comprehensive message protocol built on the existing P2P infrastructure:
+
+### Core Message Types
+
+```rust
+pub enum LiveEditMessage {
+    DocumentCheck {
+        resource_id: String,
+    },
+    StateVectorExchange {
+        resource_id: String,
+        state_vectors: String,
+    },
+    UpdateExchange {
+        resource_id: String,
+        updates: String,
+    },
+    UpdateExchangeResponse {
+        resource_id: String,
+        updates: String,
+    },
+    NotSameDocument,
+    DocumentChange {
+        resource_id: String,
+    },
+    DocumentUpdate {
+        updates: Vec<u8>,
+        resource_id: String,
+        client_id: u32,
+        doc_type: String,
+    },
+    AwarenessUpdate {
+        resource_id: String,
+        client_id: u32,
+        awareness_data: Vec<u8>,
+    },
+}
+```
+
+### Message Flow Patterns
+
+**Connection Establishment**: DocumentCheck → StateVectorExchange → UpdateExchange → UpdateExchangeResponse
+
+**Real-time Collaboration**: DocumentUpdate (continuous) + AwarenessUpdate (continuous)
+
+**Periodic Reconciliation**: StateVectorExchange → UpdateExchange → UpdateExchangeResponse
+
+**Document Switching**: DocumentChange → connection state transitions
+
+**Connection Recovery**: Automatic reconnection → DocumentCheck → full synchronization
+
+## System Architecture Benefits
+
+This live collaboration architecture provides several key advantages:
+
+**Immediate Responsiveness**: Keystroke-level synchronization provides Google Docs-like collaboration experience without central servers.
+
+**Network Efficiency**: Only active collaborators receive real-time updates, while inactive connections use efficient periodic sync.
+
+**Connection Resilience**: Automatic reconnection and reconciliation ensure collaboration sessions survive network disruptions.
+
+**Resource Optimization**: Connection state management prevents unnecessary processing and network usage.
+
+**Scalable Collaboration**: The system supports multiple simultaneous collaboration sessions across different documents with proper resource isolation.
+
+The combination of real-time updates, connection resilience, and efficient state management creates a robust collaborative editing experience that operates entirely through peer-to-peer connections without requiring central coordination servers.

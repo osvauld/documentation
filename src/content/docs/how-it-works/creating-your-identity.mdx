@@ -1,0 +1,84 @@
+---
+title: "User Registration & Identity Creation"
+description: "How users create their sovereign digital identity without central servers"
+---
+
+Unlike traditional applications that require registering
+with central servers, Osvauld users create their own cryptographic
+identity locally. There's no signup form, no email verification, just the generation of cryptographic keys that serve as your digital identity.
+
+## The Triple-Key Architecture
+
+Every user generates three distinct cryptographic key pairs, each serving a specific purpose:
+
+### 1. PGP Certificate (Identity & Encryption)
+
+Your foundational identity is a PGP certificate generated using the Cv25519 cipher suite. This certificate serves dual purposes:
+- **Identity**: Mathematical proof of who you are
+- **Encryption**: Protects your data and encrypts keys shared with you
+
+The certificate includes your username and creates both signing and encryption subkeys, giving you complete cryptographic identity capabilities.
+
+### 2. Device Key (Node Identification)
+
+Each device generates its own Ed25519 key pair for P2P networking. This key:
+- **Identifies your device** on the Iroh P2P network
+- **Encrypts QUIC channels** for secure peer connections
+
+Every device you use (laptop, desktop, phone) gets its own unique device key,
+but they're all linked to your main PGP identity.
+
+### 3. UCAN Key (Permissions & Delegation)
+
+The UCAN key is deterministically derived from your PGP certificate using Argon2 key derivation with domain separation. This ensures consistency across devices while maintaining security. This key:
+- **Issues UCAN tokens** for resource access
+- **Delegates permissions** to other users
+- **Validates capability chains** cryptographically
+
+Since it's derived from your PGP certificate, you'll have the same UCAN identity on every device without needing to sync additional keys.
+
+## Password-Based Key Protection
+
+All your private keys are encrypted with your password using Argon2 key derivation and AES-256-GCM encryption. The process:
+
+1. **Salt Generation**: A random 16-byte salt is created for your account
+2. **Key Derivation**: Your password and salt generate an AES encryption key via Argon2
+3. **Encryption**: All private key material is encrypted with this AES key
+4. **Storage**: Only encrypted keys are stored in your local database
+
+Only when you enter your password can the keys be decrypted and used. This ensures that even if your device is compromised, your identity remains secure without the password.
+
+
+## What Makes This Different
+
+Traditional registration creates an account on someone else's server. Osvauld registration creates a complete cryptographic identity that belongs entirely to you:
+
+**No Central Authority**: Your identity isn't verified by a company - it's mathematically proven by cryptographic signatures.
+
+**No Account Recovery**: There's no "forgot password" because there's no server storing your credentials. Your password is the only way to access your keys.
+
+**Cross-Device Consistency**: The UCAN key derivation ensures you have the same permission identity across all your devices.
+
+**Complete Ownership**: You own your identity certificate and can use it with any compatible application, not just Osvauld.
+
+## Security Implications
+
+This approach provides stronger security than traditional systems:
+
+- **No Password Database**: There's no central database of passwords to be breached
+- **No Identity Theft**: Your identity can't be stolen from a third party because no third party stores it
+- **Forward Secrecy**: Even if a device is compromised, past communications remain secure
+- **Cryptographic Proof**: Your identity is mathematical fact, not corporate assertion
+
+The trade-off is responsibility: you must securely store your encrypted keys and remember your password. There's no customer support to call if you lose access - but there's also no company that can lock you out of your own identity.
+
+## What Happens Next
+
+Once your identity is created, you can:
+- Create and collaborate on documents
+- Connect directly with other users
+- Share resources through cryptographic permissions
+- Add additional devices to your identity
+- Join sovereign nodes for backup and availability
+
+Your cryptographic identity becomes the foundation for all sovereign applications - not just Osvauld's current document editor, but any future application that respects user sovereignty.
