@@ -1,0 +1,158 @@
+---
+title: "Setting Up Sovereign Nodes (Proof of Concept)"
+description: "Experimental always-online infrastructure for testing backup and synchronization concepts"
+---
+
+Sovereign nodes are an experimental CLI application that demonstrates how self-hosted infrastructure could provide always-online backup and synchronization services for Osvauld networks. This is currently a proof-of-concept implementation to test the viability of user-controlled infrastructure in P2P collaborative networks.
+
+**⚠️ Development Status: This is experimental software not intended for production use. The security model and functionality are still evolving.**
+
+## Current Proof-of-Concept Model
+
+The current sovereign node implementation operates as a regular peer with full access to shared documents, serving as a technology demonstration for future infrastructure capabilities.
+
+### Current Architecture
+
+**Full Peer Access**: Nodes currently receive the same permissions and data access as any regular collaborator, including persistent access to encryption keys.
+
+**Standard Synchronization**: Uses the existing P2P synchronization protocols without special infrastructure optimizations.
+
+**Experimental Features**: Provides a testing ground for concepts like always-online availability and backup storage in a P2P context.
+
+### Future Security Model (In Development)
+
+The planned production model will implement session-based key sharing:
+
+**Temporary Access**: Sovereign nodes will only receive decryption keys when other peers are actively online and grant session-based access.
+
+**No Persistent Keys**: Nodes will not store long-term access to encrypted data, requiring active peer presence for decryption capabilities.
+
+**Session-Based Permissions**: Access to document content will be granted temporarily during active collaboration sessions rather than as permanent shares.
+
+## Experimental Setup Process
+
+### Testing Hardware
+
+For experimental deployment, minimal hardware is sufficient:
+
+**Development Boards**: Raspberry Pi 4 or similar ARM-based computers work well for testing the concept.
+
+**Network Access**: Standard internet connection for P2P connectivity testing.
+
+**Storage**: Basic storage for SQLite database and document testing.
+
+**Memory**: 2GB RAM sufficient for proof-of-concept operation.
+
+## Experimental Installation
+
+### Development Setup
+
+Build from source for experimental use:
+
+```bash
+# Install cross for ARM64 compilation
+cargo install cross
+
+# Clone the repository (example path)
+git clone https://github.com/osvauld/osvauld
+cd osvauld/kunki
+
+# Cross-compile for Raspberry Pi (ARM64)
+cross build --target aarch64-unknown-linux-gnu --release
+
+# Copy binary to target device
+scp target/aarch64-unknown-linux-gnu/release/kunki pi@raspberrypi.local:/home/pi/
+ssh pi@raspberrypi.local "sudo cp /home/pi/kunki /usr/local/bin/ && sudo chmod +x /usr/local/bin/osvauld"
+```
+
+### Initialize Test Node
+
+Create an experimental node identity:
+
+```bash
+kunki init --username "test-node" --passphrase "development_passphrase"
+```
+
+**Note**: This creates the same cryptographic identity as a regular user. The node will have full access to any documents shared with it.
+
+### Start Experimental Service
+
+Run the test node:
+
+```bash
+kunki start --passphrase "development_passphrase" --print-token
+```
+
+The `--print-token` flag generates connection information for testing peer connections.
+
+## Current Testing Capabilities
+
+### What Works Today
+
+**Peer Connectivity**: Nodes successfully establish P2P connections with desktop clients using standard handshake protocols.
+
+**Document Synchronization**: Shared documents sync to nodes and remain available when other peers go offline.
+
+**Always-Online Testing**: Demonstrates how continuous availability could work in production systems.
+
+**Connection Brokering**: Provides stable connection points that help other peers discover each other.
+
+### What's Experimental
+
+**Security Model**: Current implementation grants full persistent access to shared documents, which is not the intended production model.
+
+**Resource Management**: No optimization for server-class operation or resource constraints.
+
+**Monitoring**: Basic logging without production-level observability features.
+
+## Testing with Desktop Clients
+
+### Connecting Clients to Test Nodes
+
+Share the generated connection token with desktop Osvauld clients to establish connections and test the peer-to-peer protocols.
+
+### Document Sharing
+
+Desktop users can share documents with the test node like any other collaborator. The node will receive full access and maintain synchronized copies.
+
+### Offline Testing
+
+Test offline scenarios by disconnecting desktop peers while keeping the node online, then reconnecting to verify synchronization works correctly.
+
+## Limitations and Warnings
+
+### Current Security Limitations
+
+**Full Access Model**: Test nodes currently receive the same permanent access to documents as regular users, including persistent decryption keys.
+
+**No Session Management**: Access is not limited to active collaboration sessions, unlike the planned production model.
+
+**Standard Peer Protocols**: Uses regular user synchronization without infrastructure-specific optimizations.
+
+### Development Status
+
+**Proof of Concept**: This implementation demonstrates concepts rather than providing production-ready infrastructure.
+
+**API Instability**: Command-line interface and functionality may change significantly as development continues.
+
+**Limited Support**: Experimental software without production support or stability guarantees.
+
+## Future Development Plans
+
+### Session-Based Security Model
+
+**Temporary Key Sharing**: Production nodes will only receive decryption keys during active peer sessions rather than permanent access.
+
+**Active Peer Requirements**: Nodes will require at least one authorized peer to be online to access document content.
+
+**Session Expiration**: Access will automatically expire when collaboration sessions end.
+
+### Infrastructure Optimizations
+
+**Resource Efficiency**: Optimizations for continuous operation on minimal hardware.
+
+**Monitoring Integration**: Production-ready logging and observability features.
+
+**Multi-Tenant Support**: Secure isolation for multiple user groups on shared infrastructure.
+
+This experimental implementation provides a foundation for testing the viability of user-controlled infrastructure in peer-to-peer collaborative networks while the security model and production features continue development.
