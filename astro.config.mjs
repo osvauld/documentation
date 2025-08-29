@@ -4,6 +4,25 @@ import { ion } from "starlight-ion-theme";
 
 import d2 from "astro-d2";
 
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://osvauld.com/#organization",
+  "url": "https://docs.osvauld.com",
+  "name": "Osvauld",
+  "legalName": "OSVAULD SECURITY SOLUTIONS PRIVATE LIMITED",
+  "description": "Own Your Data, Leave No Footprint with Osvauld - a Rust framework for building peer-to-peer applications with privacy, security, and user control.",
+  "slogan": "Own Your Data, Leave No Footprint",
+  "logo": "https://www.osvauld.com/assets/logo.png",
+  "sameAs": [
+    "https://github.com/osvauld",
+    "https://www.osvauld.com",   
+    "https://in.linkedin.com/company/osvauld",
+    "https://buymeacoffee.com/osvauld",
+    "https://osvauld.com/#corporation"
+  ]
+}
+
 // https://astro.build/config
 export default defineConfig({
   integrations: [starlight({
@@ -78,6 +97,11 @@ export default defineConfig({
           name: 'twitter:image',
           content: '/osvauldthumb.png',
         },
+      },
+      {
+        tag: 'script',
+        attrs: { type: 'application/ld+json' },
+        content: JSON.stringify(orgSchema),
       },
     ],
     plugins: [ion()],
