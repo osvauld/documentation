@@ -36,5 +36,8 @@ export default defineConfig({
       },
     ],
   }),
-  ],
+
+  d2({
+    layout: "elk"
+  })],
 });
