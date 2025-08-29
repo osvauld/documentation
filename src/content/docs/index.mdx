@@ -6,24 +6,41 @@ tableOfContents: false
 editUrl: false
 next: false
 hero:
-  title: Docs 
+  title: Documentation
   tagline: Guides, resources, and API references to help you build with osvauld.
   actions:
-    - text: Introduction
-      icon: rocket
+    - text: Philosophy
+      icon: open-book
       link: /introduction/philosophy
-      variant: primary
-    - text: Learn about osvauld’s features
-      icon: right-arrow
-      link: https://www.osvauld.com
+      variant: secondary
+    - text: Website
+      icon: laptop
+      link: https://www.osvauld.com/livnote
+      variant: secondary
+      attrs:
+        target: _blank
+        rel: noopener noreferrer
+    - text: Github
+      icon: github
+      link: https://github.com/osvauld/osvauld
+      variant: secondary
+      attrs:
+        target: _blank
+        rel: noopener noreferrer
+    - text: Community
+      icon: telegram
+      link: https://t.me/+tjZLZK8JV8g0NTVl
+      variant: secondary
+      attrs:
+        target: _blank
+        rel: noopener noreferrer
   facepile:
     tagline: Powered by osvauld and our open-source contributors.
     linkText: Join us!
     link: https://github.com/osvauld
 ---
-import Discord from '../../components/Landing/Discord.astro'
 import { Image } from 'astro:assets';
-import osvauld from '../../assets/cards.png';
+import art from '../../assets/art.webp';
 
 
-<Image src={osvauld} alt="osvauld dashboard."/>
+<Image src={art} alt="Concept art"/>

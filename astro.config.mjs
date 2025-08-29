@@ -1,12 +1,13 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import { ion } from "starlight-ion-theme";
 
 import d2 from "astro-d2";
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [starlight({
-    title: "Osvauld Docs",
+    title: "Osvauld Documentation",
     customCss: ["./src/styles/custom.css"],
     sidebar: [
       {
@@ -35,7 +36,8 @@ export default defineConfig({
         ],
       },
     ],
-  }),
+    plugins: [ion()],
+  },),
 
   d2({
     layout: "elk"
