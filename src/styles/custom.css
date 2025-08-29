@@ -9,3 +9,17 @@
 		grid-template-columns: 1fr 1fr;
 	}
 }
+
+.sl-flex.action {
+	border-radius: 8px;
+  }
+
+.sidebar-content ul li a {
+	font-size: 15px;
+	margin-bottom: 10px;
+	padding-left: 25px;
+}
+
+.sidebar-content ul li summary span {
+	color: white;
+}
