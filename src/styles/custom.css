@@ -23,3 +23,12 @@
 .sidebar-content ul li summary span {
 	color: white;
 }
+
+.right-sidebar-panel li a {
+	font-size: 14px;
+	margin-bottom: 4px;
+}
+
+.sl-flex.social-icons {
+	gap: 25px;
+}
