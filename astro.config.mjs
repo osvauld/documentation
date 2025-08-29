@@ -26,7 +26,7 @@ const orgSchema = {
 // https://astro.build/config
 export default defineConfig({
   integrations: [starlight({
-    title: "Osvauld Documentation",
+    title: "Documentation",
     favicon: '/favicon.ico',
     social: [
       { icon: 'telegram', label: 'Telegram', href: 'https://t.me/+tjZLZK8JV8g0NTVl'},
