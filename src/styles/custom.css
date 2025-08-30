@@ -9,3 +9,34 @@
 		grid-template-columns: 1fr 1fr;
 	}
 }
+
+.sl-flex.action {
+	border-radius: 8px;
+  }
+
+.sidebar-content ul li a {
+	font-size: 15px;
+	margin-bottom: 10px;
+	padding-left: 25px;
+}
+
+
+[data-theme="dark"] .sidebar-content ul li summary span {
+	color: white;
+  }
+  
+
+[data-theme="light"] .sidebar-content ul li summary span {
+	color: black; 
+  }
+  
+
+.right-sidebar-panel li a {
+	font-size: 14px;
+	margin-bottom: 4px;
+}
+
+.sl-flex.social-icons {
+	gap: 25px;
+}
+
