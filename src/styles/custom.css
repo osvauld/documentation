@@ -20,9 +20,16 @@
 	padding-left: 25px;
 }
 
-.sidebar-content ul li summary span {
+
+[data-theme="dark"] .sidebar-content ul li summary span {
 	color: white;
-}
+  }
+  
+
+[data-theme="light"] .sidebar-content ul li summary span {
+	color: black; 
+  }
+  
 
 .right-sidebar-panel li a {
 	font-size: 14px;
@@ -32,3 +39,4 @@
 .sl-flex.social-icons {
 	gap: 25px;
 }
+
