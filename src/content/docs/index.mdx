@@ -1,29 +1,46 @@
 ---
-title: Getting Started
-description: A basic intro to osvauld.
+title: Osvauld - Privacy-First P2P Application Framework
+description: Build peer-to-peer applications with Osvauld, a Rust framework for privacy-first, offline-capable apps. No servers, no data collection, complete user control. MIT licensed and open source.
 i18nReady: true
 tableOfContents: false
 editUrl: false
 next: false
 hero:
-  title: Docs 
+  title: Osvauld
   tagline: Guides, resources, and API references to help you build with osvauld.
   actions:
-    - text: Introduction
-      icon: rocket
+    - text: Philosophy
+      icon: open-book
       link: /introduction/philosophy
-      variant: primary
-    - text: Learn about osvauld’s features
-      icon: right-arrow
-      link: https://www.osvauld.com
-  facepile:
-    tagline: Powered by osvauld and our open-source contributors.
-    linkText: Join us!
-    link: https://github.com/osvauld
+      variant: secondary
+    - text: How does it work
+      icon: seti:code-search
+      link: /introduction/what-makes-this-possible
+      variant: secondary
+    - text: Website
+      icon: laptop
+      link: https://www.osvauld.com/livnote
+      variant: secondary
+      attrs:
+        target: _blank
+        rel: noopener noreferrer
+    - text: Github
+      icon: github
+      link: https://github.com/osvauld/osvauld
+      variant: secondary
+      attrs:
+        target: _blank
+        rel: noopener noreferrer
+    - text: Community
+      icon: telegram
+      link: https://t.me/+tjZLZK8JV8g0NTVl
+      variant: secondary
+      attrs:
+        target: _blank
+        rel: noopener noreferrer
 ---
-import Discord from '../../components/Landing/Discord.astro'
 import { Image } from 'astro:assets';
-import osvauld from '../../assets/cards.png';
+import art from '../../assets/art.webp';
 
 
-<Image src={osvauld} alt="osvauld dashboard."/>
+<Image src={art} alt="Concept art"/>
