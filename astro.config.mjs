@@ -16,7 +16,7 @@ const orgSchema = {
   "logo": "https://www.osvauld.com/assets/logo.png",
   "sameAs": [
     "https://github.com/osvauld",
-    "https://www.osvauld.com",   
+    "https://www.osvauld.com",
     "https://in.linkedin.com/company/osvauld",
     "https://buymeacoffee.com/osvauld",
     "https://osvauld.com/#corporation"
@@ -29,16 +29,16 @@ export default defineConfig({
     title: "Documentation",
     favicon: '/favicon.ico',
     social: [
-      { icon: 'telegram', label: 'Telegram', href: 'https://t.me/+tjZLZK8JV8g0NTVl'},
+      { icon: 'telegram', label: 'Telegram', href: 'https://t.me/+tjZLZK8JV8g0NTVl' },
       {
         icon: 'github',
         label: 'GitHub',
         href: 'https://github.com/osvauld/osvauld',
       },
       {
-        icon: 'email', 
+        icon: 'email',
         label: 'Email',
-        href: 'mailto:abe@osvauld.com?subject=Hello Osvauld', 
+        href: 'mailto:abe@osvauld.com?subject=Hello Osvauld',
       }
     ],
     customCss: ["./src/styles/custom.css"],
@@ -46,7 +46,7 @@ export default defineConfig({
       {
         label: "Introduction",
         items: [
-          { label: "Philosophy", link: "/introduction/philosophy" },
+          { label: "Manifesto", link: "/introduction/manifesto" },
           { label: "What makes this possible", link: "/introduction/what-makes-this-possible" },
         ],
       },
