@@ -1,0 +1,63 @@
+flowchart TB
+
+%% Main Title
+subgraph Main["Embedded Proof Chain Example"]
+direction TB
+
+%% Section 1: Initial Sharing Scenario
+subgraph S1["Initial Sharing Scenario"]
+  direction LR
+  A1["Dave shares Doc1 with Alice
+   -------
+Alice gets delegated token
+Proof chain: Alice <- Dave (root)
+Alice can access Doc1"]
+  A2["Alice shares Doc1 with Carol
+   -------
+Carol gets delegated token
+Proof chain: Carol <- Alice <- Dave
+Carol can access Doc1"]
+  A1 --> A2
+end
+
+
+%% Section 2: Synchronization Delegation
+subgraph S2["Synchronization Delegation"]
+  direction LR
+  B1["Dave syncs with Alice
+   -------
+Alice creates token for Dave -> Carol
+Embeds Alice's token as parent proof
+Proof chain: Dave <- Alice <- Bob"]
+  B2["Token Structure
+   -------
+iss: alice_did
+aud: bob_did
+cap: connect to Carol
+prf: {alice_token_cid}
+fct: {proof: alice_full_token}"]
+  B1 --> B2
+end
+
+
+%% Section 3: Bob Validates Connection to Carol
+subgraph S3["Bob Validates Connection to Carol"]
+  direction LR
+  C1["Recursive Validation
+   -------
+1. Verify Bob's token signed by Alice
+2. Extract Alice's token from facts
+3. Verify Alice's token signed by Dave
+4. Confirm Dave is root authority"]
+  C2["Direct Connection
+   -------
+Bob connects to Carol directly
+Complete proof chain embedded
+No need to contact Alice or Dave"]
+  C1 --> C2
+end
+
+%% Section Links
+S1 --> S2 --> S3
+
+end

@@ -1,0 +1,102 @@
+flowchart TB
+
+%% Section 1: Document Check Initiation
+subgraph S1["Document Check Initiation"]
+  direction LR
+  A1["Connection Established
+   -------
+Live edit connection complete
+Handshake successful
+Ready for document check"]
+  A2["Send Document Check
+   -------
+LiveEditMessage::DocumentCheck
+Include current resource_id
+Request peer verification"]
+  A3["Await Response
+   -------
+Peer validates resource_id
+Checks against current document
+Prepares match/mismatch response"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Peer Verification
+subgraph S2["Peer Verification"]
+  direction LR
+  B1["Receive Document Check
+   -------
+Parse resource_id from request
+Check against current document
+Determine match status"]
+  B2["Generate State Vectors
+   -------
+If document matches
+Extract Yjs state vectors
+Prepare for synchronization"]
+  B3["Send Check Response
+   -------
+DocumentCheckResponse
+is_match + state_vectors
+Enable/disable real-time sync"]
+  B4["Process Outcome
+   -------
+Match: proceed to sync
+Mismatch: mark as inactive
+Update connection category"]
+  B1 --> B2 --> B3 --> B4
+end
+
+
+%% Section 3: State Vector Exchange
+subgraph S3["State Vector Exchange"]
+  direction LR
+  C1["Initiate State Sync
+   -------
+If documents match
+Send StateVectorExchange
+Begin CRDT synchronization"]
+  C2["Exchange Updates
+   -------
+UpdateExchange messages
+Apply peer's changes
+Generate local differences"]
+  C3["Bidirectional Sync
+   -------
+UpdateExchangeResponse
+Both peers converge
+Identical CRDT states"]
+  C4["Activate Connection
+   -------
+Add to active connections
+Enable real-time updates
+Start collaborative editing"]
+  C1 --> C2 --> C3 --> C4
+end
+
+
+%% Section 4: Connection Categorization
+subgraph S4["Connection Categorization"]
+  direction LR
+  D1["Document Match Result
+   -------
+Same document: Active connection
+Different document: Inactive
+No document: Inactive"]
+  D2["Update Connection Lists
+   -------
+Active: real-time updates
+Inactive: periodic sync
+Dynamic recategorization"]
+  D3["Collaboration Active
+   -------
+Real-time editing enabled
+Keystroke-level sync
+Awareness updates"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4

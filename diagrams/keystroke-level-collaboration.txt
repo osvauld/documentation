@@ -1,0 +1,80 @@
+flowchart TB
+
+%% Section 1: User Input Events
+subgraph S1["User Input Events"]
+  direction LR
+  A1["Keystroke Event
+   -------
+Character typed in editor
+Yjs generates CRDT operation
+Local state immediately updated"]
+  A2["Generate Update
+   -------
+Serialize CRDT operation
+Create update payload
+Include client_id and doc_type"]
+  A3["Emit to System
+   -------
+Tauri event: sync-update
+Trigger broadcast mechanism
+Update local Yjs buffer"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Update Broadcasting
+subgraph S2["Update Broadcasting"]
+  direction LR
+  B1["Validate Active Note
+   -------
+Check if update is for current document
+Ignore updates for inactive documents
+Prevent stale update broadcasting"]
+  B2["Get Active Connections
+   -------
+Retrieve list of active collaborators
+Peers editing same document
+Ready for immediate updates"]
+  B3["Create LiveEdit Message
+   -------
+DocumentUpdate message
+CRDT operations + metadata
+Client ID and document type"]
+  B4["Send to All Active Peers
+   -------
+Parallel transmission
+Chunked over QUIC
+Reliable delivery guaranteed"]
+  B1 --> B2 --> B3 --> B4
+end
+
+
+%% Section 3: Remote Application
+subgraph S3["Remote Application"]
+  direction LR
+  C1["Receive Update
+   -------
+Parse DocumentUpdate message
+Extract CRDT operations
+Validate message integrity"]
+  C2["Validate Document Match
+   -------
+Check if update is for current document
+Ignore updates for other documents
+Ensure update relevance"]
+  C3["Apply to CRDT
+   -------
+Apply operations to local Yjs state
+CRDT guarantees consistency
+Update local document buffer"]
+  C4["Emit to Frontend
+   -------
+live-updates event
+Update editor interface
+Maintain user experience"]
+  C1 --> C2 --> C3 --> C4
+end
+
+
+%% Section Links
+S1 --> S2 --> S3

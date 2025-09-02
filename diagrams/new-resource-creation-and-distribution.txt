@@ -1,0 +1,97 @@
+flowchart TB
+
+%% Section 1: Resource Creation
+subgraph S1["Resource Creation"]
+  direction LR
+  A1["Alice Creates Document
+   -------
+Generate unique UUID
+Create root UCAN token
+Generate AES encryption key"]
+  A2["Add Initial Content
+   -------
+Document text/data
+Encrypt with AES key
+Initialize Yjs CRDT state"]
+  A3["Prepare for Sharing
+   -------
+Identify target collaborators
+Ready for distribution
+Prepare UCAN tokens and keys"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Permission and Key Preparation
+subgraph S2["Permission and Key Preparation"]
+  direction LR
+  B1["Create Delegated UCANs
+   -------
+For each target collaborator
+Grant appropriate permissions
+Proof chain to Alice's root"]
+  B2["Re-encrypt AES Keys
+   -------
+Decrypt with Alice's PGP key
+Encrypt for each collaborator
+Individual access keys"]
+  B3["Package Resource Data
+   -------
+ResourceAddRequest messages
+UCAN + encrypted key + metadata
+Initial CRDT state"]
+  B4["Prepare for Distribution
+   -------
+Ready distribution packages
+Await sync opportunity
+Prepare for parallel delivery"]
+  B1 --> B2 --> B3 --> B4
+end
+
+
+%% Section 3: Parallel Resource Distribution
+subgraph S3["Parallel Resource Distribution"]
+  direction LR
+  C1["Concurrent Distribution
+   -------
+Send ResourceAddRequest
+To all collaborators simultaneously
+Parallel chunked transfer"]
+  C2["Peer Processing
+   -------
+Validate UCAN tokens
+Decrypt AES keys
+Initialize local CRDT state"]
+  C3["Acknowledgment Responses
+   -------
+ResourceAddResponse
+Success/failure status
+Error handling for failures"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section 4: Network Integration
+subgraph S4["Network Integration"]
+  direction LR
+  D1["Resource Available
+   -------
+Document appears in all peer lists
+Permissions correctly established
+Ready for collaboration"]
+  D2["Trigger User Sync
+   -------
+New shared context created
+Collaborators discover each other
+Connection tokens exchanged"]
+  D3["Full Collaboration Ready
+   -------
+Resource synchronization complete
+Direct peer connections established
+Real-time editing enabled"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4

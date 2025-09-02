@@ -1,0 +1,87 @@
+flowchart TB
+
+%% Section 1: Alice Generates Token
+subgraph S1["Alice Generates Token"]
+  direction LR
+  A1["Generate One-Time Token
+   -------
+24hr validity
+wildcard audience
+user-connect capability"]
+  A2["Share Out-of-Band
+   -------
+QR code
+message
+email"]
+  A1 --> A2
+end
+
+
+%% Section 2: Bob Uses Token
+subgraph S2["Bob Uses Token"]
+  direction LR
+  B1["Receives Token
+   -------
+Out-of-band channel parses UCAN token"]
+  B2["Discovers Alice
+   -------
+Via Iroh discovery using device ID"]
+  B3["Initiates Connection
+   -------
+QUIC connection
+device key auth"]
+  B1 --> B2 --> B3
+end
+
+
+%% Section 3: Handshake Process
+subgraph S3["Handshake Process"]
+  direction LR
+  C1["Bob to Alice
+   -------
+FirstConnectRequest
+Token + Bob's identity
+Signed UCAN pub key"]
+  C2["Alice Validates
+   -------
+Verify one-time token
+Check signature & expiration
+Validate Bob's PGP signature"]
+  C3["Alice to Bob
+   -------
+FirstConnectResponse
+Permanent UCAN + Alice's identity
+Device list & signed UCAN pub"]
+  C4["Bob Validates
+   -------
+Verify Alice's PGP signature
+Validate permanent UCAN
+Store connection info"]
+  C1 --> C2 --> C3 --> C4
+end
+
+
+%% Section 4: Permanent Connection
+subgraph S4["Permanent Connection"]
+  direction LR
+  D1["Both Issue UCANs
+   -------
+Connect + Share capabilities
+Specific audience (not wildcard)
+30-year lifetime"]
+  D2["Store Each Other
+   -------
+Identities in local DB
+Device information
+Permanent UCAN tokens"]
+  D3["Ready to Collaborate
+   -------
+Can share resources
+Real-time collaboration
+Future connections"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4

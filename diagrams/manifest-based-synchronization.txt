@@ -1,0 +1,70 @@
+flowchart TB
+
+%% Section 1: Generate Manifests
+subgraph S1["Generate Manifests"]
+  direction LR
+  A1["Alice Creates Manifest
+   -------
+Find shared resources with Bob
+Get all users with those resources
+List their known devices"]
+  A2["Send to Bob
+   -------
+UserManifestRequest
+Users + devices + resources
+Bob's shared context"]
+  A3["Bob Creates Manifest
+   -------
+Same process for Alice
+Find shared resources
+Get mutual collaborators"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Compare Manifests
+subgraph S2["Compare Manifests"]
+  direction LR
+  B1["Find Differences
+   -------
+Users Alice knows but Bob doesn't
+Users Bob knows but Alice doesn't
+Device differences for common users"]
+  B2["Create Comparison Result
+   -------
+Local missing items
+Remote missing items
+Resources needing sync"]
+  B3["Send Response
+   -------
+UserManifestResponse
+What Bob has that Alice needs
+Ack to proceed"]
+  B1 --> B2 --> B3
+end
+
+
+%% Section 3: Exchange Data
+subgraph S3["Exchange Data"]
+  direction LR
+  C1["Create Delegated Tokens
+   -------
+For each unknown user
+Generate connection UCAN
+Enable direct peer connections"]
+  C2["Transfer Missing Data
+   -------
+User identities + devices
+Delegated UCAN tokens
+Device information"]
+  C3["Update Local Database
+   -------
+Store new user identities
+Save device information
+Mark users as non-owner"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3
