@@ -2,7 +2,6 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import { ion } from "starlight-ion-theme";
 
-import d2 from "astro-d2";
 
 const orgSchema = {
   "@context": "https://schema.org",
@@ -11,8 +10,8 @@ const orgSchema = {
   "url": "https://docs.osvauld.com",
   "name": "Osvauld",
   "legalName": "OSVAULD SECURITY SOLUTIONS PRIVATE LIMITED",
-  "description": "Own Your Data, Leave No Footprint with Osvauld - a Rust framework for building peer-to-peer applications with privacy, security, and user control.",
-  "slogan": "Own Your Data, Leave No Footprint",
+  "description": "Osvauld brings peer-to-peer, end-to-end encrypted applications built for personal autonomy",
+  "slogan": "Connect without compromise",
   "logo": "https://www.osvauld.com/assets/logo.png",
   "sameAs": [
     "https://github.com/osvauld",
@@ -107,7 +106,5 @@ export default defineConfig({
     plugins: [ion()],
   },),
 
-  d2({
-    layout: "elk"
-  })],
+  ],
 });

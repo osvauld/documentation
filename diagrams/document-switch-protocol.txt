@@ -1,0 +1,102 @@
+flowchart TB
+
+%% Section 1: Document Switch Trigger
+subgraph S1["Document Switch Trigger"]
+  direction LR
+  A1["User Switches Document
+   -------
+Select different document
+Close current document
+Trigger note-change event"]
+  A2["Detect Document Change
+   -------
+Compare previous vs new resource_id
+Identify actual document switch
+Skip if same document"]
+  A3["Initiate Cleanup Process
+   -------
+Handle previous document connections
+Prepare for new document setup
+Maintain connection state"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Active Connection Cleanup
+subgraph S2["Active Connection Cleanup"]
+  direction LR
+  B1["Get Active Connections
+   -------
+Retrieve list of active collaborators
+Peers currently editing same document
+Connections needing notification"]
+  B2["Send DocumentChanged
+   -------
+Notify each active peer
+LiveEditMessage::DocumentChange
+Signal document switch"]
+  B3["Peer Response Handling
+   -------
+Peers move connection to inactive
+Stop sending real-time updates
+Maintain connection for future"]
+  B4["Clear Active List
+   -------
+Remove all active connections
+Stop real-time broadcasting
+Prepare for new document"]
+  B1 --> B2 --> B3 --> B4
+end
+
+
+%% Section 3: Inactive Connection Sync
+subgraph S3["Inactive Connection Sync"]
+  direction LR
+  C1["Get Inactive Connections
+   -------
+Retrieve inactive connection list
+Peers on different documents
+Connections needing final sync"]
+  C2["Generate Final State Vectors
+   -------
+Get current document state
+Extract Yjs state vectors
+Prepare final synchronization"]
+  C3["Broadcast State Vector Request
+   -------
+Send to all inactive connections
+ResourceUpdateMsg::StateVectorRequest
+Ensure final consistency"]
+  C4["Complete Background Sync
+   -------
+Standard resource sync protocol
+UpdatesResponse + FinalUpdateMerge
+Maintain document consistency"]
+  C1 --> C2 --> C3 --> C4
+end
+
+
+%% Section 4: Document Transition
+subgraph S4["Document Transition"]
+  direction LR
+  D1["Clear All Connection Lists
+   -------
+Reset active connections
+Reset inactive connections
+Clean slate for new document"]
+  D2["Load New Document
+   -------
+Set new current document
+Load CRDT states
+Prepare for collaboration"]
+  D3["Restart Collaboration Setup
+   -------
+Discover new shared users
+Send live edit requests
+Begin new collaboration session"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4
