@@ -1,0 +1,75 @@
+flowchart TB
+
+%% Section 1: Alice Initiates Share
+subgraph S1["Alice Initiates Share"]
+  direction LR
+  A1["Select Document
+   -------
+Choose document to share
+Alice has root UCAN
+Decide permissions for Bob"]
+  A2["Choose Permissions
+   -------
+crud/read: Yes
+crud/update: Yes
+ucan/share: Yes"]
+  A3["Initiate Share Process
+   -------
+Must create UCAN
+Must re-encrypt AES key
+Must connect to Bob"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Token & Key Delegation
+subgraph S2["Token & Key Delegation"]
+  direction LR
+  B1["Create Delegated UCAN
+   -------
+Issue token for Bob
+Subset of Alice's permissions
+Proof references root token"]
+  B2["Decrypt AES Key
+   -------
+Use Alice's PGP key
+Decrypt document's AES key
+Temporary plaintext key"]
+  B3["Re-encrypt for Bob
+   -------
+Encrypt with Bob's PGP key
+Same AES key, different wrapper
+Bob can now decrypt"]
+  B4["Send to Bob
+   -------
+UCAN token
+Encrypted AES key
+Document access granted"]
+  B1 --> B2 --> B3 --> B4
+end
+
+
+%% Section 3: Bob Gains Access
+subgraph S3["Bob Gains Access"]
+  direction LR
+  C1["Receive Share
+   -------
+UCAN token received
+Encrypted AES key received
+Document appears in Bob's list"]
+  C2["Decrypt & Access
+   -------
+Decrypt AES key with PGP
+Decrypt document content
+Load into editor"]
+  C3["Ready to Collaborate
+   -------
+Real-time editing
+Sync with Alice
+Can further share (if permitted)"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3

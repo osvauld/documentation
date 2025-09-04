@@ -1,0 +1,70 @@
+flowchart TB
+
+%% Section 1: Resource Creation
+subgraph S1["Resource Creation"]
+  direction LR
+  A1["Create Document
+   -------
+User creates new document
+Generate unique UUID
+Initialize empty content"]
+  A2["Issue Root UCAN
+   -------
+Self-issued token
+Full capabilities
+30-year lifetime"]
+  A3["Establish Ownership
+   -------
+Root authority created
+Owner has complete control
+Basis for future delegation"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Data Encryption
+subgraph S2["Data Encryption"]
+  direction LR
+  B1["Generate AES Key
+   -------
+Random 256-bit key
+AES-256-GCM
+Unique per document"]
+  B2["Encrypt Content
+   -------
+Document data + AES key
+Authenticated encryption
+Integrity protection"]
+  B3["Encrypt AES Key
+   -------
+AES key + Owner's PGP key
+Hybrid encryption
+Key recovery for owner"]
+  B1 --> B2 --> B3
+end
+
+
+%% Section 3: Storage
+subgraph S3["Storage"]
+  direction LR
+  C1["Store Encrypted Content
+   -------
+Document table
+Encrypted blob
+Metadata (ID, timestamps)"]
+  C2["Store Permissions
+   -------
+UCAN tokens
+Encrypted AES keys
+User access records"]
+  C3["Ready for Access
+   -------
+Owner can decrypt
+Share with others
+Collaborate securely"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3

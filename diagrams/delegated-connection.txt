@@ -1,0 +1,114 @@
+flowchart TB
+
+
+
+
+%% Section 1: Existing Connection
+subgraph S1["Existing Connection"]
+  direction LR
+  A1["Alice <-> Bob
+   -------
+Already connected
+Permanent UCANs exchanged
+Trust established"]
+  A2["Shared Document
+   -------
+Both have access
+Real-time collaboration
+CRDT synchronization"]
+  A1 --> A2
+end
+
+
+
+
+
+
+
+
+%% Section 2: Alice Shares with Carol
+subgraph S2["Alice Shares with Carol"]
+  direction LR
+  B1["Generate Resource UCAN
+   -------
+Document access for Carol
+read/create/update
+ucan/share permissions"]
+  B2["Generate Connection Token
+   -------
+Delegated connect capability
+Embedded proof chain
+Carol -> Bob connection"]
+  B3["Send to Carol
+   -------
+Resource UCAN
+Delegated connection token
+Bob’s identity & devices"]
+  B1 --> B2 --> B3
+end
+
+
+
+
+
+
+
+
+%% Section 3: Carol Gets Access
+subgraph S3["Carol Gets Access"]
+  direction LR
+  C1["Resource Access
+   -------
+Can read/edit document
+Encrypted AES key
+Real-time collaboration"]
+  C2["Connection Token
+   -------
+Can connect to Bob
+Embedded proof: Alice’s authority
+30-year validity"]
+  C3["Bob’s Identity
+   -------
+PGP public key
+Device information
+UCAN public key"]
+  C1 --> C2 --> C3
+end
+
+
+
+
+
+
+
+
+%% Section 4: Carol-Bob Handshake
+subgraph S4["Carol-Bob Handshake"]
+  direction LR
+  D1["Carol Initiates
+   -------
+Using delegated token
+Finds Bob via Iroh discovery
+Establishes QUIC connection"]
+  D2["Embedded Proof Chain
+   -------
+Token contains Alice’s authority
+CID references & facts field
+Parent token embedded"]
+  D3["Bob Validates Chain
+   -------
+Verifies back to Alice
+Checks delegation permissions
+Validates proof integrity"]
+  D4["Direct Connection
+   -------
+Carol <-> Bob established
+Permanent UCAN exchange
+Ready for collaboration"]
+  D1 --> D2 --> D3 --> D4
+end
+
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4

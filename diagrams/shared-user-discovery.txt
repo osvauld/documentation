@@ -1,0 +1,102 @@
+flowchart TB
+
+%% Section 1: Document Opening
+subgraph S1["Document Opening"]
+  direction LR
+  A1["User Opens Document
+   -------
+Select document from list
+Load into editor interface
+Trigger collaboration setup"]
+  A2["Load Document State
+   -------
+Decrypt document content
+Initialize Yjs CRDT state
+Prepare for editing"]
+  A3["Trigger Collaboration Setup
+   -------
+Query shared users
+Identify collaborator devices
+Initiate connection process"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Shared User Discovery
+subgraph S2["Shared User Discovery"]
+  direction LR
+  B1["Query Database
+   -------
+Find users with document access
+Get UCAN token holders
+Exclude current user/device"]
+  B2["Get User Devices
+   -------
+For each shared user
+Retrieve all their devices
+Collect device node IDs"]
+  B3["Filter Active Devices
+   -------
+Remove offline devices
+Skip current user's devices
+Prepare connection targets"]
+  B4["Prepare Live Edit Requests
+   -------
+Create device ID list
+Queue connection attempts
+Set collaboration intent"]
+  B1 --> B2 --> B3 --> B4
+end
+
+
+%% Section 3: Live Edit Connection Requests
+subgraph S3["Live Edit Connection Requests"]
+  direction LR
+  C1["Send Live Edit Requests
+   -------
+Parallel connection attempts
+To all shared user devices
+Fire-and-forget pattern"]
+  C2["Establish QUIC Connections
+   -------
+Direct peer-to-peer links
+Cryptographic authentication
+Reliable transport layer"]
+  C3["Complete Handshake
+   -------
+Exchange user identities
+Verify UCAN permissions
+Establish secure channel"]
+  C4["Trigger Document Check
+   -------
+Send LiveEditConnected event
+Initiate document verification
+Prepare for state sync"]
+  C1 --> C2 --> C3 --> C4
+end
+
+
+%% Section 4: Connection State Management
+subgraph S4["Connection State Management"]
+  direction LR
+  D1["Connections Established
+   -------
+Multiple peer connections
+Ready for document check
+Awaiting synchronization"]
+  D2["Update Frontend
+   -------
+Show shared users list
+Display connection status
+Enable collaborative features"]
+  D3["Ready for Collaboration
+   -------
+Document check protocol ready
+State synchronization prepared
+Real-time editing enabled"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4

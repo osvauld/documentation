@@ -1,0 +1,97 @@
+flowchart TB
+
+%% Section 1: Reconciliation Timer
+subgraph S1["Reconciliation Timer"]
+  direction LR
+  A1["Start Jittered Timer
+   -------
+Base interval: 30 seconds
+Random jitter: 0–29 seconds
+Prevent thundering herd"]
+  A2["Timer Tick Event
+   -------
+Periodic reconciliation trigger
+Check for active document
+Validate active connections"]
+  A3["Check Reconciliation Conditions
+   -------
+Must have current document
+Must have active connections
+Skip if no collaboration"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: State Vector Reconciliation
+subgraph S2["State Vector Reconciliation"]
+  direction LR
+  B1["Get Local State Vectors
+   -------
+Extract current Yjs state
+Generate state vector summary
+Prepare for comparison"]
+  B2["Send to Active Connections
+   -------
+DocumentCheckResponse format
+is_match=true + state_vectors
+Trigger peer sync process"]
+  B3["Peer State Comparison
+   -------
+Peers compare state vectors
+Identify any divergence
+Generate needed updates"]
+  B4["Exchange Missing Updates
+   -------
+StateVectorExchange protocol
+UpdateExchange messages
+Restore perfect sync"]
+  B1 --> B2 --> B3 --> B4
+end
+
+
+%% Section 3: Connection Health Validation
+subgraph S3["Connection Health Validation"]
+  direction LR
+  C1["Check Connection Health
+   -------
+QUIC connection status
+Close reason validation
+Network reachability test"]
+  C2["Detect Connection Failures
+   -------
+Closed connections identified
+Failed message sends logged
+Connection cleanup triggered"]
+  C3["Mark for Recovery
+   -------
+Add to failed connection list
+Remove from active connections
+Queue reconnection attempt"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section 4: Automatic Recovery
+subgraph S4["Automatic Recovery"]
+  direction LR
+  D1["Attempt Reconnection
+   -------
+Fire-and-forget pattern
+Live edit connection request
+Asynchronous recovery"]
+  D2["Re-establish Session
+   -------
+New QUIC connection
+Document check protocol
+State synchronization"]
+  D3["Restore Collaboration
+   -------
+Add back to active connections
+Resume real-time updates
+Transparent to user"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4
