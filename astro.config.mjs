@@ -73,7 +73,7 @@ export default defineConfig({
         tag: 'meta',
         attrs: {
           property: 'og:image',
-          content: '/osvauldthumb.png',
+          content: '/osvauldthumb.webp',
         },
       },
       {
@@ -94,7 +94,7 @@ export default defineConfig({
         tag: 'meta',
         attrs: {
           name: 'twitter:image',
-          content: '/osvauldthumb.png',
+          content: '/osvauldthumb.webp',
         },
       },
       {
