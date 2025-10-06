@@ -102,6 +102,14 @@ export default defineConfig({
         attrs: { type: 'application/ld+json' },
         content: JSON.stringify(orgSchema),
       },
+      {
+        tag: 'script',
+        attrs: {
+          'data-goatcounter': 'https://osvauld.goatcounter.com/count',
+          async: true,
+          src: 'https://gc.zgo.at/count.js',
+        },
+      },
     ],
     plugins: [ion()],
   },),
