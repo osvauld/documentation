@@ -1,0 +1,140 @@
+flowchart TB
+
+%% Section 1: Content Creation
+subgraph S1["Content Creation"]
+  direction LR
+  A1["Generate HUML Template
+   -------
+Use LLM to generate HUML
+Upload HUML_TEMPLATE_GUIDE.md
+Get initial template code"]
+  A2["Edit in Properties Panel
+   -------
+Edit generated content
+Markdown supported
+Add more blocks
+Customize styling"]
+  A3["Add Interactivity
+   -------
+Insert forms (multiple per page)
+Add comment threads
+Navigation buttons
+Template ready"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Publishing to Sovereign Node
+subgraph S2["Publishing to Sovereign Node"]
+  direction LR
+  B1["Generate Root UCAN
+   -------
+Create resource owner token
+Full permissions (CRUD + share)
+30-year validity"]
+  B2["Encrypt Content
+   -------
+Generate AES-256-GCM key
+Encrypt website data
+Encrypt key with PGP"]
+  B3["Share Folder with Node
+   -------
+Select folder for sharing
+Re-encrypt AES keys for node
+Hit 'Sync Resource' for new content
+Node stores encrypted resources"]
+  B1 --> B2 --> B3
+end
+
+
+%% Section 3: Generating Share Token
+subgraph S3["Generating Share Token"]
+  direction LR
+  C1["Select Folder
+   -------
+Choose which folder to share
+All resources included
+Folder-level permissions"]
+  C2["Generate Folder UCAN
+   -------
+Public view token (30 days)
+Wildcard audience (*)
+view/public capability"]
+  C3["Create Connection String
+   -------
+User public key
+Device public key
+UCAN token + pub key
+Base64 encode"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section 4: Sharing with Viewers
+subgraph S4["Sharing with Viewers"]
+  direction LR
+  D1["Distribute Link
+   -------
+Share connection string
+Email, chat, social media
+Out-of-band communication"]
+  D2["Viewer Receives
+   -------
+Copy connection string
+Paste in Sthalam viewer
+Request website connection"]
+  D3["First Connection
+   -------
+Viewer uses aud: * token
+Establishes P2P to node
+Initial handshake"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section 5: Token Upgrade After First Connection
+subgraph S5["Token Upgrade After First Connection"]
+  direction LR
+  E1["First-Time Authentication
+   -------
+Viewer connects with aud: * token
+Node validates wildcard token
+Viewer identity established"]
+  E2["Node Issues Viewer Token
+   -------
+Generate new folder token
+aud: viewer_did (specific)
+30-day or longer validity"]
+  E3["Subsequent Connections
+   -------
+Viewer uses specific token
+NOT the wildcard token
+Secure viewer-specific auth"]
+  E1 --> E2 --> E3
+end
+
+
+%% Section 6: Ongoing Sync
+subgraph S6["Ongoing Sync"]
+  direction LR
+  F1["Initial Sync
+   -------
+Pull all folder resources
+Local-first storage
+Display content"]
+  F2["Background Updates
+   -------
+Poll node for new content
+State vector sync
+Apply incremental updates"]
+  F3["Interactive Features
+   -------
+Submit forms
+Comment on threads
+Real-time collaboration"]
+  F1 --> F2 --> F3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4 --> S5 --> S6

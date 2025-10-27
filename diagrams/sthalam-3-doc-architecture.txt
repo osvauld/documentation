@@ -1,0 +1,105 @@
+flowchart TB
+
+%% Section 1: Resource Creation with 3 Documents
+subgraph S1["Resource Creation with 3 Documents"]
+  direction LR
+  A1["Create Website Resource
+   -------
+Generate resource UUID
+Create root UCAN token
+Initialize 3 Yjs documents"]
+  A2["Document 1: blocksuite_doc
+   -------
+Main website content
+HUML structure & blocks
+Text, images, navigation"]
+  A3["Document 2: thread_comments_doc
+   -------
+Comment threads
+User discussions
+Collaborative conversations"]
+  A4["Document 3: form_submissions_doc
+   -------
+Form responses
+User submissions
+Feedback collection"]
+  A1 --> A2
+  A1 --> A3
+  A1 --> A4
+end
+
+
+%% Section 2: Permission Model for Viewers
+subgraph S2["Permission Model for Viewers"]
+  direction LR
+  B1["blocksuite_doc Permissions
+   -------
+Viewer: crud/read (read-only)
+One-way sync: Node → Viewer
+Publisher updates content"]
+  B2["thread_comments_doc Permissions
+   -------
+Viewer: crud/write (bidirectional)
+Both can read & write
+Real-time CRDT sync"]
+  B3["form_submissions_doc Permissions
+   -------
+Viewer: crud/append (append-only)
+Viewer → Node only
+No updates back to viewer"]
+  B1 --> B2 --> B3
+end
+
+
+%% Section 3: UCAN Token Structure
+subgraph S3["UCAN Token Structure"]
+  direction LR
+  C1["Generate Resource UCAN
+   -------
+For specific resource_id
+Target viewer's UCAN pub key
+Multiple capabilities"]
+  C2["Capability Strings
+   -------
+sthalam:resource:id:blocksuite_doc - crud/read
+sthalam:resource:id:thread_comments_doc - crud/write
+sthalam:resource:id:form_submissions_doc - crud/append"]
+  C3["Token Verbosity Enables
+   -------
+Parse capabilities to know what to sync
+Determine merge vs ignore behavior
+Document-specific permissions"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section 4: Sync Behavior - Local First + Incremental
+subgraph S4["Sync Behavior - Local First + Incremental"]
+  direction LR
+  D1["Main Content (Local-First)
+   -------
+Viewer loads from local blocksuite_doc
+Polls node for incremental CRDT updates
+Publisher pushes edits → Node
+Only diffs transferred, not full doc
+Viewer applies incremental updates"]
+  D2["Comments (Local-First + Multi-Thread)
+   -------
+Load from local thread_comments_doc
+All participants push with thread_id
+Poll node for incremental updates
+Filter by thread_id for display
+Only CRDT diffs, not full doc"]
+  D3["Forms (Local-First + Multi-Form)
+   -------
+Load from local form_submissions_doc
+Viewer pushes with form_id + field metadata
+Publisher polls for incremental updates
+Filter by form_id for display
+Only CRDT diffs, never full doc after first sync"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4

@@ -1,0 +1,162 @@
+---
+title: "Introduction to Sthalam"
+description: "A sovereign publishing platform for creating and distributing content without intermediaries"
+---
+
+> **POC Status**: Sthalam is currently a proof-of-concept. This documentation describes both implemented core functionality and planned features. While the architecture and cryptographic foundation are in place, many finer details and optimizations are still in development.
+
+> **Open Source**: Sthalam is an MIT licensed project. The code is freely available, and you can modify, distribute, and use it for any purpose. See the [GitHub repository](https://github.com/osvauld/osvauld) for source code.
+
+## What is Sthalam?
+
+**Sthalam** (Malayalam: സ്ഥലം, meaning "place") is a sovereign publishing platform that enables individuals to create and distribute content on their own terms—without platforms, algorithms, or intermediaries.
+
+With Sthalam, you get complete control over your content and how it's distributed. You create websites, micro-blog posts, and newsletters, then share them directly with your viewers through your sovereign node—no middlemen, no terms of service changes, no deplatforming risk.
+
+**Your Data, Your Control**: Everything you create—the blogs you host, the surveys submitted by viewers, the comments on your posts—exists only between you and your viewers. Nobody else has access to it. You decide if it's private or public, who can see it, and under what terms. No platform intermediary, no data harvesting, no third-party access.
+
+## What are Sovereign Nodes?
+
+A **sovereign node** is your personal server that stores and distributes your content. Think of it as your own piece of internet infrastructure that you control completely.
+
+### How Nodes Work
+
+**Traditional Platforms**:
+- Your content lives on someone else's servers
+- The platform controls access, distribution, and rules
+- You can be deplatformed or censored at any time
+- The platform owns the relationship with your audience
+
+**Sovereign Nodes**:
+- Your content lives on infrastructure you control
+- You decide who can access your content and under what terms
+- No one can take your node away or change the rules
+- You own the direct connection to your viewers
+
+### Node Functions
+
+Your sovereign node handles:
+
+1. **Content Storage**: Encrypted copies of your websites, blogs, and newsletters
+2. **Access Control**: Validates UCAN tokens to grant or deny access to viewers
+3. **Synchronization**: Manages CRDT updates for real-time collaboration (comments, forms)
+4. **Distribution**: Serves content directly to authorized viewers
+5. **Data Collection**: Receives and stores form submissions from viewers
+
+### Running a Node
+
+To be truly sovereign, you need to run your own node. Ideally, this is a device connected to your home network, physically in your house.
+
+**Hardware Options**:
+- **Raspberry Pi** (low-cost, energy-efficient, perfect for home server)
+- **Old smartphone** (Android device repurposed as server, connected to home WiFi)
+- **Old laptop or desktop** (repurpose existing hardware)
+- **Mini PC** (dedicated small form-factor device)
+
+**Why Physical Control Matters**:
+- The node has access to your content and data
+- Physical possession ensures no one else can access your node
+- Home network keeps your publishing infrastructure local
+- You control the hardware, the software, and the network
+
+See [Setting Up a Sovereign Node](/sovereign-node/setting-up) for installation details.
+
+### Security Model
+
+Your sovereign node stores your content with cryptographic protections:
+
+- **UCAN Authorization**: Only viewers with valid tokens can access content
+- **Cryptographic Ownership**: Your PGP and UCAN keys prove ownership
+- **Physical Sovereignty**: The node runs on hardware you control
+- **Home Network**: Device stays on your local network under your control
+
+True sovereignty means controlling the physical hardware. Your node, your rules, your house.
+
+## Core Principles
+
+### Sovereignty
+You own your content, your identity, and your distribution. No platform can deplatform you, censor your content, or change the rules.
+
+### Direct Distribution
+Content flows directly from your sovereign node to your viewers. No intermediaries, no algorithms deciding who sees your content.
+
+### Cryptographic Ownership
+Your content is protected by cryptographic keys and UCAN (User Controlled Authorization Networks) tokens. You have provable ownership and control.
+
+### Privacy by Design
+Viewers connect directly to your node. Their data isn't harvested by platforms or sold to advertisers. Privacy is built into the architecture.
+
+## How It Works
+
+Sthalam uses a combination of technologies to enable sovereign publishing:
+
+- **Self-Sovereign Identity**: Your cryptographic keys (PGP keypair, Ed25519 signing keys, UCAN public key) prove your identity without relying on centralized authorities
+- **UCAN Authorization**: Token-based permissions that let you share content with specific capabilities (view, comment, submit forms)
+- **CRDT Synchronization**: Conflict-free replicated data types enable real-time collaboration and updates
+- **Local-First Architecture**: Content renders from local copies first, with incremental sync in the background
+- **End-to-End Encryption**: Your content is encrypted at rest and in transit, only accessible to authorized viewers
+
+## What Can You Build?
+
+### Websites
+Build interactive multi-page websites with visual builders, custom styling, forms, and comment threads.
+
+### Micro-blogs
+Publish Twitter-like posts with real-time collaborative discussions, distributed directly to subscribers.
+
+### Newsletters
+Send rich content directly to subscribers without relying on email platforms or their restrictions.
+
+### Surveys & Forms
+Collect feedback, conduct polls, and gather data from your viewers with complete privacy—only you have access to the results.
+
+### Interactive Applications (Future)
+The architecture enables bidirectional workflows for e-commerce, marketplaces, service requests, and more—all sovereign and peer-to-peer.
+
+## POC vs. Production
+
+This is a proof-of-concept demonstrating the viability of sovereign publishing. The current implementation includes:
+
+**Implemented**:
+- Core publishing flow (create, publish, share)
+- UCAN-based permissions and token generation
+- Cryptographic ownership and encryption
+- CRDT-based synchronization
+- Form submissions with append-only permissions
+- Comment threads
+- Viewer connections and authentication
+
+**Planned for Production**:
+- Client-side validation for forms
+- Advanced UI features (filtering, analytics, exports)
+- Local-first caching optimizations
+- Rate limiting and spam prevention
+- Enhanced field metadata and parsing
+- Interactive bidirectional workflows
+- Mobile applications
+
+## Getting Started
+
+To start using Sthalam, you'll need:
+
+1. **Self-Sovereign Identity**: Create your cryptographic identity (see [Creating Your Identity](/livnote/creating-your-identity))
+2. **Sovereign Node**: Run your own node or connect to a trusted node
+3. **Sthalam Desktop App**: Use the desktop application to create and publish content
+
+From there, you can:
+- [Publish Content](/sthalam/publishing-content) - Create websites, blogs, and newsletters
+- [Share with Viewers](/sthalam/viewer-connections) - Generate share tokens and distribute content
+- [Collect Submissions](/sthalam/forms-and-submissions) - Add forms to gather viewer feedback
+- [Enable Comments](/sthalam/comment-threads) - Allow real-time discussions on your content
+
+## The Vision
+
+Sthalam is more than a publishing tool—it's infrastructure for a sovereign web where individuals control their digital presence without relying on platforms. The name "place" reflects this: creating your own place on the internet, owned and controlled by you.
+
+As the POC evolves into production, Sthalam will enable new models for:
+- Sovereign commerce (e-commerce without platforms)
+- Direct service marketplaces (peer-to-peer transactions)
+- Community building (without platform surveillance)
+- Knowledge sharing (without algorithmic filtering)
+
+All while preserving your sovereignty, privacy, and control.

@@ -1,0 +1,112 @@
+flowchart TB
+
+%% Section 1: Form Design & Publishing (Multiple Forms)
+subgraph S1["Form Design & Publishing - Multiple Forms"]
+  direction LR
+  A1["Publisher Creates Multiple Forms
+   -------
+Form 1: 'Contact Form' (form_id: contact)
+Form 2: 'Feedback' (form_id: feedback)
+Each field has metadata for parsing
+All stored in form_submissions_doc"]
+  A2["Add Forms to Website
+   -------
+Multiple form blocks with unique form_id
+Each connects to form_submissions_doc
+Field types: text, email, textarea, select
+Configure submit buttons"]
+  A3["Publish to Node
+   -------
+Website with multiple forms published
+First time: Full resource sent
+Viewers receive and store locally"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Viewer Opens & Fills Form (Local-First)
+subgraph S2["Viewer Opens & Fills Form - Local First"]
+  direction LR
+  B1["Viewer Opens Website
+   -------
+Load from LOCAL copy first
+Render from local blocksuite_doc
+Display all form blocks
+Instant load"]
+  B2["Background Update Check
+   -------
+Poll node for incremental updates
+Apply CRDT updates if available
+Only incremental diffs, not full doc
+Forms update if changed"]
+  B3["Fill Out Specific Form
+   -------
+Choose form (contact or feedback)
+Enter data in fields
+Client-side validation
+Review before submit"]
+  B4["Submit Form
+   -------
+Click submit button
+Create submission with form_id
+Prepare CRDT update"]
+  B1 --> B2 --> B3 --> B4
+end
+
+
+%% Section 3: Submission Sync (Append-Only with form_id)
+subgraph S3["Submission Sync - Incremental CRDT Updates"]
+  direction LR
+  C1["Generate CRDT Update
+   -------
+Create Yjs incremental update
+Include form_id + field metadata
+For form_submissions_doc
+Append-only operation"]
+  C2["Push to Node
+   -------
+ViewerCommentsUpdate message
+resource_id + resource UCAN
+UCAN has crud/append capability
+Only diff sent, not full doc"]
+  C3["Node Validates & Stores
+   -------
+Validate resource UCAN
+Check crud/append permission
+Apply incremental CRDT update
+Store with form_id"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section 4: Publisher Reviews (Local-First + Incremental)
+subgraph S4["Publisher Reviews - Local First + Incremental"]
+  direction LR
+  D1["Publisher Opens Submissions
+   -------
+Load from LOCAL copy first
+Display existing submissions
+Instant load from local DB"]
+  D2["Poll for New Submissions
+   -------
+IncrementalSyncRequest to node
+Pull only new CRDT updates
+Not full doc, just incremental diffs
+Apply updates to local"]
+  D3["View All Submissions
+   -------
+See submissions by form_id
+Contact form submissions
+Feedback form submissions
+Parse using field metadata"]
+  D4["No Updates Back to Viewers
+   -------
+Append-only model
+Publisher cannot edit submissions
+Viewer never pulls (no read permission)"]
+  D1 --> D2 --> D3 --> D4
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4

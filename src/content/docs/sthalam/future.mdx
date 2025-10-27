@@ -1,0 +1,61 @@
+---
+title: "Future Concepts"
+description: "Exploratory ideas for enhancing Sthalam with interactive applications and discoverability"
+---
+
+> **Exploratory Concepts**: The following describes potential future directions for Sthalam. None of this is currently implemented or planned in detail. These represent aspirational thinking about possibilities.
+
+## Interactive Applications with JEXL
+
+**JEXL (JavaScript Expression Language)** could enable sovereign individuals to build interactive applications with custom logic—without writing code or relying on platforms.
+
+Publishers could define business rules using simple expressions:
+
+```jexl
+total = (quantity * price) * (1 - discount) + shipping + tax
+showShipping = productType == "physical"
+eligible = age >= 18 && hasConsent
+```
+
+This would open up **more interactive sovereign applications** beyond static publishing:
+
+- E-commerce stores with custom pricing and checkout logic
+- Restaurant ordering with menu customization
+- Service marketplaces with availability management
+- Booking systems with flexible policies
+
+All customizable to each sovereign individual's unique business rules—without platform constraints.
+
+## Human-Readable Names via Blockchain
+
+Currently, sharing content requires base64-encoded connection strings (large text blobs). Blockchain could enable **human-readable names** similar to ENS or DNS.
+
+**The Vision**: Register names like `@alice` or `myblog.sthalam` that resolve to connection strings, enabling:
+
+- Simple sharing (type a name instead of pasting a blob)
+- Content discovery (browse and search for publishers)
+- Multi-device updates (change nodes without resharing)
+
+Blockchain would be optional—direct connection string sharing would still work. It would simply add a naming and discovery layer on top.
+
+## Interactive Bidirectional Workflows
+
+The current model uses append-only submissions to publisher-owned documents. An interesting direction would be **viewer-owned submission documents** where:
+
+- Viewers create and own their submissions
+- Publishers receive delegated access to read and update
+- Updates flow bidirectionally
+- Viewers can delete their data anytime
+
+This could enable sovereign alternatives to centralized platforms:
+
+- **E-commerce**: Viewers place orders they own, publishers update status, viewers can cancel
+- **Restaurant ordering**: Viewers control orders, restaurants update status (preparing → ready)
+- **Service marketplaces**: Viewers create requests, providers respond, back-and-forth negotiation
+- **Booking systems**: Viewers own bookings, providers manage availability
+
+All without platform intermediaries or transaction fees.
+
+## Why These Matter
+
+These concepts would transform Sthalam from a publishing platform into **infrastructure for sovereign applications**—enabling individuals to run interactive businesses on their own terms, with their own logic, without centralized platforms.

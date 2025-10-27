@@ -1,0 +1,143 @@
+flowchart TB
+
+%% Section 1: Thread Block Setup (Multiple Threads Per Document)
+subgraph S1["Thread Block Setup - Multiple Threads"]
+  direction LR
+  A1["Publisher Adds Multiple Threads
+   -------
+Add multiple thread blocks in HUML
+Each thread has unique thread_id
+All stored in thread_comments_doc
+Different locations in same document"]
+  A2["Configure Each Thread
+   -------
+Thread 1: 'Section 1 Discussion'
+Thread 2: 'Section 2 Feedback'
+Thread 3: 'General Comments'
+Each independent conversation"]
+  A3["Publish to Viewers
+   -------
+Website with multiple threads published
+All threads sync to sovereign node
+Viewers receive all threads via sync"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Viewers Write to Local First
+subgraph S2["Viewers Write Comments - Local First"]
+  direction LR
+  B1["Viewers Load from Local
+   -------
+Render from local thread_comments_doc
+Instant display of all threads
+Filter by thread_id for each block
+Display existing comments"]
+  B2["Write Comment to Local
+   -------
+Viewer A writes to Thread 1 locally
+Comment immediately appears in UI
+Yjs CRDT update created locally
+No network wait for user"]
+  B3["Prepare for Sync
+   -------
+Comment stored in local Yjs doc
+Generate state vector for sync
+Ready to exchange with node
+Only CRDT diff will be sent"]
+  B1 --> B2 --> B3
+end
+
+
+%% Section 3: State Vector Sync with Node
+subgraph S3["State Vector-Based Sync Exchange"]
+  direction LR
+  C1["Viewer → Node (State Vector)
+   -------
+IncrementalSyncRequest
+Send local state vector
+resource_id + resource UCAN
+Ask: what updates do I need?"]
+  C2["Node → Viewer (Updates)
+   -------
+IncrementalSyncResponse
+Send only missing CRDT updates
+Based on state vector diff
+Only what viewer doesn't have"]
+  C3["Node → Viewer (State Vector)
+   -------
+Node sends its state vector
+Ask: what updates do YOU have?
+Bidirectional exchange"]
+  C4["Viewer → Node (Updates)
+   -------
+ViewerCommentsUpdate
+Send viewer's new comments
+Only CRDT diffs node doesn't have
+Based on state vector exchange"]
+  C1 --> C2 --> C3 --> C4
+end
+
+
+%% Section 4: All Participants Use State Vectors
+subgraph S4["State Vector Sync for All Participants"]
+  direction LR
+  D1["Publisher Syncs with Node
+   -------
+Send state vector → Node
+Receive missing updates
+Send state vector ← Node
+Send own updates to node
+Only CRDT diffs, not full doc"]
+  D2["Viewer B Syncs with Node
+   -------
+Send state vector → Node
+Receive Viewer A's comments
+Send state vector ← Node
+Send own updates to node
+Filter by thread_id for display"]
+  D3["All Participants Exchange
+   -------
+Everyone sends state vectors
+Everyone receives only diffs
+Comments merge via CRDT
+All viewers see each other
+Efficient incremental sync"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section 5: Publisher Responds - Local First + State Vector
+subgraph S5["Publisher Responds - Local First + State Vector"]
+  direction LR
+  E1["Publisher Writes to Local
+   -------
+See viewers' comments after sync
+Write reply to local Yjs doc
+Reply immediately appears locally
+No network wait for response"]
+  E2["State Vector Sync
+   -------
+Publisher sends state vector
+Node responds with updates needed
+Node sends its state vector
+Publisher sends reply CRDT diff"]
+  E3["Viewers Receive via State Vector
+   -------
+Viewers send state vectors
+Node responds with publisher reply diff
+Only missing updates transferred
+Apply to local and display"]
+  E4["Continuous State Vector Sync
+   -------
+All write to local first
+All exchange state vectors
+Only CRDT diffs transferred
+thread_id keeps threads separate
+Efficient bidirectional sync"]
+  E1 --> E2 --> E3 --> E4
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4 --> S5

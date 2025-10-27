@@ -1,0 +1,134 @@
+flowchart TB
+
+%% KEY TOKEN LIFECYCLE:
+%% 1. Connection string contains wildcard token (aud: *) - ONE-TIME USE ONLY
+%% 2. After first handshake, node issues NEW viewer-specific tokens:
+%%    - Folder token (aud: viewer_did)
+%%    - User token (aud: viewer_did)
+%% 3. New tokens have 'facts' field referencing original connection string token CID
+%% 4. Viewer uses NEW tokens for ALL subsequent connections and requests
+%% 5. Original connection string token is DISCARDED after first use
+
+%% Section 1: Viewer Receives Connection String
+subgraph S1["Viewer Receives Connection String"]
+  direction LR
+  A1["Get Connection String
+   -------
+Base64-encoded token
+Contains user/device keys
+UCAN folder token"]
+  A2["Decode & Parse
+   -------
+Extract user public key
+Extract device public key
+Extract UCAN token + pub key"]
+  A3["Initiate Connection
+   -------
+Find node via Iroh discovery
+Establish QUIC connection
+Prepare for handshake"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Website Handshake (One-Time Token)
+subgraph S2["Website Handshake - One-Time Token"]
+  direction LR
+  B1["Viewer Sends Request
+   -------
+WebsiteHandshakeRequest
+Viewer's identity & device
+UCAN folder token (aud: *)
+ONE-TIME USE ONLY"]
+  B2["Node Validates Token
+   -------
+Verify UCAN structure
+Check signature & expiration
+Extract folder_id from capabilities
+Validate wildcard audience"]
+  B3["Node Sends Response
+   -------
+WebsiteHandshakeResponse
+Node's user & device info
+Acknowledgment
+Connection established"]
+  B1 --> B2 --> B3
+end
+
+
+%% Section 3: Node Issues New Tokens
+subgraph S3["Node Issues New Viewer-Specific Tokens"]
+  direction LR
+  C1["Generate Folder Token
+   -------
+NEW token for this viewer
+aud: viewer_did (specific)
+facts: {issued_from: original_token_cid}
+Reference to connection string"]
+  C2["Generate User Token
+   -------
+NEW user connection token
+aud: viewer_did (specific)
+facts: {issued_from: original_token_cid}
+Link to original connection"]
+  C3["Send New Tokens to Viewer
+   -------
+Folder token + User token
+Viewer stores for future use
+Original token DISCARDED
+New tokens used for all future access"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section 4: Initial Resource Sync (Using New Tokens)
+subgraph S4["Initial Resource Sync - Using New Tokens"]
+  direction LR
+  D1["Viewer Requests Resources
+   -------
+WebsiteMessage::ResourceRequest
+Send NEW folder token (not original)
+aud: viewer_did
+Request folder contents"]
+  D2["Node Prepares Data
+   -------
+Validate NEW UCAN & extract folder_id
+Get all resources in folder
+Generate resource-specific UCANs
+Each with viewer_did audience"]
+  D3["Send Folder & Resources
+   -------
+FolderSync message
+ResourceAdditionRequest for each
+Resource-specific UCAN tokens"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section 5: Connection Established
+subgraph S5["Connection Established"]
+  direction LR
+  E1["Viewer Stores Data
+   -------
+Save folder & resources
+Store NEW tokens (folder + user)
+Store connection info
+Mark first_sync = true"]
+  E2["Subscribe to Updates
+   -------
+Use NEW tokens for polling
+Receive new posts
+New websites
+Newsletters"]
+  E3["Ready to Interact
+   -------
+View content
+Submit forms
+Comment on threads
+All using NEW tokens"]
+  E1 --> E2 --> E3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4 --> S5
