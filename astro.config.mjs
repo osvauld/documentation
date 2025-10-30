@@ -50,17 +50,29 @@ export default defineConfig({
         ],
       },
       {
-        label: "How it works",
+        label: "Livnote",
         items: [
-          { label: "Creating your identity", link: "/how-it-works/creating-your-identity" },
-          { label: "Connecting with peers", link: "/how-it-works/connecting-to-peers" },
-          { label: "Creating and sharing resources", link: "/how-it-works/creating-and-sharing" },
-          { label: "User Synchronization", link: "/how-it-works/user-synchronization" },
-          { label: "Resources Synchronization", link: "/how-it-works/resources-synchronization" },
-          { label: "Live Edit", link: "/how-it-works/live-edit" }
+          { label: "Creating your identity", link: "/livnote/creating-your-identity" },
+          { label: "Connecting with peers", link: "/livnote/connecting-to-peers" },
+          { label: "Creating and sharing resources", link: "/livnote/creating-and-sharing" },
+          { label: "User Synchronization", link: "/livnote/user-synchronization" },
+          { label: "Resources Synchronization", link: "/livnote/resources-synchronization" },
+          { label: "Live Edit", link: "/livnote/live-edit" }
         ],
       },
-
+      {
+        label: "Sthalam",
+        items: [
+          { label: "Introduction", link: "/sthalam/introduction" },
+          { label: "Publishing Content", link: "/sthalam/publishing-content" },
+          { label: "Viewer Connections", link: "/sthalam/viewer-connections" },
+          { label: "Website Synchronization", link: "/sthalam/website-sync" },
+          { label: "UCAN Token Architecture", link: "/sthalam/ucan-architecture" },
+          { label: "Forms & Submissions", link: "/sthalam/forms-and-submissions" },
+          { label: "Comment Threads", link: "/sthalam/comment-threads" },
+          { label: "Future Concepts", link: "/sthalam/future" },
+        ],
+      },
       {
         label: "Sovereign node",
         items: [

@@ -1,0 +1,533 @@
+---
+title: "Comment Threads"
+description: "Real-time collaborative discussions between publishers and multiple viewers using bidirectional sync with multiple independent threads per document"
+---
+
+Comment threads in Sthalam enable real-time conversations between publishers and viewers, as well as between viewers themselves. A single document can have **multiple independent comment threads** in different locations (e.g., separate discussions for different sections of a blog post). Unlike forms (append-only) and main content (read-only), comment threads use bidirectional synchronization with `crud/write` permissions, allowing all participants (publisher and all viewers) to read and write collaboratively.
+
+**Key Architecture**:
+- **Local-first writes**: Comments written to local Yjs doc first (instant UI update)
+- **State vector sync**: Participants exchange state vectors with node to sync only missing CRDT updates
+- **Bidirectional**: Both viewer and node send state vectors and respond with diffs
+- **Never full doc**: Only CRDT diffs transferred after initial sync
+- All threads within a document are stored in the same `thread_comments_doc` but are kept separate by `thread_id`
+
+## Comment Thread Flow
+
+import { Image } from 'astro:assets';
+import sthalamCommentThreads from '../../../assets/diagrams/comments.png';
+
+<Image src={sthalamCommentThreads} alt="Comment thread flow diagram showing thread block setup, viewer writing comments, bidirectional sync, and publisher responding" />
+
+## Viewer Experience
+
+### Step 1: Opening Thread
+
+When viewer loads website with thread block:
+
+1. **Render Thread**: Display existing comments
+2. **Show Input**: Comment composition area
+3. **UCAN Permission**: `crud/write` for `thread_comments_doc`
+4. **Load Comments**: Fetch and display existing thread
+
+### Step 2: Writing Comments to Local First
+
+**Comment Composition with thread_id (Local-First)**:
+```javascript
+// User types comment in specific thread (e.g., "section1_thread")
+const commentText = "Great insights on decentralization!";
+const threadId = "section1_thread"; // From the thread block's block_id
+
+// Create comment object
+const comment = {
+  id: generateUUID(),
+  thread_id: threadId, // Identifies which thread this comment belongs to
+  author: viewerPublicKey,
+  author_name: viewerDisplayName,
+  timestamp: Date.now(),
+  text: commentText,
+  replies: []
+};
+
+// Add to LOCAL Yjs doc first (instant UI update)
+const threadDoc = threadCommentsDoc; // Local copy
+const commentsMap = threadDoc.getMap('threads'); // Organized by thread_id
+const threadArray = commentsMap.get(threadId) || threadDoc.getArray(threadId);
+if (!commentsMap.has(threadId)) {
+  commentsMap.set(threadId, threadArray);
+}
+threadArray.push([comment]);
+
+// Comment immediately appears in viewer's UI - no network wait!
+// Now prepare for state vector sync...
+```
+
+**Key Point**: Comment is written to **local Yjs doc** first, appearing instantly in UI. Network sync happens in background.
+
+### Step 3: State Vector Sync with Node
+
+**State Vector Exchange Protocol**:
+
+1. **Viewer → Node (Request with State Vector)**:
+```rust
+Message::Website(WebsiteMessage::IncrementalSyncRequest {
+    resource_id: resourceId,
+    resource_ucan: resourceUcanToken,  // Contains crud/write permission
+    state_vector: localStateVector,  // What updates do I already have?
+})
+```
+
+2. **Node → Viewer (Response with Missing Updates)**:
+```rust
+Message::Website(WebsiteMessage::IncrementalSyncResponse {
+    sync_data: missingUpdates,  // Only CRDT diffs viewer doesn't have
+    state_vector: nodeStateVector,  // What updates does node have?
+})
+```
+
+3. **Viewer → Node (Send Own Updates)**:
+```rust
+Message::Website(WebsiteMessage::ViewerCommentsUpdate {
+    resource_id: resourceId,
+    resource_ucan: resourceUcanToken,
+    sync_data: viewerUpdates,  // Only CRDT diffs node doesn't have (includes new comment)
+})
+```
+
+**Key Properties**:
+- **Bidirectional state vector exchange**: Both sides send state vectors
+- **Only missing diffs**: Each side sends only what the other doesn't have
+- **Never full doc**: Only CRDT updates transferred after first sync
+- **Instant local update**: Comment appeared in UI immediately in Step 2
+- **Background sync**: Network exchange happens in background
+
+## Bidirectional Sync Model
+
+### Permission: `crud/write`
+
+The viewer's UCAN token for `thread_comments_doc` contains:
+
+```
+sthalam:resource:abc123:thread_comments_doc - crud/write
+```
+
+**What `crud/write` Means**:
+- **Can read** existing comments via state vector sync (receive missing CRDT updates)
+- **Can write** new comments to local first, then sync via state vector exchange
+- **Can update** own comments (if implemented)
+- **Bidirectional state vector flow**: All participants exchange state vectors and send only missing CRDT diffs
+- **Multi-viewer support**: Viewers see comments from publisher and other viewers via incremental sync
+- **Never full doc**: Only state vectors and CRDT diffs exchanged
+
+## Node Processing
+
+### Receiving Viewer Comments
+
+When node receives `ViewerCommentsUpdate` with comment:
+
+**Validation** (`network/src/p2p/website_handler.rs:866-963`):
+```rust
+async fn process_viewer_comments_update(
+    &self,
+    resource_id: String,
+    resource_ucan: String,
+    sync_data: String,
+) -> P2PResult<()> {
+    // 1. Validate resource UCAN
+    let ucan = crypto_utils::ucan_utils::validate_structure(&resource_ucan).await?;
+
+    // 2. Verify resource_id matches
+    let ucan_resource_id = extract_resource_id_from_ucan(&ucan)?;
+    if ucan_resource_id != resource_id {
+        return Err("Resource ID mismatch");
+    }
+
+    // 3. Apply updates to thread_comments_doc
+    services::apply_updates(
+        &resource_id,
+        &sync_data,
+        &local_user.id,
+        repo_ctx,
+        &crypto_utils,
+    ).await?;
+
+    // 4. Increment vector clock
+    repo_ctx.vector_clock_repo
+        .increment_vector_clock(&resource_id, &local_device.id)
+        .await?;
+
+    // 5. Store for other participants to pull
+    self.event_emitter.emit(P2PEvent::UpdatesEvent {
+        resource_id,
+        updates: sync_data,
+        client_id: 0,
+    });
+}
+```
+
+**Node Stores Comments**:
+- Node stores incremental CRDT update in `thread_comments_doc`
+- Comment available for state vector sync exchange
+- Other participants will receive via state vector protocol
+- Node acts as passive hub, never initiates
+
+### Publisher Syncs with State Vectors
+
+**Publisher State Vector Sync**:
+1. **Send State Vector**: Publisher sends local state vector to node
+2. **Receive Missing Updates**: Node responds with CRDT diffs publisher doesn't have (e.g., viewer comments)
+3. **Node Sends State Vector**: Node sends its state vector back
+4. **Send Own Updates**: Publisher sends CRDT diffs node doesn't have
+5. **Apply to Local**: Yjs CRDT merges missing updates into local doc
+6. **UI Update**: New comments appear in publisher's view
+
+**State Vector-Based Sync**:
+- **Bidirectional exchange**: Both send state vectors and respond with diffs
+- **Only missing updates**: Each side calculates and sends only what other doesn't have
+- **Never full doc**: Only CRDT diffs transferred
+- **Efficient**: State vectors are small, only changed data moves
+
+## Publisher Response
+
+### Writing Replies (Local-First)
+
+Publisher responds to viewer comments by writing to local first:
+
+```javascript
+// Publisher writes reply to LOCAL Yjs doc first
+const reply = {
+  id: generateUUID(),
+  thread_id: "section1_thread",
+  author: publisherPublicKey,
+  author_name: publisherDisplayName,
+  timestamp: Date.now(),
+  text: "Thanks for the feedback!",
+  parent_comment_id: viewerCommentId
+};
+
+// Add to LOCAL thread doc (instant UI update)
+const commentsMap = threadDoc.getMap('threads');
+const threadArray = commentsMap.get("section1_thread");
+threadArray.push([reply]);
+
+// Reply appears IMMEDIATELY in publisher's UI - no network wait!
+// State vector sync will propagate to node in background...
+```
+
+**Sync via State Vectors**:
+- Publisher writes to local first (instant UI update)
+- Background state vector exchange with node
+- Node receives publisher's reply CRDT diff
+- Reply available for viewers via state vector sync
+
+### Viewers Sync with State Vectors
+
+**Incremental Sync** (`network/src/p2p/website_handler.rs:772-862`):
+```rust
+async fn process_incremental_sync_response(
+    &self,
+    resource_id: String,
+    sync_data: String,
+) -> P2PResult<()> {
+    // Apply node's updates (including publisher replies)
+    let viewer_updates = services::apply_and_generate_viewer_updates(
+        &resource_id,
+        &local_user.id,
+        &sync_data,
+        repo_ctx,
+        &crypto_utils,
+    ).await?;
+
+    // Emit to frontend for UI update
+    self.event_emitter.emit(P2PEvent::UpdatesEvent {
+        resource_id,
+        updates: sync_data,
+        client_id: 0,
+    });
+
+    // Send any new viewer comments back
+    self.send_message(Message::Website(WebsiteMessage::ViewerCommentsUpdate {
+        resource_id,
+        resource_ucan,
+        sync_data: viewer_updates,
+    })).await?;
+}
+```
+
+**UI Update**:
+- Viewers send state vectors to node
+- Node responds with publisher's reply CRDT diff
+- Viewers apply diff to local doc
+- Publisher's reply appears in viewer's thread
+- Ongoing conversation continues
+
+## Real-time Synchronization
+
+### Active Connections
+
+When participants (publisher and multiple viewers) are online simultaneously:
+
+**State Vector-Based Propagation**:
+1. Viewer A writes comment to local → instant UI update
+2. Viewer A exchanges state vectors with node → node receives comment CRDT diff
+3. Publisher sends state vector to node → receives Viewer A's comment diff
+4. Publisher writes reply to local → instant UI update
+5. Publisher exchanges state vectors with node → node receives reply diff
+6. Other viewers send state vectors → receive both comment and reply diffs
+7. All participants apply diffs to local docs
+8. Continuous state vector exchange creates near real-time experience
+
+**Sub-Second Latency**:
+- Instant local writes (no network wait for UI update)
+- Frequent state vector exchanges (e.g., every few seconds)
+- QUIC connections provide fast transport
+- State vectors are tiny (just version info)
+- CRDT diffs are small and efficient
+- Only missing updates transferred
+
+### Offline Resilience
+
+When parties are offline:
+
+**Viewer Offline**:
+- Comments stored locally (Yjs CRDT)
+- Synced to node when reconnected
+- Publisher receives during next sync
+
+**Publisher Offline**:
+- Viewer comments sent to node
+- Stored in node's `thread_comments_doc`
+- Publisher receives when back online
+- Publisher's replies queued similarly
+
+## CRDT Properties for Threads
+
+### Conflict-Free Merging Across Multiple Threads
+
+**Concurrent Comments from Multiple Participants in Different Threads**:
+```
+Viewer A writes to "section1_thread" locally → instant UI update
+Viewer B writes to "section2_thread" locally → instant UI update
+Publisher writes to "section1_thread" locally → instant UI update
+Viewer C writes to "general_thread" locally → instant UI update
+
+All participants exchange state vectors with node
+Node responds with only missing CRDT diffs for each participant
+Each participant applies missing diffs to local doc
+Each client filters by thread_id to display comments in the right place
+```
+
+All comments merge without conflict:
+- **Local-first writes**: All write to local Yjs doc first (instant UI)
+- **State vector sync**: Exchange state vectors, receive only missing diffs
+- Single `thread_comments_doc` stores all threads
+- Each comment tagged with `thread_id`
+- Yjs Map organizes comments by thread
+- Each thread's Array maintains insertion order
+- Each comment has unique ID
+- No overwrites or data loss
+- Eventual consistency guaranteed via CRDT
+- All viewers see comments from each other in the correct threads
+- **Never full doc**: Only state vectors and diffs exchanged
+
+### Awareness & Presence
+
+**User Awareness** (optional feature):
+```javascript
+// Track who's currently viewing
+const awareness = new Awareness(threadDoc);
+
+awareness.setLocalStateField('user', {
+  name: viewerDisplayName,
+  color: '#4285f4',
+  cursor: null
+});
+
+// See who else is active
+awareness.on('change', () => {
+  const states = awareness.getStates();
+  // Display active users in UI
+});
+```
+
+## Use Cases
+
+### Blog Post Discussions with Multiple Threads
+
+Engage readers in focused conversations:
+- Multiple threads for different sections of the post
+- "Introduction" thread, "Technical Details" thread, "Conclusion" thread
+- Viewers ask section-specific questions and discuss with each other
+- Publisher responds with clarifications in relevant threads
+- Community discussions form between multiple viewers in each thread
+- Collaborative knowledge building organized by topic
+- All participants poll node to see everyone's comments across all threads
+
+### Newsletter Feedback
+
+Interactive newsletters with community engagement:
+- Readers share thoughts on content
+- Other readers respond to each other's feedback
+- Publisher acknowledges feedback
+- Ongoing dialogue between publisher and multiple subscribers
+
+### Community Threads
+
+Build engaged communities with multi-viewer discussions:
+- Viewer-to-viewer discussions (all viewers see each other's comments)
+- Multiple viewers can engage in threaded conversations
+- Publisher moderation and participation
+- Sovereign community without platform control
+- All participants push to node and poll to pull everyone's updates
+
+### Q&A Sections
+
+Answer viewer questions:
+- Viewers post questions
+- Publisher provides answers
+- Knowledge base builds over time
+
+## Data Structure for Multiple Threads
+
+### Single Document, Multiple Threads
+
+All threads within a document are stored in the same `thread_comments_doc`:
+
+```javascript
+// thread_comments_doc structure
+{
+  threads: YMap {
+    "section1_thread": YArray [
+      { id: "c1", thread_id: "section1_thread", author: "viewer_a", text: "Great post!", ... },
+      { id: "c2", thread_id: "section1_thread", author: "publisher", text: "Thanks!", ... }
+    ],
+    "section2_thread": YArray [
+      { id: "c3", thread_id: "section2_thread", author: "viewer_b", text: "Question...", ... },
+      { id: "c4", thread_id: "section2_thread", author: "viewer_c", text: "I agree...", ... }
+    ],
+    "general_thread": YArray [
+      { id: "c5", thread_id: "general_thread", author: "viewer_a", text: "Overall thoughts", ... }
+    ]
+  }
+}
+```
+
+**Key Properties**:
+- **Single Yjs Doc**: All threads share `thread_comments_doc`
+- **Organized by thread_id**: YMap with thread_id as key
+- **Per-thread Arrays**: Each thread has its own YArray of comments
+- **Independent Sync**: Entire doc syncs, clients filter by thread_id for display
+- **Efficient Updates**: Only changed threads trigger updates in the CRDT
+
+### Rendering Multiple Threads
+
+When displaying a website with multiple thread blocks:
+
+```javascript
+// Pull entire thread_comments_doc from node
+const threadDoc = await pullFromNode(resourceId, "thread_comments_doc");
+const threadsMap = threadDoc.getMap('threads');
+
+// Render each thread block independently
+function renderThreadBlock(threadId) {
+  const threadArray = threadsMap.get(threadId) || [];
+  const comments = threadArray.toArray();
+
+  // Filter comments for this specific thread
+  const threadComments = comments.filter(c => c.thread_id === threadId);
+
+  // Sort by timestamp and render
+  return threadComments.sort((a, b) => a.timestamp - b.timestamp);
+}
+
+// Each thread block on the page renders independently
+renderThreadBlock("section1_thread"); // Shows only section 1 comments
+renderThreadBlock("section2_thread"); // Shows only section 2 comments
+renderThreadBlock("general_thread");  // Shows only general comments
+```
+
+## Technical Considerations
+
+### Comment Ordering
+
+**Timestamp-Based**:
+```javascript
+// Sort comments by timestamp
+const sortedComments = comments.sort((a, b) => a.timestamp - b.timestamp);
+```
+
+**Nested Replies**:
+```javascript
+// Thread structure with replies
+const comment = {
+  id: "comment_1",
+  text: "Great post!",
+  replies: [
+    {
+      id: "reply_1",
+      parent_id: "comment_1",
+      text: "Thanks!"
+    }
+  ]
+};
+```
+
+### Moderation
+
+**Publisher Control**:
+- Publisher can delete comments (if `crud/delete` permission)
+- Filter inappropriate content
+- Block specific viewers (revoke UCAN)
+
+**Viewer Limitations**:
+- Can only write, not delete others' comments
+- Cannot modify thread structure
+- Permissions enforced by UCAN
+
+### Spam Prevention
+
+**Rate Limiting**:
+- Node enforces rate limits per viewer
+- Prevent comment flooding
+- Protect against abuse
+
+**UCAN Expiration**:
+- Time-limited access tokens
+- Revoke access if needed
+- Temporary viewer permissions
+
+## Privacy & Security
+
+**Identity**:
+- Viewer identified by public key
+- Pseudonymous or real names (viewer's choice)
+- Cryptographic proof of authorship
+
+**Data Ownership**:
+- Publisher owns all thread data
+- Viewers have read/write access, not ownership
+- Can export and backup discussions
+
+**Encryption**:
+- Comments encrypted with resource AES key
+- Only authorized parties can decrypt
+- End-to-end privacy maintained
+
+## What Happens in a Thread
+
+1. **Viewer Opens**: Website loads with multiple thread blocks from LOCAL copy (instant)
+2. **Render from Local**: Viewer renders from local `thread_comments_doc` immediately
+3. **Thread Filtering**: Client filters comments by `thread_id` to display in correct thread blocks
+4. **Viewer Writes to Local**: New comment written to LOCAL Yjs doc first (instant UI update, no network wait)
+5. **State Vector Sync**: Viewer sends state vector to node in background
+6. **Node Responds**: Node sends missing CRDT diffs viewer doesn't have
+7. **Viewer Sends Updates**: Viewer sends CRDT diffs (including new comment) node doesn't have
+8. **Other Participants Sync**: Publisher and other viewers exchange state vectors with node
+9. **Receive Missing Diffs**: Each participant receives only CRDT diffs they don't have
+10. **Apply to Local**: Each participant applies diffs to local doc, renders by `thread_id`
+11. **Publisher Writes to Local**: Reply written to LOCAL first (instant UI), then synced via state vectors
+12. **Continuous State Vector Exchange**: All participants regularly exchange state vectors
+13. **Multi-Viewer Multi-Thread Collaboration**: Viewers see and respond to each other's comments via state vector sync
+14. **Eventual Consistency**: CRDT ensures all parties converge to same state across all threads
+
+The bidirectional sync model for comment threads enables real-time, collaborative discussions between publishers and multiple viewers—with viewers able to discuss with each other across **multiple independent threads**—all while maintaining sovereignty. **Key architecture**: Local-first writes (instant UI), state vector-based sync (only missing diffs), never full doc transfers, node never initiates. Each document can have as many thread blocks as needed, all stored efficiently in a single `thread_comments_doc` and organized by `thread_id`.

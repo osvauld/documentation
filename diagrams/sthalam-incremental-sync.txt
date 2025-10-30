@@ -1,0 +1,111 @@
+flowchart TB
+
+%% KEY DISTINCTION:
+%% - Connection: Viewer always initiates (node never initiates connections)
+%% - New resources: Node PUSHES them during incremental sync response
+%% - Existing resource updates: Viewer PULLS via state vector sync
+
+%% Section 1: Viewer Reconnection
+subgraph S1["Viewer Reconnection"]
+  direction LR
+  A1["Viewer Comes Online
+   -------
+Existing connection (first_sync=true)
+Has folder & resource info
+Needs to sync changes"]
+  A2["Handshake Complete
+   -------
+WebsiteHandshake exchange
+Verify identities
+Connection established"]
+  A3["Initiate Incremental Sync
+   -------
+Call perform_incremental_sync()
+Build folder manifest
+Prepare sync requests"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Folder Resource Info Exchange
+subgraph S2["Folder Resource Info Exchange"]
+  direction LR
+  B1["Viewer Sends Folder Info
+   -------
+FolderResourceInfo message
+folder_id + resource_ids list
+folder UCAN token"]
+  B2["Node Validates UCAN
+   -------
+Verify folder UCAN structure
+Extract & verify folder_id
+Check signature"]
+  B3["Node Compares & Prepares Push
+   -------
+Get node's resource_ids for folder
+Find new resources (on node, not viewer)
+PUSH new resources to viewer
+(not just notify, actual push)"]
+  B1 --> B2 --> B3
+end
+
+
+%% Section 3: Node Pushes New Resources
+subgraph S3["Node Pushes New Resources"]
+  direction LR
+  C1["Node Prepares Resources
+   -------
+For each new resource_id
+Get resource metadata
+Re-encrypt AES key for viewer
+Generate resource-specific UCAN"]
+  C2["Node Pushes Resources
+   -------
+ResourceAdditionRequest messages
+Push all new resources to viewer
+Within incremental sync flow
+No separate pull needed"]
+  C3["Viewer Receives & Stores
+   -------
+Validate resource UCAN
+Store resource locally
+Add to local database
+New resources ready"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section 4: Viewer Pulls Updates for Existing Resources
+subgraph S4["Viewer Pulls Existing Resource Updates"]
+  direction LR
+  D1["Viewer Requests Updates
+   -------
+IncrementalSyncRequest
+resource_id + resource UCAN
+Yjs state vectors for each doc"]
+  D2["Node Prepares Updates
+   -------
+Validate resource UCAN
+Compare state vectors
+Generate missing updates"]
+  D3["Viewer Receives Updates
+   -------
+IncrementalSyncResponse from node
+Viewer applies updates
+Viewer sees latest content"]
+  D4["Viewer Pushes Comments
+   -------
+If viewer has comments/updates
+ViewerCommentsUpdate → Node
+Node stores for other participants"]
+  D5["Sync Complete
+   -------
+All resources up-to-date
+Viewer continues polling
+Connection ready"]
+  D1 --> D2 --> D3 --> D4 --> D5
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4

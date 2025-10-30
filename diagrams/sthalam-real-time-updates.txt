@@ -1,0 +1,101 @@
+flowchart TB
+
+%% KEY DISTINCTION:
+%% - Connection: Viewer always initiates (node never initiates connections)
+%% - New resources: Node PUSHES them during incremental sync response
+%% - Existing resource updates: Viewer PULLS via state vector sync
+
+%% Section 1: Publisher Creates New Content
+subgraph S1["Publisher Creates New Content"]
+  direction LR
+  A1["Create New Resource
+   -------
+New website, blog post,
+or newsletter
+Add to existing folder"]
+  A2["Publish Resource
+   -------
+Generate root UCAN
+Encrypt content
+File on P2P network"]
+  A3["Sync to Node
+   -------
+ResourceAdditionRequest
+Node receives resource
+Ready for distribution"]
+  A1 --> A2 --> A3
+end
+
+
+%% Section 2: Viewer Reconnects & Polls
+subgraph S2["Viewer Reconnects & Polls"]
+  direction LR
+  B1["Viewer Comes Online
+   -------
+Already subscribed to folder
+Connection established
+Perform incremental sync"]
+  B2["Viewer Sends Folder Manifest
+   -------
+FolderResourceInfo message
+Current resource_ids list
+Folder UCAN token"]
+  B3["Node Compares & Pushes
+   -------
+Compare viewer's list with node's
+Find new resource_ids
+PUSH new resources to viewer
+(not just list, actual resources)"]
+  B1 --> B2 --> B3
+end
+
+
+%% Section 3: Node Pushes New Resources
+subgraph S3["Node Pushes New Resources"]
+  direction LR
+  C1["Node Prepares New Resources
+   -------
+For each new resource_id
+Get resource metadata
+Encrypted content
+Generate resource-specific UCAN"]
+  C2["Node Pushes to Viewer
+   -------
+ResourceAdditionRequest message
+Push all new resources
+Within incremental sync response
+Viewer doesn't pull separately"]
+  C3["Viewer Receives & Stores
+   -------
+Validate & store resources
+Add to local database
+Emit ResourceAdded events
+New content available"]
+  C1 --> C2 --> C3
+end
+
+
+%% Section 4: Viewer Notification & Access
+subgraph S4["Viewer Notification & Access"]
+  direction LR
+  D1["Notification in UI
+   -------
+New post badge
+New website alert
+Newsletter notification"]
+  D2["Viewer Opens Content
+   -------
+Click on new resource
+Load from local database
+Render in viewer mode"]
+  D3["Ongoing Subscription
+   -------
+Always receives new content
+When publisher adds to folder
+Real-time sovereign distribution"]
+  D1 --> D2 --> D3
+end
+
+
+%% Section Links
+S1 --> S2 --> S3 --> S4
