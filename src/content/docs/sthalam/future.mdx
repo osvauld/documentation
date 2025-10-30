@@ -56,6 +56,32 @@ This could enable sovereign alternatives to centralized platforms:
 
 All without platform intermediaries or transaction fees.
 
+## Sovereign LLM Template Generation
+
+Currently, users generate HUML templates using external LLMs (ChatGPT, Claude) by uploading template guides. The vision is to bring **LLM capabilities directly into the sovereign node** infrastructure:
+
+**Node-Hosted LLMs**: Run language models on your sovereign node hardware with AI acceleration
+- **Hardware Options**: Boards like Radxa Orion 6 with built-in NPUs for AI inference
+- **Local Processing**: Template generation happens on your own infrastructure
+- **No External Dependencies**: No need for ChatGPT, Claude, or other third-party AI services
+- **Privacy by Design**: Design conversations never leave your sovereign node
+
+**Conversational Template Generation**:
+- **Natural Language Design**: Describe websites in conversation—LLM generates HUML code in real-time
+- **CRDT-Aware**: LLM understands the template engine and CRDT synchronization architecture
+- **Iterative Refinement**: "Add a contact form," "change the layout," "make it responsive"
+- **Context Preservation**: LLM reads through existing templates and maintains conversation context
+- **Real-Time Preview**: Generate and preview templates as you describe them
+
+**Why Node-Hosted Matters**:
+- **True Sovereignty**: AI capabilities run on hardware you control physically
+- **Privacy Preservation**: Content creation conversations stay within your infrastructure
+- **Offline Capability**: Generate templates without internet connectivity
+- **Cost Control**: No API fees or usage limits
+- **Learning**: LLM can learn from your templates to match your style
+
+The combination of CRDTs for synchronization, peer-to-peer architecture for distribution, and **node-hosted LLMs for generation** would make Sthalam the first platform where content creation, design, and publishing all happen on sovereign infrastructure—without any platform dependencies.
+
 ## Why These Matter
 
 These concepts would transform Sthalam from a publishing platform into **infrastructure for sovereign applications**—enabling individuals to run interactive businesses on their own terms, with their own logic, without centralized platforms.
