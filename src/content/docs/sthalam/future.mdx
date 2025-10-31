@@ -1,15 +1,23 @@
 ---
 title: "Future Concepts"
-description: "Exploratory ideas for enhancing Sthalam with interactive applications and discoverability"
+description: "Potential capabilities for commerce, discovery, and enhanced collaboration"
 ---
 
-> **Exploratory Concepts**: The following describes potential future directions for Sthalam. None of this is currently implemented or planned in detail. These represent aspirational thinking about possibilities.
+> **Future Directions**: The following describes potential enhancements to the Osvauld ecosystem. These represent capabilities the architecture can support.
 
-## Interactive Applications with JEXL
+## Commerce
 
-**JEXL (JavaScript Expression Language)** could enable sovereign individuals to build interactive applications with custom logic—without writing code or relying on platforms.
+The architecture can support **commerce applications**—small e-commerce sites, service listings, and interactive transactions—powered by **JEXL (JavaScript Expression Language)** for business logic.
 
-Publishers could define business rules using simple expressions:
+**What can be done**:
+- **Small e-commerce sites**: Sell products directly from your sovereign node
+- **Service listings**: List services (consulting, freelancing, bookings) without platform fees
+- **Custom business logic**: Define pricing, discounts, shipping rules using JEXL expressions
+- **Interactive applications**: Restaurant ordering, booking systems, marketplace transactions
+
+**How JEXL helps**:
+
+Simple expressions define business rules without complex code:
 
 ```jexl
 total = (quantity * price) * (1 - discount) + shipping + tax
@@ -17,318 +25,143 @@ showShipping = productType == "physical"
 eligible = age >= 18 && hasConsent
 ```
 
-This would open up **more interactive sovereign applications** beyond static publishing:
+**How blockchain helps**:
+- **Publishing**: Blockchain enables content and service discovery
+- **Listings**: Users list their services on blockchain for public discovery
+- **No platform dependency**: Direct commerce between sovereign individuals
 
-- E-commerce stores with custom pricing and checkout logic
-- Restaurant ordering with menu customization
-- Service marketplaces with availability management
-- Booking systems with flexible policies
+Commerce happens peer-to-peer, with blockchain providing the discovery layer.
 
-All customizable to each sovereign individual's unique business rules—without platform constraints.
+## Discovery
 
-## Human-Readable Names via Blockchain
-
-Currently, sharing content requires base64-encoded connection strings (large text blobs). Blockchain could enable **human-readable names** similar to ENS.
-
-**Identity-Based Addressing**:
-- **Pinning uses ECC keys** (elliptic curve cryptography), not content hashes
-- ECC keys **always resolve to node identity**—stable addressing regardless of content changes
-- **Blockchain stores addressing information**: Node location + optional description
-- **Publishing generates transactions** on blockchain with your node's addressing info
+Currently, sharing content requires base64-encoded connection strings. Blockchain enables **human-readable names and public discovery**.
 
 **How it works**:
-- Register names like `@alice` or `myblog.sthalam` that map to your node identity (ECC keys)
-- **Cheap resolution**: Read blockchain once for initial discovery, then store locally
-- **Blockchain agnostic**: Works with different blockchains—you choose which one(s) to use
-- **Multiple accounts**: Users can have multiple names registered across different blockchains
-- **Indexing for discovery**: Public indexers can crawl blockchain records for search results
+- Register names like `@alice` or `myblog.sthalam` on blockchain
+- **Blockchain identity is a deterministic derivative** of your main identity key—not a separate key
+- Names map to your node identity using **ECC keys** (elliptic curve cryptography)
+- ECC keys always resolve to your node identity—stable addressing
+- Publishing generates blockchain transactions with your node's addressing info
 
-**Benefits**:
-- Simple sharing (type `@alice` instead of pasting a large connection string)
-- Content discovery via public search (indexers read blockchain, provide search interface)
-- Multi-device updates (change nodes, update blockchain once—everyone resolves new location)
-- **Minimal blockchain dependency**: Only read once for discovery, then everything cached locally
-- **Identity-based, not content-based**: ECC keys point to your node identity, not individual content hashes
+**What this enables**:
+- **Human-readable sharing**: Type `@alice` instead of pasting connection strings
+- **Public discovery**: Indexers crawl blockchain records, provide search results
+- **Service listings**: Find e-commerce sites, service providers, content publishers
+- **Multi-device updates**: Change nodes, update blockchain once—everyone resolves new location
 
-The architecture supports both direct connection string sharing and blockchain-based naming. Blockchain adds a powerful naming and discovery layer, enabling human-readable addresses and public search while maintaining the core P2P infrastructure.
+**Efficient design**:
+- Read blockchain once for initial discovery, then cache locally
+- Blockchain agnostic—works with different blockchains
+- Users can have multiple names across different blockchains
+- Identity-based addressing (ECC keys), not content-based (hashes)
+
+Blockchain provides the discovery layer. Once discovered, all interactions happen peer-to-peer.
 
 ## IPFS Integration
 
-The architecture supports **IPFS integration** for offloading static content distribution. The **data layer and static layer are architecturally separate**, enabling flexible deployment strategies.
+IPFS integration enables **offloading static content** to reduce strain on sovereign nodes. The data layer and static layer are architecturally separate.
 
-**What stays in pure P2P**:
+**What uses IPFS**:
+- Static website content (HTML, CSS, images)
+- **Content encrypted before pinning**—safe to use public IPFS infrastructure
+- Others can pin your content, but they only store encrypted blobs
+
+**What stays P2P**:
 - Data layer: CRDT operations, real-time sync
-- Comments and form submissions
+- Comments, forms, conversations
 - All interactive features
-- Collaborative editing in Livnote
-- Conversations in Libremot
-
-**What can optionally use IPFS**:
-- **Only static website content** (HTML, CSS, images for Sthalam websites)
-- This offloads hosting burden from your sovereign node
-- **Content is encrypted before pinning**—safe to use public IPFS infrastructure
-- Even if others pin your content, they only store encrypted blobs
 
 **Why this helps**:
-- **Reduces load on your sovereign node**: Static content served from IPFS instead of your home hardware
-- **Bandwidth savings**: Large website assets don't consume your home internet bandwidth
-- **Flexible offloading**: Use IPFS when you need to reduce strain on your node
-- **Data layer stays P2P**: All interactive features (comments, forms, CRDT sync) remain pure peer-to-peer
+- Reduces load on your sovereign node
+- Bandwidth savings for large website assets
+- Distributed availability while maintaining privacy
 
-The core apps (Sthalam, Livnote, Libremot) are designed to work entirely in pure P2P, with IPFS integration available when you need distributed content delivery.
-
-## Interactive Bidirectional Workflows
-
-The current model uses append-only submissions to publisher-owned documents. An interesting direction would be **viewer-owned submission documents** where:
-
-- Viewers create and own their submissions
-- Publishers receive delegated access to read and update
-- Updates flow bidirectionally
-- Viewers can delete their data anytime—deletion propagates to publisher
-
-**Privacy by Default**:
-- **Viewer identities are NOT stored in nodes** (turned off by default)
-- **One-way connection**: Viewers can connect to nodes, but nodes CANNOT connect to viewers
-- **Protocol respects UCAN tokens**: All access controlled by cryptographic permissions
-- **Data deletion**: When viewers delete their data, it's deleted from publisher's side too
-- **Offline data caveat**: Local copies may exist on devices before deletion—standard limitation of distributed systems
-
-**Single Identity Across All Interactions**:
-- **No login required**: Your self-sovereign identity works across all websites, e-commerce, service sites
-- **Same protocol everywhere**: Browse content, place orders, book services—all using the same cryptographic identity
-- **No usernames or passwords**: Your identity authenticates you automatically via UCAN tokens
-- **No repeated signups**: Never create accounts again—your identity works with any sovereign website or service
-
-This could enable sovereign alternatives to centralized platforms:
-
-- **E-commerce**: Viewers place orders they own, publishers update status, viewers can cancel
-- **Restaurant ordering**: Viewers control orders, restaurants update status (preparing → ready)
-- **Service marketplaces**: Viewers create requests, providers respond, back-and-forth negotiation
-- **Booking systems**: Viewers own bookings, providers manage availability
-
-All without platform intermediaries or transaction fees. **Viewers maintain sovereignty over their identity and data**—publishers never get the ability to initiate contact or store viewer identities.
+IPFS is for static content distribution. All interactive features remain pure peer-to-peer.
 
 ## LLM Integration
 
-The Osvauld ecosystem is designed for **collaborative editing, spreadsheets, conversations, and content creation**. The architecture supports **LLM integration** to enhance these collaborative workflows.
-
-**Node-Hosted LLMs**: Run language models on your sovereign node hardware
-- **Hardware Options**: Boards like Radxa Orion 6 with built-in NPUs (45 TOPS) for AI inference
-- **Local Processing**: NPUs with 45 TOPS enable efficient on-device inference—LLM assistance happens on your own infrastructure
-- **No External Dependencies**: No need for ChatGPT, Claude, or other third-party AI services
-- **Privacy by Design**: LLM interactions never leave your sovereign node
-- **Multimodal Capability**: Process text, images, audio, and structured data locally
-- **Efficient Context Management**: CRDTs enable surgical updates—send only changed parts of conversations instead of entire context, making LLM context efficient
-- **LLMs Have Identities**: LLMs get their own cryptographic identities (DIDs), just like humans—you delegate UCAN tokens to LLM identities to grant specific permissions
-- **Fine-Grained Permissions**: The data model already supports document-type-based permissions in UCANs—making it easy to grant LLM identities access to specific documents while denying access to others, or even restricting access to parts of documents
-
-### How LLMs Can Help with CRDTs
-
-The core collaborative features (editing, sheets, conversations) use CRDTs for conflict-free synchronization. **LLMs can assist** with these activities:
-
-- **Suggesting edits**: LLM suggestions appear as CRDT operations, merging with human edits without conflicts
-- **Drafting content**: LLMs can help draft sections while you continue editing elsewhere
-- **Formatting & cleanup**: LLMs can reorganize or improve clarity without disrupting collaboration
-- **Summarizing discussions**: In Libremot conversations, LLMs can extract key points
-- **Spreadsheet formulas**: Help generate or debug formulas in collaborative sheets
-- **Fine-grained control**: UCAN permissions based on document types make it easy to grant LLMs access to some documents while denying access to others—or even restricting access to specific parts of documents
-
-### LLMs Helping Across Sovereign Nodes
-
-When multiple people collaborate (on documents, sheets, conversations), their LLMs can optionally help too—simple to implement because of CRDT operations and **function calling**.
-
-**Function Calling for LLM Assistance**:
-
-LLMs support **function calling**—they can invoke specific functions to help with collaborative work. Each LLM has its own cryptographic identity (DID), and you delegate UCAN tokens to that identity:
-
-- **Read documents** from Livnote (if granted UCAN read permissions to the LLM's identity)
-- **Suggest edits** via CRDT operations (if granted write permissions)
-- **Retrieve conversation history** from Libremot to provide context
-- **Fetch files** needed for tasks (with correct UCAN permissions)
-- **Check permissions** before taking actions
-- **Access spreadsheets** to help with formulas or data analysis
-- **You control everything**: Delegate UCAN tokens to LLM identities to grant specific permissions—just like you would with human collaborators
-
-**Practical Help for Collaborative Work**:
-
-**Document Editing**:
-- Team collaborates on Livnote documents
-- LLMs can suggest improvements, fix formatting, or help draft sections
-- All changes merge via CRDTs—no conflicts
-- You control which documents your LLM can access
-
-**Spreadsheet Work**:
-- Collaborative spreadsheets
-- LLMs help generate formulas, analyze data, or spot errors
-- Each person's LLM only accesses what they're granted permission for
-
-**Conversation Assistance**:
-- Long Libremot discussion threads
-- LLMs can retrieve conversation history and extract key points or action items
-- Helps teams stay organized
-
-**Translation**:
-- Multilingual collaboration
-- LLMs translate messages or documents locally (no external APIs)
-- Privacy preserved—happens on your sovereign node
-
-**LLM integration benefits**: The architecture's support for function calling + CRDT operations makes LLM integration straightforward for collaborative features (editing, sheets, conversations). **You decide which content each LLM can access** via UCAN permissions.
-
-### Sthalam: Template Generation with LLMs
-
-**Current Implementation**:
-Sthalam already supports LLM-powered template generation. Users upload the `HUML_TEMPLATE_GUIDE.md` (specifically designed for LLMs) to external services like ChatGPT or Claude, describe what they want to build, and the LLM generates HUML template code.
-
-**Future: Local Template Generation**:
-- **Node-hosted LLMs**: Generate templates locally on your sovereign node instead of using external services
-- **Privacy-preserving**: Template generation conversations never leave your infrastructure
-- **Iterative refinement**: "Add a contact form," "change the layout," "make it responsive"—all local
-- **No API costs**: Generate unlimited templates without external service fees
-
-### Livnote: LLM-Assisted Collaborative Editing
-
-**Smart Document Collaboration**:
-- **Real-Time Suggestions**: LLM reads collaborative documents and offers suggestions as CRDT operations
-- **Context-Aware Writing**: LLM sees all collaborators' edits and maintains document coherence
-- **Research Integration**: Ask questions about the document—LLM provides inline answers
-- **Formatting & Structure**: LLM reorganizes sections, fixes formatting, improves clarity
-- **Knowledge Synthesis**: Multiple people brainstorm—LLM synthesizes ideas into coherent text
-
-**Visual Intelligence**:
-- **Image Understanding**: Paste images—LLM describes, extracts text, suggests captions
-- **Diagram Generation**: Describe a concept—LLM creates mermaid diagrams or structured layouts
-- **Document Summarization**: LLM generates summaries as you collaboratively edit
-
-### Libremot: LLM-Enhanced Communication
-
-**Conversational Intelligence**:
-- **Smart Replies**: LLM suggests context-aware responses in chat threads
-- **Language Translation**: Real-time translation in peer-to-peer conversations—all local
-- **Voice Transcription**: Multimodal LLM transcribes voice messages with speaker identification
-- **Meeting Summaries**: LLM generates summaries from chat history or call transcripts
-
-**Context-Aware Assistance**:
-- **File Understanding**: Share documents—LLM answers questions about attachments
-- **Thread Synthesis**: Long conversations—LLM extracts action items and decisions
-- **Smart Search**: Semantic search across message history without external indexing
-
-### Cross-App LLM Workflows
-
-**Unified Intelligence Across Apps**:
-- **Shared Context**: LLM maintains awareness across Sthalam, Livnote, and Libremot
-- **Workflow Automation**: "Write a blog post about this chat conversation" → LLM creates HUML template
-- **Content Repurposing**: Chat discussions → collaborative documents → published articles
-- **Semantic Connections**: LLM suggests related content across apps ("this chat relates to your blog post...")
-
-**CRDT-Powered Collaboration**:
-- **Human + LLM Co-Editing**: Both edit simultaneously—no turn-taking, no conflicts
-- **Streaming Intelligence**: LLM suggestions appear incrementally as CRDT updates
-- **Reversible AI**: Every LLM change tracked as CRDT operations—full undo/redo
-- **Multi-LLM Collaboration**: Different LLMs contribute different perspectives in parallel
-
-### Why Node-Hosted Multimodal LLMs Matter
-
-**True Sovereignty**:
-- AI capabilities run on hardware you physically control
-- No dependency on external API providers
-- Your conversations and data never leave your infrastructure
-
-**Privacy Preservation**:
-- Images, documents, voice—all processed locally
-- No data harvesting by AI companies
-- Multimodal processing without surveillance
-
-**Offline Capability**:
-- Full LLM functionality without internet connectivity
-- Process sensitive data without cloud access
-
-**Cost Control**:
-- No API fees or usage limits
-- Unlimited multimodal processing on your hardware
-
-**Personalization**:
-- LLM learns your writing style, preferences, terminology
-- Adapts to your workflows across all apps
-
-The combination of **CRDTs for synchronization**, **peer-to-peer architecture for distribution**, and **node-hosted multimodal LLMs for intelligence** creates an ecosystem where humans and AI collaborate seamlessly across publishing, editing, and communication—all on sovereign infrastructure without platform dependencies.
-
-## The Super App: An Alternative Internet Experience
-
-**Sthalam** is one piece of a larger vision—a complete sovereign ecosystem that reimagines how we interact with the digital world. By combining multiple peer-to-peer applications sharing the same cryptographic foundation, we're building an **alternative way to browse and experience the internet**.
-
-### The Unified Vision
-
-All Osvauld applications share the same underlying infrastructure:
-
-- **Self-Sovereign Identity**: One cryptographic identity (PGP keys, Ed25519, UCAN) across all apps
-- **CRDT Synchronization**: Real-time collaboration without conflicts
-- **Peer-to-Peer Architecture**: Direct connections without intermediaries
-- **End-to-End Encryption**: Complete privacy by design
-- **Sovereign Nodes**: Your own infrastructure for hosting and distribution
-
-This shared foundation enables seamless integration between:
-
-#### Sthalam (Publishing)
-Create and distribute websites, blogs, newsletters, forms, and surveys. Publish content to the world or specific viewers—all on your terms.
-
-#### Livnote (Collaborative Editor)
-Real-time collaborative document editing with peers. Work together on notes, documents, and projects with cryptographic ownership and CRDT-based synchronization.
-
-#### Libremot (Chat & Messaging)
-Peer-to-peer messaging and calls without accounts or platform lock-in. Your conversations exist only between you and your peers—no servers, no surveillance.
-
-#### File Transfer
-Direct peer-to-peer file sharing and backup without third-party clouds. Share files of any size directly with peers, or backup to your sovereign node.
-
-### Browsing a Sovereign Internet
-
-Instead of opening a web browser that connects you to centralized platforms, imagine an application where:
-
-**Discovery Without Platforms**: Browse content shared by peers through cryptographic connections, not algorithms. Search and discover publishers without intermediaries indexing your behavior.
-
-**Unified Identity**: One self-sovereign identity works across all interactions—reading blogs, editing documents, chatting with peers, sharing files. No separate accounts, no password managers, no identity fragmentation.
-
-**Context-Aware Interactions**: Reading a blog post on Sthalam? Start a chat with the author via Libremot. Collaborating on a document in Livnote? Share reference files via file transfer. All seamlessly integrated.
-
-**Offline-First by Design**: Content syncs to your device and works without connectivity. Read saved blogs, edit documents, queue messages—everything functions locally first, syncing when connected.
-
-**Privacy as Default**: No tracking pixels, no analytics harvesting your behavior, no third-party scripts. Publishers can't see more than you explicitly allow, and viewers browse without surveillance.
-
-### The Architecture Advantage
-
-Because all applications share the same cryptographic primitives and peer-to-peer infrastructure:
-
-**Single Node, Multiple Apps**: Your sovereign node hosts your websites (Sthalam), collaborative documents (Livnote), message history (Libremot), and shared files—all from one piece of infrastructure.
-
-**Unified Permissions**: UCAN-based authorization works across apps. Grant someone permission to view your blog, edit your documents, and chat with you—using the same token system.
-
-**Cross-App Workflows**: Publish a blog post (Sthalam) with embedded collaborative sections (Livnote) and a contact form that sends messages (Libremot) with file attachments (File Transfer)—all sovereign, all peer-to-peer.
-
-**Interoperable Data**: CRDTs enable real-time synchronization across all apps. Updates flow seamlessly whether you're editing documents, posting comments, or sending messages.
-
-### Taking It Home
-
-This is about more than just privacy or decentralization—it's about **sovereignty over your digital life**:
-
-**Core Infrastructure**:
-- Your content lives on hardware you physically control
-- Your relationships exist through direct cryptographic connections
-- Your data never touches servers you don't own
-- **One identity for everything**: Never login to websites, e-commerce, or services again—your self-sovereign identity works everywhere, same protocol
-- Your identity isn't tied to any platform or company
-- Pure peer-to-peer for all interactive features (CRDT sync, comments, forms, conversations)
-
-**Extended Capabilities** (all running on your sovereign node):
-- **IPFS Integration**: Offload static website content to reduce strain on your node—encrypted before pinning, safe to use public infrastructure
-- **Blockchain Naming**: Human-readable names (@alice, myblog.sthalam) instead of connection strings for easy discovery
-- **Interactive Applications**: JEXL-powered business logic for e-commerce, booking systems, service marketplaces—without platform constraints
-- **LLMs**: AI assistants (with their own identities) to help with editing, conversations, spreadsheets—you control access via UCAN permissions
-- **Bidirectional Workflows**: Viewer-owned submissions enabling sovereign alternatives to centralized platforms
-
-The "super app" isn't software—it's infrastructure for a sovereign internet where individuals control their digital presence completely. Browse websites, edit documents, chat with friends, share files, run interactive applications—all without surrendering control to platforms.
-
-**This is what taking it home really means**: the internet, but on your terms, running on your hardware, with your rules. Core features work entirely peer-to-peer, with extended capabilities you can enable when needed—all sovereign, all under your control.
-
-## Why These Matter
-
-These concepts would transform Osvauld from a collection of applications into **infrastructure for a sovereign internet**—enabling individuals to publish, collaborate, communicate, and transact on their own terms, with their own logic, without centralized platforms.
+The architecture supports **running LLMs on your sovereign node** to assist with collaborative editing, spreadsheets, and conversations.
+
+**Node-hosted LLMs**:
+- Hardware: Boards like Radxa Orion 6 with NPUs (45 TOPS) for AI inference
+- Local processing: LLM assistance happens on your own infrastructure
+- Privacy: LLM interactions never leave your sovereign node
+- Multimodal: Process text, images, audio, and structured data locally
+
+**Efficient design**:
+- **CRDT surgical updates**: Send only changed parts of conversations, not entire context
+- **LLMs have identities**: Each LLM gets its own DID—delegate UCAN tokens for permissions
+- **Fine-grained control**: Grant LLMs access to specific documents or parts of documents
+
+**What LLMs can help with**:
+- Document editing: Suggest edits, draft content, fix formatting
+- Spreadsheets: Generate formulas, analyze data
+- Conversations: Summarize discussions, translate messages
+- Templates: Generate HUML templates locally (Sthalam currently uses external LLM services)
+
+## Node-to-Node Syncing
+
+Sovereign nodes can act as intermediaries, retrieving content on behalf of users. Instead of viewers connecting directly to publishers, their nodes connect and sync content for them.
+
+**How it works**:
+- Your sovereign node connects to publisher's node on your behalf
+- Node retrieves content and syncs it locally
+- You access content from your own node later
+- No need for direct connections from your desktop
+
+**What this enables**:
+- **Asynchronous access**: Retrieve content when publisher's node is online, access it anytime from your node
+- **File syncing**: Your node downloads files in the background, you access them locally
+- **Offline reading**: Content synced to your node remains available when publisher goes offline
+- **Bandwidth efficiency**: Your node handles the connection, multiple devices access from your local node
+- **Local speed**: Access content at local network speeds—up to 3 Gbps, not limited by internet bandwidth
+
+**Use cases**:
+- File sharing: Large files sync to your node, access from any device
+- Content subscription: Your node periodically syncs updates from publishers you follow
+- Group collaboration: Nodes sync documents, ensuring availability when peers go offline
+
+**Proactive downloads**:
+- Visitors with their own nodes get automatic background downloads
+- No need to have the app switched on—your node handles syncing while you're away
+- Large files sync easily in the background without keeping the app open
+- Content ready when you open the app
+
+**Architecture benefits**:
+- **Cheap storage**: Sovereign nodes provide affordable local storage for synced content
+- **High interactivity**: Offline-first design means instant access without waiting for network requests
+- **High availability**: Node-to-node communication makes the system highly available—content remains accessible even when individual publishers go offline
+- **Super fast access**: Accessing content from your node is extremely fast because it's local network access—high throughput with newer hardware
+- **Always available**: Content on your node works regardless of publisher connectivity
+
+Node-to-node syncing separates content retrieval from content access—your node does the work of staying connected while you access content on your own schedule.
+
+## Verifiability with Digital Signatures
+
+Content can be cryptographically signed, with blockchain records providing verifiable origin. Nobody can impersonate you.
+
+**How it works**:
+- Publishers sign content with their identity keys
+- Blockchain records the original publisher with their signature
+- Content stays offline (P2P), but origin is verifiable through blockchain
+- Signatures prevent impersonation—you can't fake being the original publisher
+
+**What this enables**:
+- **Verifiable origin**: Cryptographic proof of who originally published content
+- **Tamper detection**: Any modification breaks the signature, proving content was altered
+- **Impersonation prevention**: Signatures prove authenticity—nobody can fake your identity
+- **Attribution**: Clear proof of original creator, even when content is shared
+
+**Use cases**:
+- News and journalism: Verify article origins through blockchain records
+- Research and citations: Cryptographic proof of original authorship
+- Content sharing: Share with verifiable attribution to original creator
+- Misinformation prevention: Detect when content has been altered or falsely attributed
+
+Blockchain provides the verification layer while content stays P2P—you can always verify origin without compromising the offline-first architecture.
+
+## Conclusion
+
+These capabilities—**commerce, discovery, IPFS, LLMs, node-to-node syncing, and verifiable digital signatures**—extend the core peer-to-peer infrastructure.
+
+The architecture is designed to support these enhancements while maintaining the fundamental principles: sovereignty, privacy, and direct peer-to-peer collaboration. Each capability can be integrated as needed, with the core apps (Sthalam, Livnote, Libremot) continuing to work entirely peer-to-peer.

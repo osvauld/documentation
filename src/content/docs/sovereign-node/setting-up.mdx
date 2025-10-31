@@ -1,6 +1,6 @@
 ---
 title: "Setting Up Sovereign Nodes (Proof of Concept)"
-description: "Experimental always-online infrastructure for testing backup and synchronization concepts"
+description: "Experimental always-online infrastructure for collaborative editing (Livnote) and content publishing (Sthalam)"
 ---
 import { Badge } from '@astrojs/starlight/components';
 
@@ -8,7 +8,36 @@ import { Badge } from '@astrojs/starlight/components';
 
 <br/><br/>
 
-Sovereign nodes are an experimental CLI application that demonstrates how self-hosted infrastructure could provide always-online backup and synchronization services for Osvauld networks. This is currently a proof-of-concept implementation to test the viability of user-controlled infrastructure in P2P collaborative networks.
+Sovereign nodes are an experimental CLI application that demonstrates how self-hosted infrastructure could provide always-online services for the Osvauld ecosystem. Nodes serve two primary functions:
+
+1. **Collaborative backup and synchronization** (Livnote): Always-online P2P infrastructure for document collaboration
+2. **Content publishing and distribution** (Sthalam): Host and serve websites, blogs, forms, and comments to viewers
+
+This is currently a proof-of-concept implementation to test the viability of user-controlled infrastructure.
+
+## What Sovereign Nodes Support
+
+### Livnote (Collaborative Editing)
+
+Sovereign nodes provide always-online backup and synchronization for collaborative documents:
+
+- **P2P infrastructure**: Maintain connections when desktop peers go offline
+- **Document synchronization**: Keep real-time copies of shared documents
+- **Connection brokering**: Help peers discover and connect to each other
+- **CRDT operations**: Process conflict-free replicated data type updates
+
+### Sthalam (Publishing Platform)
+
+Sovereign nodes host and serve published content:
+
+- **Websites and blogs**: Publish content from your node—viewers connect directly
+- **Forms and surveys**: Collect submissions from viewers with UCAN-protected access
+- **Comments**: Enable real-time discussions on published content
+- **Newsletters**: Distribute content to subscribers
+- **UCAN permissions**: Control who can view, comment, or submit forms
+- **Viewer privacy**: Viewer identities NOT stored by default—one-way connections only
+
+**Publishing flow**: Create content on desktop → Publish to your sovereign node → Viewers access via connection string or blockchain name → All interactions happen through your node
 
 ## Current Proof-of-Concept Model
 
@@ -20,7 +49,7 @@ The current sovereign node implementation operates as a regular peer with full a
 
 **Standard Synchronization**: Uses the existing P2P synchronization protocols without special infrastructure optimizations.
 
-**Experimental Features**: Provides a testing ground for concepts like always-online availability and backup storage in a P2P context.
+**Experimental Features**: Provides a testing ground for concepts like always-online availability, backup storage, and content publishing in a P2P context.
 
 ### Future Security Model (In Development)
 
@@ -92,13 +121,18 @@ The `--print-token` flag generates connection information for testing peer conne
 
 ### What Works Today
 
-**Peer Connectivity**: Nodes successfully establish P2P connections with desktop clients using standard handshake protocols.
+**Livnote Collaboration**:
+- Peer connectivity: Nodes establish P2P connections with desktop clients
+- Document synchronization: Shared documents sync to nodes and remain available when other peers go offline
+- Always-online testing: Demonstrates continuous availability for collaboration
+- Connection brokering: Provides stable connection points for peer discovery
 
-**Document Synchronization**: Shared documents sync to nodes and remain available when other peers go offline.
-
-**Always-Online Testing**: Demonstrates how continuous availability could work in production systems.
-
-**Connection Brokering**: Provides stable connection points that help other peers discover each other.
+**Sthalam Publishing**:
+- Content hosting: Publish websites, blogs, and newsletters from your node
+- Viewer access: Viewers connect directly to your node to read content
+- Forms and comments: Collect submissions and enable discussions
+- UCAN permissions: Control access to published content, forms, and comment threads
+- Real-time sync: Comments and form submissions sync via CRDT operations
 
 ### What's Experimental
 
@@ -114,13 +148,21 @@ The `--print-token` flag generates connection information for testing peer conne
 
 Share the generated connection token with desktop Osvauld clients to establish connections and test the peer-to-peer protocols.
 
-### Document Sharing
+### Testing Livnote Collaboration
 
-Desktop users can share documents with the test node like any other collaborator. The node will receive full access and maintain synchronized copies.
+**Document Sharing**: Desktop users can share documents with the test node like any other collaborator. The node will receive full access and maintain synchronized copies.
 
-### Offline Testing
+**Offline Testing**: Test offline scenarios by disconnecting desktop peers while keeping the node online, then reconnecting to verify synchronization works correctly.
 
-Test offline scenarios by disconnecting desktop peers while keeping the node online, then reconnecting to verify synchronization works correctly.
+### Testing Sthalam Publishing
+
+**Publishing Content**: Use the desktop client to create and publish websites, blogs, or newsletters to your test node.
+
+**Viewer Connections**: Test viewer access by connecting to published content using the node's connection string.
+
+**Forms and Comments**: Test form submissions and comment threads—verify real-time CRDT synchronization between publisher and viewers.
+
+**Permission Testing**: Test UCAN token-based access control for viewing content, submitting forms, and posting comments.
 
 ## Limitations and Warnings
 
