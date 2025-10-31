@@ -61,7 +61,13 @@ export default defineConfig({
         ],
       },
       {
-        label: "Sthalam",
+        label: "Libremot",
+        items: [
+          { label: "Introduction", link: "/libremot/introduction" },
+        ],
+      },
+      {
+        label: "Project Sthalam",
         items: [
           { label: "Introduction", link: "/sthalam/introduction" },
           { label: "Publishing Content", link: "/sthalam/publishing-content" },
