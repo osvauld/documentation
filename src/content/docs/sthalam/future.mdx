@@ -7,29 +7,16 @@ description: "Potential capabilities for commerce, discovery, and enhanced colla
 
 ## Commerce
 
-The architecture supports **commerce applications**—small e-commerce sites, service listings, and interactive transactions—powered by **CEL (Common Expression Language)** for business logic.
+Commerce refers to documents for public applications that exist between user node and viewer - orders, direct chats, transactions, and similar interactions.
 
-**What you can build**:
-- **Small e-commerce sites**: Sell products directly from your personal node
-- **Service listings**: List services (consulting, freelancing, bookings) without platform fees
-- **Custom business logic**: Define pricing, discounts, shipping rules using CEL expressions
-- **Interactive applications**: Restaurant ordering, booking systems, marketplace transactions
+When a viewer orders, it creates a document. The owner can then modify that order document - confirm status, update information, or perform other actions with that data for that specific user.
 
-**How CEL helps**:
+**This is not yet handled in the protocol.** Future support will enable:
 
-Simple expressions define business rules without complex code:
-
-```cel
-total = (quantity * price) * (1 - discount) + shipping + tax
-showShipping = (productType == "physical")
-eligible = (age >= 18 && hasConsent)
-```
-
-**Why blockchain is ESSENTIAL**:
-- **Discovery**: Find services and content without centralized directories
-- **Verifiability**: Cryptographic proof of ownership and authorization
-- **Auditability**: Transparent permission chains prevent misuse while preserving privacy
-- **Traceability**: Track delegation history and permission flows
+- **Order documents** - Viewer creates order, owner confirms and updates status
+- **Transaction documents** - Track commerce interactions with per-user modifications
+- **Direct chat documents** - Facilitate buyer-seller communication
+- **Custom business logic** - Define rules using CEL expressions
 
 Commerce happens peer-to-peer, with blockchain providing discovery, verification, and audit capabilities.
 
@@ -37,24 +24,11 @@ Commerce happens peer-to-peer, with blockchain providing discovery, verification
 
 Currently, sharing content requires out-of-band device key exchange. Blockchain enables **human-readable names and public discovery**.
 
-**How it works**:
-- Register names like `@alice` or `myblog.sthalam` on blockchain using ERC-5192 (Soulbound NFT)
-- Names map to your DID (Decentralized Identifier from Permit signing key)
-- Device keys recorded on-chain for verification and discovery
-- Resource ownership recorded as ERC-721 tokens
-- Publishing generates blockchain transactions with addressing info
-
 **What this enables**:
 - **Human-readable sharing**: Type `@alice` instead of pasting connection strings
 - **Public discovery**: Indexers crawl blockchain records, provide search results
 - **Service listings**: Find e-commerce sites, service providers, content publishers
 - **Multi-device updates**: Change nodes, update blockchain once—everyone resolves new location
-
-**Efficient design**:
-- Read blockchain once for initial discovery, then cache locally
-- Blockchain agnostic—works with different blockchains
-- Users can have multiple names across different blockchains
-- Identity-based addressing (ECC keys), not content-based (hashes)
 
 Blockchain provides the discovery layer. Once discovered, all interactions happen peer-to-peer.
 
@@ -84,7 +58,7 @@ IPFS is for static content distribution. All interactive features remain pure pe
 The architecture supports **running AI models on your personal node** for enhanced functionality.
 
 **Node-hosted AI**:
-- Hardware: Orange Pi 6 Plus with NPU for AI inference
+- Hardware: Personal node with NPU for AI inference
 - Local processing: Image processing, video transcoding, voice commands
 - Privacy: AI processing happens on your own infrastructure
 - Multimodal: Process text, images, audio, and structured data locally
@@ -96,7 +70,7 @@ The architecture supports **running AI models on your personal node** for enhanc
 **Future AI Features**:
 - **Document editing**: Local AI assistance for drafting content
 - **Image processing**: On-device image optimization and manipulation
-- **Video transcoding**: Efficient video processing on Orange Pi NPU
+- **Video transcoding**: Efficient video processing on personal node NPU
 - **Voice commands**: Local speech recognition and processing
 
 **Efficient design**:

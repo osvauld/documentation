@@ -1,203 +1,217 @@
 ---
-title: "Setting Up Sovereign Nodes (Proof of Concept)"
-description: "Experimental always-online infrastructure for collaborative editing (Livnote) and content publishing (Sthalam)"
+title: "Setting Up Personal Nodes"
+description: "Install and configure Orange Pi 6 Plus for Extended Web infrastructure"
 ---
 import { Badge } from '@astrojs/starlight/components';
 
-<Badge text="⚠️ Development Status: This is experimental software not intended for production use. The security model and functionality are still evolving." variant="caution" />
+<Badge text="⚠️ POC Status: Experimental software demonstrating the Osvauld protocol. Security model and functionality still evolving." variant="caution" />
 
 <br/><br/>
 
-Sovereign nodes are an experimental CLI application that demonstrates how self-hosted infrastructure could provide always-online services for the Osvauld ecosystem. Nodes serve two primary functions:
+Personal nodes are your always-on devices running the Osvauld protocol. Orange Pi 6 Plus provides affordable, capable hardware you control.
 
-1. **Collaborative backup and synchronization** (Livnote): Always-online P2P infrastructure for document collaboration
-2. **Content publishing and distribution** (Sthalam): Host and serve websites, blogs, forms, and comments to viewers
+## What Personal Nodes Do
 
-This is currently a proof-of-concept implementation to test the viability of user-controlled infrastructure.
+Personal nodes use the Osvauld protocol to:
 
-## What Sovereign Nodes Support
+- **Merge**: Process CRDT operations for conflict-free merging
+- **Send resource updates**: Push updates to other users when resources change
+- **Cache updates**: Store updates from other users when they're offline
+- **Distribute content**: Handle all distribution between users
+- **Coordinate sync**: Facilitate peer-to-peer connections
 
-### Livnote (Collaborative Editing)
+**You need at least one personal node for flawless operation.** The node acts as your always-on infrastructure, handling distribution while you're offline.
 
-Sovereign nodes provide always-online backup and synchronization for collaborative documents:
+## Hardware: Orange Pi 6 Plus
 
-- **P2P infrastructure**: Maintain connections when desktop peers go offline
-- **Document synchronization**: Keep real-time copies of shared documents
-- **Connection brokering**: Help peers discover and connect to each other
-- **CRDT operations**: Process conflict-free replicated data type updates
+**Recommended specs**:
+- **8-core ARM CPU**: Powerful enough for CRDT operations and encryption
+- **4GB-16GB RAM**: Sufficient for multiple concurrent connections
+- **NPU included**: Future AI capabilities (image processing, video transcoding, voice commands)
+- **Affordable**: Cost-effective personal infrastructure
+- **Low power**: Designed for always-on operation
+- **Your hardware**: Physical possession, complete control
 
-### Sthalam (Publishing Platform)
+**Minimum for testing**:
+- 2GB RAM
+- 16GB storage
+- Standard internet connection
 
-Sovereign nodes host and serve published content:
+## Installation
 
-- **Websites and blogs**: Publish content from your node—viewers connect directly
-- **Forms and surveys**: Collect submissions from viewers with UCAN-protected access
-- **Comments**: Enable real-time discussions on published content
-- **Newsletters**: Distribute content to subscribers
-- **UCAN permissions**: Control who can view, comment, or submit forms
-- **Viewer privacy**: Viewer identities NOT stored by default—one-way connections only
+### Cross-Compile for Orange Pi (ARM64)
 
-**Publishing flow**: Create content on desktop → Publish to your sovereign node → Viewers access via connection string or blockchain name → All interactions happen through your node
-
-## Current Proof-of-Concept Model
-
-The current sovereign node implementation operates as a regular peer with full access to shared documents, serving as a technology demonstration for future infrastructure capabilities.
-
-### Current Architecture
-
-**Full Peer Access**: Nodes currently receive the same permissions and data access as any regular collaborator, including persistent access to encryption keys.
-
-**Standard Synchronization**: Uses the existing P2P synchronization protocols without special infrastructure optimizations.
-
-**Experimental Features**: Provides a testing ground for concepts like always-online availability, backup storage, and content publishing in a P2P context.
-
-### Future Security Model (In Development)
-
-The planned production model will implement session-based key sharing:
-
-**Temporary Access**: Sovereign nodes will only receive decryption keys when other peers are actively online and grant session-based access.
-
-**No Persistent Keys**: Nodes will not store long-term access to encrypted data, requiring active peer presence for decryption capabilities.
-
-**Session-Based Permissions**: Access to document content will be granted temporarily during active collaboration sessions rather than as permanent shares.
-
-## Experimental Setup Process
-
-### Testing Hardware
-
-For experimental deployment, minimal hardware is sufficient:
-
-**Development Boards**: Raspberry Pi 4 or similar ARM-based computers work well for testing the concept.
-
-**Network Access**: Standard internet connection for P2P connectivity testing.
-
-**Storage**: Basic storage for SQLite database and document testing.
-
-**Memory**: 2GB RAM sufficient for proof-of-concept operation.
-
-## Experimental Installation
-
-### Development Setup
-
-Build from source for experimental use:
+Build kunki CLI for Orange Pi:
 
 ```bash
-# Install cross for ARM64 compilation
+# Install cross-compilation tools
 cargo install cross
 
-# Clone the repository (example path)
+# Clone repository
 git clone https://github.com/osvauld/osvauld
 cd osvauld/kunki
 
-# Cross-compile for Raspberry Pi (ARM64)
+# Cross-compile for ARM64
 cross build --target aarch64-unknown-linux-gnu --release
 
-# Copy binary to target device
-scp target/aarch64-unknown-linux-gnu/release/kunki pi@raspberrypi.local:/home/pi/
-ssh pi@raspberrypi.local "sudo cp /home/pi/kunki /usr/local/bin/ && sudo chmod +x /usr/local/bin/osvauld"
+# Binary at: target/aarch64-unknown-linux-gnu/release/kunki
 ```
 
-### Initialize Test Node
+### Transfer to Orange Pi
 
-Create an experimental node identity:
+Copy the binary to your Orange Pi:
 
 ```bash
-kunki init --username "test-node" --passphrase "development_passphrase"
+# Copy to Orange Pi
+scp target/aarch64-unknown-linux-gnu/release/kunki orangepi@orangepi.local:/home/orangepi/
+
+# SSH to Orange Pi and install
+ssh orangepi@orangepi.local
+sudo cp /home/orangepi/kunki /usr/local/bin/
+sudo chmod +x /usr/local/bin/kunki
 ```
 
-**Note**: This creates the same cryptographic identity as a regular user. The node will have full access to any documents shared with it.
+## Initialize Node
 
-### Start Experimental Service
-
-Run the test node:
+Create cryptographic identity and database:
 
 ```bash
-kunki start --passphrase "development_passphrase" --print-token
+kunki init --username "your-node-name" --passphrase "your-secure-passphrase"
 ```
 
-The `--print-token` flag generates connection information for testing peer connections.
+This generates:
+- Ed25519 keys (PGP certificate for encryption, Permit signing, P2P connections)
+- SQLite database (encrypted local storage)
+- Node identity
 
-## Current Testing Capabilities
+## Start Node Service
 
-### What Works Today
+Run the personal node:
 
-**Livnote Collaboration**:
-- Peer connectivity: Nodes establish P2P connections with desktop clients
-- Document synchronization: Shared documents sync to nodes and remain available when other peers go offline
-- Always-online testing: Demonstrates continuous availability for collaboration
-- Connection brokering: Provides stable connection points for peer discovery
+```bash
+kunki start --passphrase "your-secure-passphrase"
+```
 
-**Sthalam Publishing**:
-- Content hosting: Publish websites, blogs, and newsletters from your node
-- Viewer access: Viewers connect directly to your node to read content
-- Forms and comments: Collect submissions and enable discussions
-- UCAN permissions: Control access to published content, forms, and comment threads
-- Real-time sync: Comments and form submissions sync via CRDT operations
+The node:
+- Establishes P2P listener on Iroh network
+- Waits for peer connections
+- Processes incoming sync requests
+- Merges CRDT operations
+- Caches updates from users
+- Sends resource updates to connected peers
 
-### What's Experimental
+**Run as service**: For production, configure kunki to run as a systemd service for automatic startup and restart.
 
-**Security Model**: Current implementation grants full persistent access to shared documents, which is not the intended production model.
+## What Happens When Node Runs
 
-**Resource Management**: No optimization for server-class operation or resource constraints.
+### Resource Updates
 
-**Monitoring**: Basic logging without production-level observability features.
+When you publish content from desktop to node:
+1. Desktop syncs resource to node via Osvauld protocol
+2. Node stores resource in encrypted database
+3. Node sends updates to connected users
+4. Users receive updates via CRDT sync
 
-## Testing with Desktop Clients
+### Caching User Updates
 
-### Connecting Clients to Test Nodes
+When users interact with your content:
+1. Users send updates to node (comments, form submissions, edits)
+2. Node caches updates in local database
+3. Node merges updates using Loro CRDT
+4. Node sends merged updates back to publisher when online
 
-Share the generated connection token with desktop Osvauld clients to establish connections and test the peer-to-peer protocols.
+### Conflict-Free Merging
 
-### Testing Livnote Collaboration
+Node uses Osvauld protocol for CRDT operations:
+- Loro CRDT guarantees convergence
+- Multiple users can edit simultaneously
+- Node merges all changes conflict-free
+- Everyone converges to same state
 
-**Document Sharing**: Desktop users can share documents with the test node like any other collaborator. The node will receive full access and maintain synchronized copies.
+## Generating Access Tokens
 
-**Offline Testing**: Test offline scenarios by disconnecting desktop peers while keeping the node online, then reconnecting to verify synchronization works correctly.
+Create Permits for users to access specific folders:
 
-### Testing Sthalam Publishing
+```bash
+kunki folder-token --passphrase "your-passphrase" --folder-id "folder-uuid-here"
+```
 
-**Publishing Content**: Use the desktop client to create and publish websites, blogs, or newsletters to your test node.
+This generates a base64-encoded connection string containing the Permit and connection details. Share this string with users via email, chat, or any communication channel.
 
-**Viewer Connections**: Test viewer access by connecting to published content using the node's connection string.
+See [Handshake Mechanism](/core/handshake) for details on how connection strings establish trusted connections.
 
-**Forms and Comments**: Test form submissions and comment threads—verify real-time CRDT synchronization between publisher and viewers.
+## Node Operations
 
-**Permission Testing**: Test UCAN token-based access control for viewing content, submitting forms, and posting comments.
+### Publishing Flow
 
-## Limitations and Warnings
+1. Create content in Sthalam desktop app
+2. Publish to personal node via P2P sync
+3. Node stores encrypted content
+4. Node distributes to users with valid Permits
 
-### Current Security Limitations
+### User Interaction Flow
 
-**Full Access Model**: Test nodes currently receive the same permanent access to documents as regular users, including persistent decryption keys.
+1. User connects with connection string (contains Permit)
+2. Node validates Permit
+3. Node sends resources user is authorized to access
+4. User interacts (view, comment, submit forms)
+5. Node caches user updates
+6. Node merges updates with other users' changes
+7. Node sends merged updates to publisher
 
-**No Session Management**: Access is not limited to active collaboration sessions, unlike the planned production model.
+### Sync Protocol
 
-**Standard Peer Protocols**: Uses regular user synchronization without infrastructure-specific optimizations.
+Node uses Osvauld protocol state vector sync:
+- Local-first rendering (instant for users)
+- State vector exchange (only send missing diffs)
+- Bidirectional sync (for comments, collaborative editing)
+- Unidirectional sync (for read-only content)
+- Append-only sync (for form submissions)
 
-### Development Status
+## Current Status
 
-**Proof of Concept**: This implementation demonstrates concepts rather than providing production-ready infrastructure.
+**Implemented**:
+- kunki CLI for node management
+- P2P infrastructure (Iroh)
+- Permit-based authorization
+- Loro CRDT synchronization
+- Resource distribution
+- Update caching and merging
+- Orange Pi 6 Plus support (ARM64)
 
-**API Instability**: Command-line interface and functionality may change significantly as development continues.
+**Experimental**:
+- Security model still evolving
+- No production optimizations
+- Basic logging
 
-**Limited Support**: Experimental software without production support or stability guarantees.
+**Planned**:
+- Session-based key sharing
+- Advanced monitoring
+- Resource optimizations
 
-## Future Development Plans
+## Security Model
 
-### Session-Based Security Model
+**Current POC**:
+- Node receives full access to shared content
+- Persistent decryption keys stored on node
+- Standard peer synchronization
 
-**Temporary Key Sharing**: Production nodes will only receive decryption keys during active peer sessions rather than permanent access.
+**Planned production**:
+- Session-based key sharing
+- Temporary access during active sessions
+- No persistent keys on node
 
-**Active Peer Requirements**: Nodes will require at least one authorized peer to be online to access document content.
+## Community & Support
 
-**Session Expiration**: Access will automatically expire when collaboration sessions end.
+**Get help**:
+- Telegram: [t.me/osvauld](https://t.me/osvauld)
+- GitHub Issues: [github.com/osvauld/osvauld/issues](https://github.com/osvauld/osvauld/issues)
+- Email: [abe@osvauld.com](mailto:abe@osvauld.com)
 
-### Infrastructure Optimizations
+## Security Disclosure
 
-**Resource Efficiency**: Optimizations for continuous operation on minimal hardware.
+Found a security vulnerability? Email [abe@osvauld.com](mailto:abe@osvauld.com) instead of opening a public issue.
 
-**Monitoring Integration**: Production-ready logging and observability features.
+---
 
-**Multi-Tenant Support**: Secure isolation for multiple user groups on shared infrastructure.
-
-This experimental implementation provides a foundation for testing the viability of user-controlled infrastructure in peer-to-peer collaborative networks while the security model and production features continue development.
+*Your personal node. Your infrastructure. Your sovereignty.*

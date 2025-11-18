@@ -1,0 +1,260 @@
+---
+title: "Authorization & Synchronization"
+description: "How Permits and CRDTs enable decentralized authorization and conflict-free collaboration"
+---
+
+## Permits: Smart Contracts for Authorization
+
+Permits are to the Extended Web what smart contracts are to blockchain - decentralized, cryptographic, programmable authorization.
+
+Just as smart contracts execute authorization logic on blockchain without centralized servers, Permits execute authorization logic in peer-to-peer applications without permission servers.
+
+### Extension of UCAN
+
+Permits extend UCAN (User Controlled Authorization Networks) with:
+
+- **Embedded logic** - Complex authorization rules
+- **Origin tracking** - Where the Permit came from
+- **Data-driven behavior** - Templates define permissions, protocol reads dynamically
+- **Document-level permissions** - Not user roles
+- **Integration with HUML templates** - Rendering and merge logic together
+
+### Bearer Token Architecture
+
+Permits are bearer tokens - anyone holding a valid Permit is authorized to use it.
+
+How it works:
+1. User presents Permit (cryptographically signed token)
+2. Peer verifies signature (mathematical proof it's authentic)
+3. Peer reads facts from Permit (what operations are allowed)
+4. Peer grants access based on facts
+
+No central authority needed - verification is purely cryptographic.
+
+### Permit Structure
+
+**Standard UCAN fields**:
+- Issuer's DID
+- Audience's DID
+- Expiration timestamp
+- Proof chain (links to parent Permits)
+
+**Facts field**:
+- Operations - What actions are allowed
+- Documents - Per-document capabilities
+- Delegation - Templates for creating child Permits
+- Sync - Sync behavior facts
+- CEL rules - Dynamic validation expressions (future)
+
+Everything the system needs to make authorization decisions is in the facts.
+
+## Data-Driven, Not Hardcoded
+
+The protocol reads Permit facts dynamically. No hardcoded role logic.
+
+Templates define all permission structures. When creating folders/resources, templates are embedded in the Permit's facts. Later delegation reads template - no hardcoded logic required.
+
+This makes the system infinitely flexible - new permission models don't require code changes.
+
+## Document-Level Permissions
+
+Permits use document-level permissions, not user roles, because the same person needs different permissions on different documents.
+
+### Example: Publishing Platform
+
+Consider a blog or Twitter-like micro blogging platform with multiple documents where publishers continuously publish content:
+- **template_doc** (layout) - Viewers need read-only
+- **content_doc** (blog posts or micro blog updates) - Viewers need read-only
+- **collaborative_doc** (comments) - Viewers need collaborative access
+- **submissions_doc** (form responses) - Viewers cannot see (private)
+- **user_content_doc** (per-user data) - Never syncs (local only)
+
+User roles can't express this nuance. You need per-document capabilities.
+
+Document filtering in delegation templates determines what documents each relationship can access.
+
+## The Three Capabilities
+
+Permits define three levels of document access:
+
+### Viewer (Read-Only)
+
+Can read document content and receive updates when publisher makes changes. Cannot modify or send changes back.
+
+**Use case**: Blog readers, newsletter subscribers, public content viewers
+
+### Submitter (Append-Only)
+
+Can add new content (append operations) and submit forms. Cannot see others' submissions or edit existing content.
+
+**Use case**: Form submissions, surveys, feedback collection
+
+### Collaborator (Read-Write)
+
+Can read and write content, make edits that sync to others, and collaborate in real-time.
+
+**Use case**: Collaborative editing, group threads, shared workspaces
+
+Same person, different capabilities - a viewer might be read-only on one document but collaborator on another.
+
+## Delegation Templates
+
+Templates enable autonomous delegation - peers can create child Permits without the original issuer being involved.
+
+How it works:
+
+1. Owner creates folder with Permit including delegation templates for node and viewers
+2. Owner delegates to node using the delegation template
+3. Node delegates to viewer using viewer template from its Permit
+4. **Owner doesn't need to be online** for viewer onboarding
+
+The delegation template authorized the node to create viewer Permits autonomously.
+
+## Permit-Driven Synchronization
+
+Synchronization is entirely driven by Permits. Every sync decision - what to send, who can receive, how to merge - comes from Permit facts, not hardcoded logic.
+
+### Dual-Permit Validation
+
+Sync requires TWO Permits - yours and your peer's.
+
+When syncing:
+1. **Can I send this?** (check your Permit)
+2. **Can they receive this?** (check their Permit)
+
+If either answer is "no," the document doesn't sync.
+
+Both Permits must agree for sync to happen. This ensures:
+- You don't accidentally send private documents
+- Peers can't request documents they're not authorized to see
+- Sync behavior is always the intersection of both permissions
+
+### Document-Level Filtering
+
+Synchronization happens per-document, not per-resource. Each document can have different sync behavior.
+
+Same resource, multiple documents, multiple different sync behaviors - all determined by Permit facts.
+
+### Sync Facts
+
+Sync facts are per-document flags in Permits that control sync behavior:
+
+**local_only** - Marks document as private to one peer. Never syncs to others. Use for private drafts, local cache, per-user data.
+
+**no_incoming_updates** - Peer doesn't want to receive updates for this document. Use for archived content, static snapshots, one-time transfers.
+
+**send_full_snapshot** - Send complete document history, not just current state. Use for form submissions where you need all entries, audit logs.
+
+Defined in HUML templates, embedded in Permits, executed by protocol. No hardcoded logic.
+
+## The Three Merge Patterns
+
+Extended Web applications are built by combining three fundamental merge patterns. These are the underlying merge capabilities that enable unlimited applications.
+
+### Pattern 1: Pull-Only (Read-Only Sync)
+
+**Merge behavior**: Publisher updates, viewers receive, viewers cannot send changes back.
+
+**Sync direction**: Unidirectional (publisher → viewer)
+
+**Permit capability**: Viewer
+
+Loro CRDT: Viewers import snapshot, update local state.
+
+**Sample applications**: Blogs, newsletters, announcements, public content, read-only dashboards, documentation
+
+### Pattern 2: Push-Only (Append-Only Sync)
+
+**Merge behavior**: Viewers submit, publisher receives, viewers don't see others' submissions.
+
+**Sync direction**: Unidirectional (viewer → publisher)
+
+**Permit capability**: Submitter
+
+Loro CRDT: Publisher imports append operations, Loro handles ordering and deduplication.
+
+**Sample applications**: Forms, surveys, polls, feedback collection, submissions, voting systems
+
+Special behavior: Uses send_full_snapshot flag in Permit facts to send complete document history for proper CRDT merging.
+
+### Pattern 3: Bidirectional (Collaborative Sync)
+
+**Merge behavior**: All participants edit, Loro CRDT merges automatically, everyone converges.
+
+**Sync direction**: Bidirectional (everyone ↔ everyone)
+
+**Permit capability**: Collaborator
+
+Loro CRDT: Multi-way CRDT merge, automatic conflict resolution, commutative operations ensure consistency.
+
+**Sample applications**: Messaging, group threads, collaborative editing, password sharing, multiplayer games, real-time workspaces, shared task lists
+
+### Combining Patterns
+
+Resources can have multiple documents, each with different merge patterns. Blog post with read-only content, collaborative comments, and append-only reactions. Survey with read-only questions, append-only responses, and read-only summary. Game with read-only game state, collaborative moves, and collaborative chat.
+
+HUML templates define which pattern to use per document. The patterns are fundamental primitives. Applications are combinations of these patterns with custom document names and Permit configurations.
+
+## Loro CRDT - Automatic Merging
+
+Extended Web applications use Loro for conflict-free synchronization.
+
+CRDT = Conflict-Free Replicated Data Type
+
+Loro CRDTs merge automatically using mathematical rules. No server needed - pure peer-to-peer merging.
+
+### How Loro Works
+
+**Local edits**: You edit document on your device. Loro records operation. Update happens instantly locally.
+
+**Sync operations**: When connected, send operations to peers. Peers receive and apply operations. Loro's merge algorithm ensures consistency.
+
+**Eventually consistent**: All participants eventually see same state. Order doesn't matter (commutative operations). Works offline, syncs when reconnected.
+
+### Incremental vs Full Snapshots
+
+**Incremental** (default) - Send current document state. Efficient for most use cases. Viewers/collaborators get current version.
+
+**Full snapshot** (for submitters) - Send complete operation history. Needed for proper CRDT merging. Ensures all submissions are included.
+
+## Security and Privacy
+
+**Encrypted Sync** - All content encrypted at rest and in transit. Document cloned via Loro export, serialized, re-encrypted for recipient's PGP public key, sent over encrypted QUIC connection. Double encryption: QUIC encrypts transport, PGP encrypts content.
+
+**Forward Secrecy** - Content re-encrypted for each delegation. If someone's Permit is compromised, they can't decrypt content sent to others. Previous sessions remain secure.
+
+**Authorization Validation** - Every sync includes the Permit. Peer validates cryptographic signature, checks capabilities, verifies document-level permissions. No Permit = no sync.
+
+**Cryptographic Verification** - Every Permit is cryptographically signed. Extract issuer's DID, get public key, verify signature, check expiration, validate proof chain. No trust in servers - pure mathematical verification.
+
+**Proof Chains** - Delegated Permits link back to root authority. Anyone can verify the entire chain cryptographically without asking the original issuer.
+
+## Infinite Customization
+
+Permits are data-driven and read from HUML templates. You can create unlimited permission combinations.
+
+Define your own document names in HUML templates. Specify capabilities per document. Frontend reads Permits to determine behavior. The system doesn't care what you name your documents or what capabilities you assign - it just reads the facts and behaves accordingly.
+
+## Why This Matters
+
+Permits enable decentralized authorization that works like smart contracts:
+
+**No permission servers** - Verification is cryptographic, not database lookups
+
+**Autonomous delegation** - Peers can delegate without involving original issuers
+
+**Infinite flexibility** - Data-driven design supports any permission model
+
+**Offline-capable** - Validation works without network connectivity
+
+**Auditable** - Proof chains provide transparent history
+
+**Customizable** - HUML templates define document names and capabilities
+
+**Conflict-free** - Loro CRDTs merge automatically
+
+**Secure** - Cryptographic validation, encrypted transport
+
+This is what makes the Extended Web truly sovereign - authorization doesn't depend on anyone's server staying online or being willing to serve you.
+
+Permits are the smart contracts of personal sovereignty.

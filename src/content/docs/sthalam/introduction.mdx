@@ -1,251 +1,115 @@
 ---
-title: "Introduction to Project Sthalam"
-description: "A sovereign publishing platform for creating and distributing content without intermediaries"
+title: "Sthalam"
+description: "Runtime for Extended Web applications on the Osvauld protocol"
 ---
 
-> **POC Status**: Sthalam is currently a proof-of-concept. This documentation describes both implemented core functionality and planned features. While the architecture and cryptographic foundation are in place, many finer details and optimizations are still in development.
+> **POC Status**: Sthalam is currently a proof-of-concept demonstrating the Osvauld protocol. The architecture and cryptographic foundation are in place. See the [GitHub repository](https://github.com/osvauld/osvauld) for source code (MIT licensed).
 
-> **Open Source**: Sthalam is an MIT licensed project. The code is freely available, and you can modify, distribute, and use it for any purpose. See the [GitHub repository](https://github.com/osvauld/osvauld) for source code.
+## TL;DR
+
+**Sthalam** (സ്ഥലം - meaning "place" in Malayalam) is a runtime for Extended Web applications on the Osvauld protocol.
+
+- **Applications run on your devices** - not in data centers
+- **Data lives with you** - not on company servers
+- **Peer-to-peer connections** - no intermediaries
+- **Cryptographic authorization** - Permits instead of platform permissions
+- **Three merge patterns**: Pull-only (read), Push-only (submit), Bidirectional (collaborate)
+- **Build anything**: Blogs, messaging, forms, surveys, password management, games
+- **AI-generated templates** - no coding required
+- **Personal node** - Always-on infrastructure for sync
 
 ## What is Sthalam?
 
-**Sthalam** (Malayalam: സ്ഥലം, meaning "place") is the first Extended Web application - a flexible platform for both public publishing and private collaboration that puts you in complete control.
+Sthalam is one implementation of the Osvauld protocol - a runtime where Extended Web applications execute.
 
-Sthalam runs on Extended Web principles: applications run on your devices, data lives with you, connections are peer-to-peer, and authorization comes from cryptographic Permits instead of platform permissions.
+There is no backend - all application logic is embedded in HUML templates (rendering logic) and Permits (merge logic). Permits are derivative of HUML. The Osvauld protocol executes this embedded logic. Everything works offline by default, syncing when connected through peer-to-peer connections. You control your data, your identity, and who you collaborate with.
 
-### Public and Private Uses
+**You choose public or private**:
+- **Public**: Blogs, newsletters, websites, public chat, public discussions - share openly with your audience
+- **Private**: Private messaging, password management, private forms, private surveys - selective access only
 
-**Public Publishing**:
-- Websites, blogs, newsletters
-- Share content directly with your audience
-- No platform between you and your readers
+All applications can be either public or private based on your choice.
 
-**Private Collaboration**:
-- Private messaging and group threads
-- Surveys and forms with controlled access
-- Collaborative workspaces
-- Password management with selective sharing
+**Infinitely Customizable**: Create any interface using HUML templates (declarative configurations). Define custom permissions with Permit facts. Sthalam reads templates and Permits to determine application behavior.
 
-**Infinitely Customizable**:
-- Create any interface using HUML templates (declarative, shareable configurations)
-- Define custom permissions with Permit facts (infinite combinations possible)
-- Build anything from messaging apps to games
-- Frontend reads templates and Permits to determine behavior
+## Personal Node
 
-**Your Data, Your Control**: Everything you create—public blogs, private messages, surveys, collaborations—exists only between you and your chosen peers. You decide what's private or public, who can access it, and under what terms. No platform intermediary, no data harvesting, no third-party surveillance.
+A **personal node** is essential - you need at least one node for flawless operation. Your always-on device handles distribution, buffers updates, and coordinates sync. It's an extension of you - you control the hardware, software, and network.
 
-## Personal Nodes - Your Facilitator
+## Fundamental Merge Patterns
 
-A **personal node** is your always-on device that facilitates Extended Web connectivity. It's not a server in the traditional sense - it's an extension of you that helps with store-and-forward, relay, and public hosting.
+All applications are built by combining three patterns:
 
-### How Nodes Work
+**1. Pull-Only (Read-Only)**
+Publisher updates → viewers receive → viewers cannot send back
+*Use for*: Blogs, newsletters, announcements, dashboards
 
-**Traditional Web**:
-- Applications run in data centers
-- Your data lives on someone else's servers
-- Platform controls access, distribution, and rules
-- You can be deplatformed at any time
+**2. Push-Only (Append-Only)**
+Viewers submit → publisher receives → viewers don't see others' submissions
+*Use for*: Forms, surveys, feedback collection, polls
 
-**Extended Web**:
-- Applications run on your devices (laptop, phone, tablet)
-- Your data lives with you locally
-- You decide access through cryptographic Permits
-- No one can take away your sovereignty
+**3. Bidirectional (Collaborative)**
+All participants edit → Loro CRDT merges → everyone converges
+*Use for*: Messaging, password sharing, games
 
-**Personal Node Role**:
-- **Store-and-forward**: Buffers updates when you're offline
-- **Relay**: Helps establish peer-to-peer connections
-- **Public hosting**: Serves content to viewers (linear serving, not simultaneous)
-- **CRDT sync hub**: Coordinates conflict-free merging
+## Infinitely Customizable
 
-### Node Functions
+**DX Ball game that reveals your blog post** when you complete it:
+- Content document: Pull-only (post content locked until game complete)
+- Game state document: Bidirectional (track your progress)
+- Scores document: Bidirectional (live leaderboard across all readers)
+- Unlock logic: CEL expressions check game completion before revealing content
 
-Your personal node handles:
+**Every application has unique personality.** Build:
+- Password manager with your own selective sharing rules
+- Survey that reveals aggregated results only after you participate
+- Messaging with custom merge logic you define
+- Forms that trigger specific actions on submission
+- Multiplayer games with live leaderboards and achievement systems
+- Real-time applications with your own conflict resolution rules
 
-1. **Content Storage**: Encrypted copies of your data for backup and availability
-2. **Access Control**: Validates cryptographic Permits to grant or deny access
-3. **Synchronization**: Coordinates Loro CRDT updates for real-time collaboration
-4. **Distribution**: Serves content directly to authorized peers
-5. **Connection Facilitation**: Enables connectivity when direct P2P isn't possible
+Templates define everything: document names, merge behavior, permissions, UI. **Infinite combinations.**
 
-### Running a Node
+**AI-Generated**: Upload HUML template guide to ChatGPT or Claude, describe what you want (even the DX Ball blog!), AI generates the template. No programming knowledge needed. **Plug and play.**
 
-**Recommended Hardware**: **Orange Pi 6 Plus**
-- Low-cost, energy-efficient home device
-- NPU (Neural Processing Unit) for future AI capabilities (image processing, video transcoding)
-- Perfect for personal infrastructure
+## Current Status & Future
 
-**Alternative Options**:
-- Old laptop or desktop (repurpose existing hardware)
-- Mini PC (dedicated small form-factor device)
-
-**Why Physical Control Matters**:
-- Node has access to your encrypted content
-- Physical possession ensures sovereignty
-- Home network keeps your infrastructure local
-- You control the hardware, software, and network
-
-See [Setting Up a Node](/sovereign-node/setting-up) for installation details.
-
-### Security Model
-
-Your personal node stores content with cryptographic protections:
-
-- **Permit Authorization**: Only peers with valid Permits can access content
-- **Cryptographic Ownership**: Your PGP and Permit signing keys prove ownership
-- **Physical Sovereignty**: The node runs on hardware you control
-- **Home Network**: Device stays on your local network
-
-True sovereignty means controlling the physical hardware. Your node, your rules, your house.
-
-## Core Principles
-
-### Sovereignty
-You own your content, your identity, and your distribution. No platform can deplatform you, censor your content, or change the rules.
-
-### Direct Distribution
-Content flows directly from your sovereign node to your viewers. No intermediaries, no algorithms deciding who sees your content.
-
-### Cryptographic Ownership
-Your content is protected by cryptographic keys and UCAN (User Controlled Authorization Networks) tokens. You have provable ownership and control.
-
-### Privacy by Design
-Viewers connect directly to your node. Their data isn't harvested by platforms or sold to advertisers. Privacy is built into the architecture.
-
-## How It Works
-
-Sthalam is built on Extended Web technologies:
-
-- **Three Key Systems**: PGP keys (encryption), Permit signing keys (authorization), Device keys (P2P connections)
-- **Permit Authorization**: Cryptographic tokens that work like smart contracts for permissions - decentralized, data-driven authorization
-- **Loro CRDT Synchronization**: Conflict-free automatic merging enables real-time collaboration without servers
-- **HUML Templates**: Declarative, customizable layouts with custom document names (data-driven, not hardcoded)
-- **CEL Expressions**: Sandboxed, safe expressions for reactivity - **every app needs interactivity, but exposing JavaScript is a security threat**
-- **OCaml Transpiler**: Compiles HUML + CEL to WebAssembly (40x faster than JavaScript, 60 FPS rendering)
-- **Canvas Rendering**: CEL expressions compile to GPU shaders (500+ FPS performance)
-- **Security by Design**: CEL cannot execute arbitrary code, access network, or manipulate DOM - only safe, sandboxed expressions
-- **Local-First Architecture**: Applications work on your devices, sync peer-to-peer when connected
-- **End-to-End Encryption**: Content encrypted at rest and in transit, only accessible to authorized peers
-
-## Fundamental Merge Capabilities
-
-Sthalam demonstrates three fundamental merge patterns. All applications are built by combining these patterns with custom HUML templates:
-
-### 1. Pull-Only (Read-Only)
-
-**Merge behavior**: Publisher updates, viewers receive, viewers cannot send changes back.
-
-**How it works**:
-- Viewer Permit has `capability: viewer` for document
-- Frontend reads Permit, enables pull-only sync
-- Loro CRDT receives updates from publisher
-- Unidirectional data flow
-
-**Build with this**: Blogs, newsletters, public content, announcements, read-only dashboards
-
-### 2. Push-Only (Append-Only)
-
-**Merge behavior**: Viewers submit, publisher receives, viewers don't see others' submissions.
-
-**How it works**:
-- Viewer Permit has `capability: submitter` for document
-- Frontend reads Permit, enables append-only operations
-- Loro CRDT handles append ordering
-- Publisher receives and merges all submissions
-
-**Build with this**: Forms, surveys, feedback collection, polls, any submission workflow
-
-### 3. Bidirectional (Collaborative)
-
-**Merge behavior**: All participants edit, Loro CRDT merges automatically, everyone converges to same state.
-
-**How it works**:
-- All Permits have `capability: collaborator` for document
-- Frontend reads Permits, enables read-write
-- Loro CRDT performs automatic conflict-free merging
-- Multi-way synchronization
-
-**Build with this**: Messaging, group threads, collaborative editing, password sharing, multiplayer games, real-time workspaces
-
-### Combine Patterns for Complex Applications
-
-**Example - Blog with Comments**:
-- Content document: Pull-only (viewers read blog)
-- Comments document: Bidirectional (viewers collaborate on comments)
-- Same resource, different merge patterns per document
-
-**Example - Survey Platform**:
-- Questions document: Pull-only (viewers see questions)
-- Responses document: Push-only (viewers submit, can't see others)
-- Results document: Pull-only (publisher shares aggregated results)
-
-**Example - Multiplayer Game**:
-- Game state document: Pull-only (viewers see current state)
-- Player actions document: Bidirectional (all players collaborate on moves)
-
-### It's All in the Templates
-
-HUML templates define:
-- Custom document names (not hardcoded `forms_doc` or `comments_doc`)
-- Which merge pattern per document
-- What capabilities Permits should grant
-
-Permits contain facts that specify:
-- Document-level capabilities (`viewer`, `submitter`, `collaborator`)
-- Sync behavior (`local_only`, `no_incoming_updates`, `send_full_snapshot`)
-
-Frontend reads templates and Permits to determine merge behavior.
-
-**See `/sthalam/docs/examples` for sample applications** demonstrating these patterns.
-
-## POC vs. Production
-
-This is a proof-of-concept demonstrating Extended Web viability. The current implementation includes:
-
-**Implemented (Working NOW)**:
-- HUML parser + CEL evaluator → WebAssembly transpiler
-- Permit-based authorization (evolved from UCAN)
+**Implemented NOW**:
+- Permit-based authorization
 - Loro CRDT synchronization
 - Peer-to-peer connections (Iroh)
-- Out-of-band device key exchange
-- Cryptographic handshake and trust establishment
-- Document-level permissions (viewer/submitter/collaborator)
+- Document-level permissions
 - Desktop application (Tauri + WASM)
 - Orange Pi 6 Plus node support
 
-**Planned for Production**:
-- Blockchain integration (essential for discovery, verifiability, auditability)
-- AI features on Orange Pi NPU (image processing, video transcoding)
+**Planned**:
+- Blockchain integration (essential for discovery, verifiability, auditability - ERC-5192 identity, ERC-721 resources)
+- AI features on Orange Pi NPU
 - Mobile applications
-- Advanced UI features (filtering, analytics, exports)
-- Enhanced HUML template library
-- Community template sharing
+- Enhanced template library
 
 ## Getting Started
 
-To start using Sthalam, you'll need:
+Sthalam is currently a POC. To explore:
 
-1. **Cryptographic Identity**: Generate your PGP keys and Permit signing keys
-2. **Personal Node**: Set up an Orange Pi 6 Plus or run the node software on existing hardware
-3. **Sthalam Desktop App**: Use the application to create templates and collaborate
+1. **Review Architecture**: See the Architecture section for identity, Permits, and sync details
+2. **See Examples**: Check Examples section for sample applications
+3. **Explore Code**: [GitHub repository](https://github.com/osvauld/osvauld)
 
-From there, you can:
-- [Understand Extended Web Architecture](/core/extended-web) - Learn how the paradigm works
-- [Create HUML Templates](/sthalam/huml-templates) - Build custom interfaces
-- [Use Permits for Authorization](/core/permits) - Control who accesses what
-- [Sync with Peers](/core/sync) - Collaborate in real-time
+Production setup will include:
+- Generate cryptographic identity (PGP and Permit signing keys)
+- Set up personal node (Orange Pi 6 Plus or existing hardware)
+- Install Sthalam desktop application
 
 ## The Vision
 
-Sthalam is the first Extended Web application - infrastructure for a paradigm where individuals control their digital lives without depending on platforms. The name "place" (സ്ഥലം) reflects this: creating your own place on the internet, owned and controlled by you.
+Sthalam demonstrates the Osvauld protocol in action - a runtime where individuals control their digital lives without depending on platforms.
 
-As the POC evolves into production, Sthalam demonstrates how Extended Web principles enable:
-- **Personal sovereignty**: Complete control over identity, data, and relationships
-- **Infinite customization**: Data-driven applications configured through templates
-- **Private and public**: Same architecture for both publishing and private collaboration
-- **Decentralized authorization**: Permits work like smart contracts for permissions
+The Extended Web enables:
+- **Personal sovereignty**: Complete control over identity, data, relationships
+- **Infinite customization**: Data-driven applications via templates
+- **Seamless experience**: Identity built into protocol, background sync
+- **Affordable uniqueness**: AI-generated apps without coding
 - **Future-ready**: Blockchain integration for verifiability while preserving privacy
 
-Sthalam isn't just an application - it's proof that the Extended Web works.
-
-**Welcome to your sovereign place on the internet.**
+**This is your sovereign place on the internet.**
