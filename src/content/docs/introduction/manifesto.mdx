@@ -107,12 +107,17 @@ These patterns combine through **HUML templates** and **Permit facts**:
 - Comments (bidirectional pattern)
 - Publishing (pull-only pattern)
 
+**Safe Interactivity:**
+- **CEL expressions** - sandboxed, safe (no arbitrary code execution like JavaScript)
+- Every app needs interactivity, but exposing JavaScript is a security threat
+- CEL provides reactivity without security risks
+
 **High Performance:**
 - **Loro CRDT** - automatic conflict-free merging
-- **CEL expressions** compiled to GPU shaders (500+ FPS)
+- **CEL compiled to GPU shaders** - 500+ FPS canvas rendering
 - **OCaml transpiler** produces WebAssembly (40x faster than JavaScript)
 
-The merge patterns are fundamental. Applications are just combinations of these patterns with custom HUML templates.
+The merge patterns are fundamental. Applications are combinations of these patterns with safe, customizable HUML templates.
 
 ## Looking Ahead: Verifiable and Auditable
 

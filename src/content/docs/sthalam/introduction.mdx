@@ -120,9 +120,10 @@ Sthalam is built on Extended Web technologies:
 - **Permit Authorization**: Cryptographic tokens that work like smart contracts for permissions - decentralized, data-driven authorization
 - **Loro CRDT Synchronization**: Conflict-free automatic merging enables real-time collaboration without servers
 - **HUML Templates**: Declarative, customizable layouts with custom document names (data-driven, not hardcoded)
-- **CEL Expressions**: Sandboxed expressions for reactivity and control flow
+- **CEL Expressions**: Sandboxed, safe expressions for reactivity - **every app needs interactivity, but exposing JavaScript is a security threat**
 - **OCaml Transpiler**: Compiles HUML + CEL to WebAssembly (40x faster than JavaScript, 60 FPS rendering)
 - **Canvas Rendering**: CEL expressions compile to GPU shaders (500+ FPS performance)
+- **Security by Design**: CEL cannot execute arbitrary code, access network, or manipulate DOM - only safe, sandboxed expressions
 - **Local-First Architecture**: Applications work on your devices, sync peer-to-peer when connected
 - **End-to-End Encryption**: Content encrypted at rest and in transit, only accessible to authorized peers
 
