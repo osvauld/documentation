@@ -1,0 +1,171 @@
+---
+title: "Identity and Key Systems"
+description: "Understanding the three types of cryptographic keys in the Extended Web"
+---
+
+## Three Separate Key Systems
+
+Extended Web applications use three distinct types of cryptographic keys, each serving a specific purpose in the architecture. Understanding how they work together is essential to understanding how identity and security work.
+
+### 1. PGP Keys - Your Main Identity
+
+**Purpose**: Your primary identity for encryption and decryption
+
+**Characteristics**:
+- **Never leaves your device** - Stored locally, never transmitted
+- **RSA or Ed25519** - Industry-standard public-key cryptography
+- **Encryption/Decryption** - Used to encrypt content and decrypt received data
+- **Root of trust** - The foundation your other keys derive from
+
+**How it works**:
+
+When you first use an Extended Web application, you generate a PGP keypair (or import an existing one). This becomes your cryptographic identity.
+
+Your public key can be shared freely - others use it to encrypt content they send you. Your private key stays on your device and decrypts that content.
+
+PGP keys are not used for signing Permits or establishing P2P connections. They're specifically for encryption/decryption and serve as your root identity.
+
+### 2. Permit Signing Keys - Authorization Identity
+
+**Purpose**: Sign Permits (cryptographic authorization tokens)
+
+**Characteristics**:
+- **Derived from PGP** - Generated from your PGP key
+- **Ed25519** - Fast elliptic curve cryptography
+- **Converted to DID** - Becomes a Decentralized Identifier (DID)
+- **Signs Permits** - Creates cryptographic proofs of authorization
+
+**How it works**:
+
+Your Permit signing key is derived from your PGP key but serves a different purpose. When you want to grant someone access to a resource, you create a Permit and sign it with this key.
+
+The signing creates a cryptographic signature that proves:
+- The Permit came from you
+- The Permit hasn't been tampered with
+- The recipient has legitimate authorization
+
+Your Ed25519 public key is converted to a DID (Decentralized Identifier), which looks like:
+```
+did:key:z6Mkr...
+```
+
+This DID appears in Permits as the issuer (`iss`) field. Anyone can verify the signature using your public key, but only you can create valid signatures with your private key.
+
+### 3. Device Keys - Network Layer Identity
+
+**Purpose**: Establish peer-to-peer connections through Iroh
+
+**Characteristics**:
+- **Generated per device** - Each device (laptop, phone, node) has its own
+- **Iroh P2P protocol** - Part of the network layer, not authorization layer
+- **Connection establishment** - Used to find and connect to peers
+- **Separate from identity** - Doesn't represent "you," represents "this device"
+
+**How it works**:
+
+When you want to connect with someone peer-to-peer, you exchange device keys out-of-band (QR code, text message, email). This tells Iroh where to find each other on the network.
+
+Device keys are not used for authorization or encryption of content. They're specifically for the network layer - establishing QUIC connections, NAT traversal, and routing.
+
+You might have multiple device keys (one for your laptop, one for your phone, one for your personal node), but you have only one PGP identity and one Permit signing key.
+
+## How They Work Together
+
+Here's how all three key systems interact when you share content:
+
+### Initial Setup (One-Time)
+
+1. **Generate PGP keypair** - Your root identity
+2. **Derive Permit signing key** - From PGP, converted to DID
+3. **Generate device keys** - One per device you use
+
+### Sharing Content
+
+**Step 1: Create the Permit**
+- You create a Permit specifying permissions (read, write, append)
+- Sign it with your **Permit signing key**
+- The Permit contains your DID as issuer
+
+**Step 2: Exchange Device Keys**
+- You send your **device key** to the recipient (out-of-band)
+- They send theirs back
+- This is a one-time setup per peer
+
+**Step 3: Establish Connection**
+- Iroh uses **device keys** to find each other on the network
+- QUIC connection established
+- Now you can communicate peer-to-peer
+
+**Step 4: Mutual Authentication**
+- You exchange one-time bearer tokens (temporary Permits)
+- Verify signatures using **Permit signing keys**
+- Extract each other's public **PGP keys**
+- Persist user data locally
+
+**Step 5: Content Exchange**
+- Encrypt content with recipient's **PGP public key**
+- Send encrypted content over P2P connection
+- Recipient decrypts with their **PGP private key**
+
+All three key systems work together, but each serves its specific purpose:
+- **PGP** = Encryption/decryption
+- **Permit signing** = Authorization
+- **Device keys** = Network connectivity
+
+## Key Security Properties
+
+### PGP Keys
+
+**Never transmitted** - Your private key stays on your device always
+
+**Offline generation** - Created locally, no server involvement
+
+**Forward secrecy** - When delegating Permits, content is re-encrypted for each recipient
+
+### Permit Signing Keys
+
+**Cryptographic proofs** - Signatures can't be forged or modified
+
+**Verifiable offline** - Anyone can check signature validity without network access
+
+**Delegation chains** - Permits can chain back to root authority through signatures
+
+### Device Keys
+
+**Device-specific** - Compromise of one device doesn't compromise your identity
+
+**Rotatable** - Can generate new device keys without changing your identity
+
+**Network-only** - Don't grant authorization, just enable connectivity
+
+## Future: Blockchain Integration
+
+In the future, these cryptographic identities will integrate with blockchain for global discovery and verifiability:
+
+**Your DID (from Permit signing key)** will be recorded on-chain as an ERC-5192 Soulbound NFT. This provides:
+- Global discovery (find you without centralized directories)
+- Proof of identity ownership
+- Audit trail of identity history
+
+**Your device keys** will be recorded on-chain for verification:
+- Proof of which devices you control
+- Ability to revoke compromised device keys publicly
+- Transparent device rotation history
+
+**Your content** stays local and encrypted - only identity metadata goes on-chain.
+
+This adds verifiability and auditability to the Extended Web while preserving privacy.
+
+## Practical Implications
+
+**One identity, many devices** - Your PGP identity and Permit signing key stay consistent across devices. Only device keys change.
+
+**Offline-capable** - All cryptographic operations work without network connectivity.
+
+**No identity provider** - No company controls your identity. You hold the keys.
+
+**Selective trust** - You choose who to connect with through device key exchange.
+
+**Cryptographic security** - All authorization is mathematically verifiable, not dependent on platform policies.
+
+This three-key architecture enables Extended Web applications to provide security, privacy, and sovereignty without depending on centralized identity providers or permission servers.

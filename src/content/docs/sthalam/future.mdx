@@ -7,41 +7,42 @@ description: "Potential capabilities for commerce, discovery, and enhanced colla
 
 ## Commerce
 
-The architecture can support **commerce applications**—small e-commerce sites, service listings, and interactive transactions—powered by **JEXL (JavaScript Expression Language)** for business logic.
+The architecture supports **commerce applications**—small e-commerce sites, service listings, and interactive transactions—powered by **CEL (Common Expression Language)** for business logic.
 
-**What can be done**:
-- **Small e-commerce sites**: Sell products directly from your sovereign node
+**What you can build**:
+- **Small e-commerce sites**: Sell products directly from your personal node
 - **Service listings**: List services (consulting, freelancing, bookings) without platform fees
-- **Custom business logic**: Define pricing, discounts, shipping rules using JEXL expressions
+- **Custom business logic**: Define pricing, discounts, shipping rules using CEL expressions
 - **Interactive applications**: Restaurant ordering, booking systems, marketplace transactions
 
-**How JEXL helps**:
+**How CEL helps**:
 
 Simple expressions define business rules without complex code:
 
-```jexl
+```cel
 total = (quantity * price) * (1 - discount) + shipping + tax
-showShipping = productType == "physical"
-eligible = age >= 18 && hasConsent
+showShipping = (productType == "physical")
+eligible = (age >= 18 && hasConsent)
 ```
 
-**How blockchain helps**:
-- **Publishing**: Blockchain enables content and service discovery
-- **Listings**: Users list their services on blockchain for public discovery
-- **No platform dependency**: Direct commerce between sovereign individuals
+**Why blockchain is ESSENTIAL**:
+- **Discovery**: Find services and content without centralized directories
+- **Verifiability**: Cryptographic proof of ownership and authorization
+- **Auditability**: Transparent permission chains prevent misuse while preserving privacy
+- **Traceability**: Track delegation history and permission flows
 
-Commerce happens peer-to-peer, with blockchain providing the discovery layer.
+Commerce happens peer-to-peer, with blockchain providing discovery, verification, and audit capabilities.
 
 ## Discovery
 
-Currently, sharing content requires base64-encoded connection strings. Blockchain enables **human-readable names and public discovery**.
+Currently, sharing content requires out-of-band device key exchange. Blockchain enables **human-readable names and public discovery**.
 
 **How it works**:
-- Register names like `@alice` or `myblog.sthalam` on blockchain
-- **Blockchain identity is a deterministic derivative** of your main identity key—not a separate key
-- Names map to your node identity using **ECC keys** (elliptic curve cryptography)
-- ECC keys always resolve to your node identity—stable addressing
-- Publishing generates blockchain transactions with your node's addressing info
+- Register names like `@alice` or `myblog.sthalam` on blockchain using ERC-5192 (Soulbound NFT)
+- Names map to your DID (Decentralized Identifier from Permit signing key)
+- Device keys recorded on-chain for verification and discovery
+- Resource ownership recorded as ERC-721 tokens
+- Publishing generates blockchain transactions with addressing info
 
 **What this enables**:
 - **Human-readable sharing**: Type `@alice` instead of pasting connection strings
@@ -78,26 +79,30 @@ IPFS integration enables **offloading static content** to reduce strain on sover
 
 IPFS is for static content distribution. All interactive features remain pure peer-to-peer.
 
-## LLM Integration
+## AI Integration
 
-The architecture supports **running LLMs on your sovereign node** to assist with collaborative editing, spreadsheets, and conversations.
+The architecture supports **running AI models on your personal node** for enhanced functionality.
 
-**Node-hosted LLMs**:
-- Hardware: Boards like Radxa Orion 6 with NPUs (45 TOPS) for AI inference
-- Local processing: LLM assistance happens on your own infrastructure
-- Privacy: LLM interactions never leave your sovereign node
+**Node-hosted AI**:
+- Hardware: Orange Pi 6 Plus with NPU for AI inference
+- Local processing: Image processing, video transcoding, voice commands
+- Privacy: AI processing happens on your own infrastructure
 - Multimodal: Process text, images, audio, and structured data locally
 
-**Efficient design**:
-- **CRDT surgical updates**: Send only changed parts of conversations, not entire context
-- **LLMs have identities**: Each LLM gets its own DID—delegate UCAN tokens for permissions
-- **Fine-grained control**: Grant LLMs access to specific documents or parts of documents
+**Current AI Usage**:
+- **Template generation**: Users can use cloud AI (ChatGPT, Claude) with HUML guide to generate templates
+- **External, not required**: AI is a tool for creating templates, not part of core functionality
 
-**What LLMs can help with**:
-- Document editing: Suggest edits, draft content, fix formatting
-- Spreadsheets: Generate formulas, analyze data
-- Conversations: Summarize discussions, translate messages
-- Templates: Generate HUML templates locally (Sthalam currently uses external LLM services)
+**Future AI Features**:
+- **Document editing**: Local AI assistance for drafting content
+- **Image processing**: On-device image optimization and manipulation
+- **Video transcoding**: Efficient video processing on Orange Pi NPU
+- **Voice commands**: Local speech recognition and processing
+
+**Efficient design**:
+- **CRDT surgical updates**: Send only changed parts of documents, not entire context
+- **AI has identity**: AI assistants get DIDs—delegate Permits for permissions
+- **Fine-grained control**: Grant AI access to specific documents only
 
 ## Node-to-Node Syncing
 
@@ -162,6 +167,14 @@ Blockchain provides the verification layer while content stays P2P—you can alw
 
 ## Conclusion
 
-These capabilities—**commerce, discovery, IPFS, LLMs, node-to-node syncing, and verifiable digital signatures**—extend the core peer-to-peer infrastructure.
+These capabilities—**commerce, discovery, IPFS, AI, node-to-node syncing, and verifiable digital signatures**—extend the Extended Web infrastructure.
 
-The architecture is designed to support these enhancements while maintaining the fundamental principles: sovereignty, privacy, and direct peer-to-peer collaboration. Each capability can be integrated as needed, with the core apps (Sthalam, Livnote, Libremot) continuing to work entirely peer-to-peer.
+The architecture is designed to support these enhancements while maintaining the fundamental principles:
+- **Sovereignty**: Control over identity, data, and relationships
+- **Privacy**: No surveillance, no data harvesting
+- **Peer-to-peer**: Direct collaboration without intermediaries
+- **Data-driven**: Behavior configured through templates and Permits
+
+Blockchain integration is **essential** (not optional) for making the Extended Web globally discoverable, verifiable, and auditable while preserving privacy. Your identity and ownership records live on-chain; your actual content stays local and encrypted.
+
+**The future is being built now. The Extended Web is here.**

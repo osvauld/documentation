@@ -1,0 +1,312 @@
+---
+title: "Handshake Mechanism"
+description: "How Extended Web applications establish trusted peer-to-peer connections"
+---
+
+## What Is the Handshake?
+
+When two peers want to connect in the Extended Web, they go through a **handshake** - a multi-step process that establishes trust, verifies identity, and sets up authorization.
+
+Unlike traditional client-server handshakes (like TLS), Extended Web handshakes are **peer-to-peer** and **data-driven** - they read behavior from Permit facts, not hardcoded logic.
+
+## The Multi-Component Handshake
+
+The handshake involves multiple layers, each serving a specific purpose:
+
+### 1. Network Layer - Device Keys
+
+**Purpose**: Establish the P2P connection
+
+**What happens**:
+- Device keys were exchanged out-of-band (QR code, text, etc.) earlier
+- Iroh uses these keys to find the peer on the network
+- QUIC connection established
+- Encrypted transport layer ready
+
+**Key point**: This establishes **how to connect**, not **what you're authorized to do**.
+
+### 2. Authentication Layer - One-Time Bearer Tokens
+
+**Purpose**: Prove identity through cryptographic signatures
+
+**What happens**:
+
+Both sides create temporary bearer tokens (Permits) that prove they are who they claim to be.
+
+**Owner creates a token**:
+```json
+{
+  "iss": "did:key:z6Mkf...",  // Owner's DID
+  "aud": "did:key:z6Mkn...",  // Node's DID
+  "fct": {
+    "operations": {
+      "own": "allow"  // "I am the owner"
+    }
+  }
+}
+```
+
+**Node creates a token**:
+```json
+{
+  "iss": "did:key:z6Mkn...",  // Node's DID
+  "aud": "did:key:z6Mkf...",  // Owner's DID
+  "fct": {
+    "operations": {
+      "own": "allow"  // "I am authorized to host"
+    }
+  }
+}
+```
+
+Both sides exchange these tokens and validate:
+1. **Cryptographic signature** - Proves the token came from who it claims
+2. **DID extraction** - Gets the public key from the DID
+3. **Fact verification** - Checks that `operations.own == "allow"`
+4. **Bearer authentication** - Possession of this token proves identity
+
+**Key point**: This is **bearer token authentication** - anyone holding a valid token is considered authorized. No need to check against a database or server.
+
+### 3. Trust Establishment - Public Key Exchange
+
+**Purpose**: Extract and persist identity information
+
+**What happens**:
+
+After validating the bearer tokens:
+1. **Extract public keys** from each other's DIDs
+2. **Store user data** in local database:
+   - User's DID (decentralized identifier)
+   - Public PGP key (for encrypting content to them)
+   - Device ID (for future P2P connections)
+   - Relationship type (owner, node, viewer)
+3. **Both sides persist** - This is mutual trust establishment
+
+**Key point**: After this step, both sides can recognize and authenticate each other in future sessions.
+
+### 4. Authorization Exchange - Long-Lived Permits
+
+**Purpose**: Delegate permissions for ongoing access
+
+**What happens**:
+
+Now that trust is established, the owner delegates a Permit to the node using the delegation template from their owner Permit:
+
+```json
+{
+  "iss": "did:key:z6Mkf...",  // Owner's DID
+  "aud": "did:key:z6Mkn...",  // Node's DID (specific audience now)
+  "fct": {
+    "token_type": "folder_node",
+    "folder_id": "550e8400-...",
+    "operations": {
+      "get_share_link": "allow",
+      "add_resources": "allow",
+      "share_folder": "allow"
+    },
+    "auth_capabilities": {
+      "can_connect": true,
+      "persist_share": true,
+      "can_delegate": false,
+      "sync_enabled": true
+    },
+    "relationship": "node"
+  },
+  "prf": ["bafyrei..."]  // Proof: delegated from owner's folder Permit
+}
+```
+
+This long-lived Permit will be used for all future operations between owner and node.
+
+**Key point**: This establishes **what the peer is authorized to do** for ongoing collaboration.
+
+## Data-Driven, Not Hardcoded
+
+The handshake logic is not hardcoded in the backend. Instead, it reads behavior from Permit facts.
+
+### Traditional Approach (What We DON'T Do)
+
+```rust
+// ❌ Hardcoded handshake logic
+if user.role == "owner" && peer.role == "node" {
+    establish_connection();
+    grant_permissions(["add_resources", "share_folder"]);
+}
+```
+
+### Extended Web Approach (Data-Driven)
+
+```rust
+// ✅ Data-driven handshake
+let owner_permit = Permit::from_token(&owner_token)?;
+let node_permit = Permit::from_token(&node_token)?;
+
+// Check facts dynamically
+if owner_permit.has_operation("own") && node_permit.has_operation("own") {
+    // Both proved ownership via bearer tokens
+
+    // Extract public keys from DIDs
+    let owner_pubkey = owner_permit.extract_public_key()?;
+    let node_pubkey = node_permit.extract_public_key()?;
+
+    // Persist user data
+    persist_user(owner_pubkey, owner_permit.get_did())?;
+    persist_user(node_pubkey, node_permit.get_did())?;
+
+    // Read delegation template from owner's Permit
+    let template = owner_permit.get_delegation_template("node")?;
+
+    // Issue new Permit based on template
+    let node_permit = issue_from_template(template, node_did)?;
+
+    establish_connection();
+}
+```
+
+The backend:
+- **Reads Permit facts** to determine behavior
+- **Validates signatures** cryptographically
+- **Extracts templates** from Permits for delegation
+- **Issues new Permits** based on templates
+- **Does NOT have hardcoded role logic**
+
+Everything is driven by the data in the Permits.
+
+## Separation of Concerns
+
+The handshake involves multiple key systems working together:
+
+| Component | Purpose | Key System |
+|-----------|---------|------------|
+| **Network connection** | How to find and connect | Device keys (Iroh) |
+| **Authentication** | Who you are | Permit signing keys (DID) |
+| **Authorization** | What you can do | Permit facts |
+| **Encryption** | Content security | PGP keys |
+
+Each layer is separate but they work together during the handshake:
+
+1. **Device keys** establish the QUIC connection
+2. **Permit signing keys** create/verify bearer token signatures
+3. **Permit facts** determine what operations are allowed
+4. **PGP keys** are extracted and stored for future content encryption
+
+## Handshake Flow Example
+
+Here's a complete handshake between an owner and their personal node:
+
+### Step 1: Out-of-Band Setup (One-Time)
+- Owner and node exchange device keys (QR code or manual entry)
+- Iroh stores these for future connections
+
+### Step 2: Connection Initiation
+- Owner clicks "Add Node" in application
+- Application initiates P2P connection using device key
+- Iroh establishes QUIC connection
+
+### Step 3: Mutual Authentication
+**Owner → Node**:
+- Creates one-time bearer token with `operations.own: allow`
+- Signs with Permit signing key
+- Sends to node
+
+**Node → Owner**:
+- Creates one-time bearer token with `operations.own: allow`
+- Signs with Permit signing key
+- Sends to owner
+
+**Both sides verify**:
+- Check cryptographic signature
+- Extract DID and public key
+- Verify `operations.own == "allow"`
+
+### Step 4: Trust Establishment
+**Both sides persist**:
+```javascript
+{
+  "user_id": "base64_pubkey...",
+  "user_did": "did:key:z6Mkf...",
+  "device_id": "iroh_device_id...",
+  "relationship": "node",  // or "owner"
+  "public_key": "PGP public key..."
+}
+```
+
+### Step 5: Authorization Delegation
+**Owner delegates to node**:
+- Reads `delegation.node` template from their owner Permit
+- Creates new Permit for node based on template
+- Signs and sends to node
+
+**Node receives**:
+- Validates signature
+- Stores Permit for future use
+- Now authorized for operations like `add_resources`, `share_folder`
+
+### Step 6: Ready for Collaboration
+- Both sides can now sync resources
+- Encryption uses stored PGP keys
+- Authorization checked via Permits
+- Connection persists (Iroh handles reconnection automatically)
+
+## Security Properties
+
+### Cryptographic Proof
+Every step is verified through cryptographic signatures - no trust in servers required.
+
+### Bearer Token Security
+One-time bearer tokens are ephemeral - they're only used during initial handshake, then discarded. Long-lived Permits replace them.
+
+### Mutual Authentication
+Both sides prove their identity to each other - it's symmetric, not one-way like client-server.
+
+### No Replay Attacks
+Permits include expiration (`exp` field) and nonces - old tokens can't be reused.
+
+### Forward Secrecy
+Content is re-encrypted for each delegation using the recipient's PGP public key. Compromising one Permit doesn't reveal content from other delegations.
+
+## Handshake Variants
+
+The handshake pattern applies to different peer relationships:
+
+### Owner ↔ Node
+- One-time bearer tokens prove mutual ownership
+- Owner delegates folder/resource Permits to node
+- Bidirectional sync enabled
+
+### Node ↔ Viewer
+- Viewer presents shareable link Permit (`aud: *`)
+- Node validates and creates viewer-specific Permit
+- Viewer gets read-only or collaborative access per resource
+
+### Owner ↔ Collaborator
+- Similar to owner-node but different permission template
+- Collaborator gets subset of owner's permissions
+- Defined by delegation template in owner's Permit
+
+### Peer ↔ Peer (Private Messaging)
+- Both sides exchange Permits with symmetric permissions
+- No "owner" relationship - equal collaboration
+- Custom templates define what each can do
+
+All use the same multi-component pattern:
+1. Network (device keys)
+2. Authentication (bearer tokens)
+3. Trust (public key exchange)
+4. Authorization (Permit delegation)
+
+## Why This Matters
+
+The handshake's data-driven design enables:
+
+**Flexibility** - New permission models don't require backend code changes
+
+**Auditability** - Every handshake is cryptographically verifiable
+
+**Decentralization** - No central authority validates handshakes
+
+**Customization** - Different apps can use different handshake templates
+
+**Forward compatibility** - Adding new Permit facts doesn't break existing handshakes
+
+This is what makes the Extended Web truly extensible - the handshake reads its behavior from data, not code.

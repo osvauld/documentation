@@ -1,0 +1,275 @@
+---
+title: "Blockchain Integration"
+description: "Why blockchain is essential for the Extended Web's global discoverability and verifiability"
+---
+
+## Why Blockchain is Essential
+
+Blockchain integration isn't a nice-to-have feature - it's **essential** for making the Extended Web globally discoverable, verifiable, and auditable while preserving privacy.
+
+The Extended Web provides personal sovereignty through local-first, peer-to-peer architecture. Blockchain extends this by adding global capabilities that decentralized systems need to function at scale.
+
+## The Four Essential Capabilities
+
+### 1. Global Discovery
+
+**The Problem**: Currently, connecting with peers requires out-of-band device key exchange (QR codes, text messages, manual entry). This works for direct connections but doesn't scale to finding new people or discovering public content.
+
+**How Blockchain Solves It**:
+- **Human-readable names**: Register `@alice` or `myblog.sthalam` on-chain instead of sharing device key strings
+- **Public directories**: Blockchain provides a decentralized directory anyone can read
+- **No centralized registry**: Discovery happens through blockchain, not corporate servers
+- **Multi-device updates**: Change nodes, update once on-chain, everyone finds you automatically
+
+**What Gets Recorded**:
+- Your DID (Decentralized Identifier from Permit signing key)
+- Your device keys (for P2P connections)
+- Your chosen name/handle
+- Resource metadata for public discovery
+
+**What Stays Private**:
+- Your actual content (stays local and encrypted)
+- Your private connections
+- Your collaboration data
+- Anything you choose to keep peer-to-peer only
+
+### 2. Verifiability
+
+**The Problem**: In decentralized systems, how do you prove ownership? How do you verify someone is who they claim to be? How do you ensure Permits haven't been forged?
+
+**How Blockchain Solves It**:
+- **Cryptographic proof of ownership**: Your identity recorded as ERC-5192 (Soulbound NFT)
+- **Resource ownership**: Resources recorded as ERC-721 tokens
+- **Permit hash verification**: Permit hashes on-chain prove they haven't been tampered with
+- **Public key verification**: Anyone can verify signatures without asking you
+
+**What This Enables**:
+- Prove you created a resource
+- Verify someone's identity without trusting intermediaries
+- Confirm Permit authenticity
+- Establish trust chains through verifiable delegation
+
+**Example**: When you publish a blog post, the blockchain records:
+- Your DID as the owner (ERC-5192)
+- The resource ID (ERC-721)
+- Hash of the root Permit
+- Timestamp of creation
+
+Anyone can verify you own this resource. But the actual blog post content stays local/encrypted - only the ownership record is on-chain.
+
+### 3. Auditability
+
+**The Problem**: Extended Web systems grant powerful capabilities through Permits. Without audit trails, misuse could happen without accountability. How do you prevent abuse while preserving privacy?
+
+**How Blockchain Solves It**:
+- **Transparent permission chains**: Delegation history recorded on-chain
+- **Public audit trails**: Anyone can see how Permits were delegated
+- **Tamper-proof history**: Can't modify past delegation records
+- **Accountability without surveillance**: See permission flows without seeing content
+
+**What Gets Audited**:
+- Permit delegation chains (who delegated to whom)
+- Permission scope changes
+- Revocation events
+- Ownership transfers
+
+**What Stays Private**:
+- The actual content being shared
+- Private messages and collaboration
+- User behavior and activity
+- Anything not explicitly published
+
+**Why This Matters**:
+
+The Extended Web gives individuals powerful sovereignty. With that power comes responsibility. Blockchain provides accountability - if someone misuses Permits, there's a verifiable trail. This **prevents abuse** while maintaining privacy.
+
+### 4. Traceability
+
+**The Problem**: In traditional systems, platform surveillance tracks everything. In pure peer-to-peer systems, there's no way to track permission flows. We need a middle ground - transparency about authorization without surveillance of content.
+
+**How Blockchain Solves It**:
+- **Track delegation flows**: See how permissions propagated through the network
+- **Verify trust chains**: Confirm Permits chain back to legitimate root authority
+- **Detect suspicious patterns**: Identify unusual permission grants
+- **Revocation propagation**: Ensure revoked Permits are globally marked invalid
+
+**What You Can Track**:
+- "This Permit was delegated from this root owner"
+- "This permission chain has 3 hops: Alice → Bob → Carol"
+- "This device key was revoked on this date"
+- "This resource ownership transferred from X to Y"
+
+**What You Cannot Track**:
+- What content they're sharing
+- Who they're messaging privately
+- What they're collaborating on
+- Their usage patterns
+
+## Natural Extension of Cryptographic Keys
+
+Blockchain integration is a **natural extension** of the Extended Web's existing cryptographic architecture - not an add-on.
+
+You already have:
+- **PGP keys** for encryption
+- **Permit signing keys** converted to DIDs
+- **Device keys** for P2P connections
+
+Adding blockchain means:
+- Record your DID on-chain (it's already a DID!)
+- Record device keys on-chain (already generated!)
+- Record resource ownership (already cryptographically signed!)
+- Record Permit hashes (already computed!)
+
+**No new key systems required** - blockchain uses the cryptographic identity you already have.
+
+## On-Chain vs Off-Chain
+
+Understanding the separation:
+
+### On-Chain (Public, Verifiable)
+
+- **Identity**: Your DID (ERC-5192 Soulbound NFT)
+- **Device keys**: For discovery and connection
+- **Resource ownership**: ERC-721 tokens for resources
+- **Permit hashes**: Verify Permits haven't been tampered with
+- **Delegation history**: Track permission flows
+- **Names/handles**: Human-readable discovery
+
+### Off-Chain (Local, Private, Encrypted)
+
+- **All content**: Blog posts, messages, documents
+- **Collaboration data**: Comments, edits, submissions
+- **CRDT operations**: Loro sync data
+- **Private connections**: Who you're messaging
+- **Usage patterns**: What you're working on
+- **Behavior data**: How you use applications
+
+**The blockchain provides the trust layer. Your content stays sovereign.**
+
+## Privacy Preservation
+
+Blockchain integration **enhances** privacy, not reduces it:
+
+**Traditional Web**:
+- Platforms surveil everything
+- Behavior tracking for advertising
+- Content mining for algorithms
+- No control over your data
+
+**Extended Web + Blockchain**:
+- Content stays local and encrypted
+- Only ownership/authorization recorded on-chain
+- No behavior tracking (activity is off-chain)
+- You choose what to publish publicly
+
+**Example**: Publishing a blog
+
+**Traditional platform**:
+- Sees your content
+- Tracks your readers
+- Monitors engagement
+- Sells advertising based on behavior
+- Can censor or deplatform you
+
+**Extended Web + Blockchain**:
+- On-chain: "Alice owns resource XYZ" (public)
+- On-chain: "Device key ABC belongs to Alice" (for discovery)
+- Off-chain: Actual blog content (encrypted, local)
+- Off-chain: Who reads it (peer-to-peer)
+- Off-chain: Comments and engagement (CRDT sync)
+
+**No platform sees your content. No surveillance of readers. Just ownership verification and discovery.**
+
+## Implementation Approach
+
+### ERC Standards
+
+**ERC-5192 (Soulbound NFT)**: User identity
+- Non-transferable tokens representing your DID
+- Permanent record of identity ownership
+- Cannot be sold or transferred (it's YOU)
+
+**ERC-721 (NFT)**: Resource ownership
+- Transferable tokens for resources
+- Can transfer ownership if desired
+- Clear provenance trail
+
+### Blockchain Agnostic
+
+The architecture doesn't depend on a specific blockchain:
+- Works with Ethereum, Polygon, or other EVM chains
+- Can use multiple blockchains simultaneously
+- Users choose which chain(s) to use
+- Different resources can use different chains
+
+### Efficient Design
+
+**Read once, cache locally**:
+- Query blockchain for discovery
+- Cache results locally
+- Only re-query when needed
+
+**Batch operations**:
+- Bundle multiple operations into single transactions
+- Reduces gas costs
+- Efficient on-chain footprint
+
+**Minimal on-chain data**:
+- Only essential metadata recorded
+- Content hashes, not content
+- Permission chains, not permission details
+
+## Why Not Optional?
+
+You might ask: "Why not make blockchain optional?"
+
+**Because the Extended Web needs these capabilities to function globally:**
+
+**Without Discovery**: Limited to people you know personally - can't find new content or people
+
+**Without Verifiability**: No way to prove ownership - anyone could impersonate you
+
+**Without Auditability**: Misuse could happen without accountability - damages trust in the ecosystem
+
+**Without Traceability**: Can't verify Permit chains - harder to detect fraud or abuse
+
+**Blockchain provides the trust and discovery layer that makes decentralized systems viable at global scale.**
+
+## Future Integration Timeline
+
+**Current State**: Out-of-band device key exchange
+
+**Phase 1 - Discovery**:
+- Register DIDs on-chain
+- Record device keys for discovery
+- Enable human-readable names
+
+**Phase 2 - Ownership**:
+- Record resource ownership (ERC-721)
+- Verify content creators
+- Enable ownership transfer
+
+**Phase 3 - Full Audit**:
+- Record Permit delegation chains
+- Enable revocation verification
+- Complete traceability of permissions
+
+**Phase 4 - Enhanced Features**:
+- Reputation systems
+- Content verification networks
+- Decentralized moderation
+
+## Summary
+
+Blockchain integration is **essential** for the Extended Web because it provides:
+
+1. **Global Discovery** - Find people and content without centralized directories
+2. **Verifiability** - Cryptographic proof of ownership and identity
+3. **Auditability** - Transparent permission chains prevent misuse
+4. **Traceability** - Track delegation flows without surveilling content
+
+**And it does this while preserving privacy** - only identity and ownership metadata goes on-chain, all content stays local and encrypted.
+
+The Extended Web gives you sovereignty. Blockchain makes that sovereignty globally discoverable and verifiable.
+
+**Essential. Not optional. Privacy-preserving by design.**

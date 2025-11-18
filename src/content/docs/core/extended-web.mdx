@@ -1,0 +1,173 @@
+---
+title: "Extended Web Architecture"
+description: "Understanding the paradigm shift from client-server to local-first peer-to-peer applications"
+---
+
+## What Is the Extended Web?
+
+The Extended Web is a new paradigm for how applications work on the internet. It's not an alternate internet or a replacement for existing web infrastructure - it runs on the same network you use every day. What changes is where applications run, where data lives, and how people collaborate.
+
+### The Client-Server Paradigm
+
+Traditional web applications follow a centralized model:
+
+1. **Applications run in data centers** - Your code executes on servers owned by companies
+2. **Data lives remotely** - Your content is stored in databases you don't control
+3. **Identity comes from platforms** - You exist online through accounts tied to specific services
+4. **Collaboration requires servers** - Working together means routing everything through centralized infrastructure
+
+This architecture has served the web well and enabled massive scale. But it has an inherent characteristic: **you depend on systems someone else operates**.
+
+### The Extended Web Paradigm
+
+Extended Web applications invert this model:
+
+1. **Applications run on your devices** - Code executes on your laptop, phone, or tablet
+2. **Data lives with you** - Your content is stored locally, syncing peer-to-peer
+3. **Identity comes from cryptography** - You exist through keys you control, not platform accounts
+4. **Collaboration is direct** - Working together means peer-to-peer connections, not server routing
+
+You can run a personal node (like an Orange Pi 6 Plus) to facilitate always-on connectivity, but it's your device, under your control. It's not a shared server - it's an extension of you.
+
+## How Extended Web Applications Work
+
+### Local-First Operation
+
+Your applications work offline by default. When you open an Extended Web app:
+
+- It reads data from your local storage
+- Renders the interface on your device
+- Processes your edits locally
+- Only connects to the network when you want to sync or collaborate
+
+This is fundamentally different from traditional web apps that require server connectivity just to function.
+
+### Peer-to-Peer Synchronization
+
+When you collaborate with others, your devices connect directly using protocols like Iroh (built on QUIC). No intermediary processes your content or controls access.
+
+Your personal node acts as a facilitator:
+- **Store-and-forward** - Buffers updates when you're offline so collaborators can continue working
+- **Relay** - Helps establish direct connections through NAT traversal
+- **Public hosting** - Serves content to viewers (linearly, not simultaneously)
+- **CRDT sync hub** - Coordinates conflict-free merging of changes
+
+But it doesn't act like a traditional server. It's your personal infrastructure that you own and control.
+
+### Cryptographic Authorization
+
+Instead of asking permission from servers, Extended Web apps use **Permits** - cryptographically signed tokens that contain all authorization logic.
+
+When you share something, you create a Permit that:
+- Specifies what the recipient can do (read, write, append)
+- Contains facts that applications read to determine behavior
+- Works as a bearer token (possession proves authorization)
+- Requires no permission server for validation
+
+This is like smart contracts for permissions - decentralized, cryptographic, programmable authorization.
+
+### Data-Driven Configuration
+
+Extended Web applications don't hardcode their behavior. Instead, they read it from:
+
+**HUML Templates** - Declarative configurations that define:
+- How content should be rendered
+- What document names to use (custom, not hardcoded)
+- How different views should work
+- What controls users see
+
+**Permit Facts** - Authorization data that specifies:
+- What documents this Permit grants access to
+- What permissions the holder has
+- What sync behavior should apply
+- What capabilities are enabled
+
+**CEL Expressions** - Safe, sandboxed expressions for:
+- Reactive state updates
+- Conditional rendering
+- Data transformations
+- Control flow logic
+
+Applications interpret these configurations at runtime. This means you can customize behavior by editing templates, not rewriting code.
+
+## Architecture Layers
+
+The Extended Web stack consists of several key layers:
+
+### Identity Layer
+
+Three separate key systems provide identity and encryption:
+
+1. **PGP Keys** - Your main identity, used for encryption/decryption, never leaves your device
+2. **Permit Signing Keys** - Ed25519 keys derived from PGP, converted to DIDs, used to sign Permits
+3. **Device Keys** - Iroh P2P network layer keys for establishing connections
+
+These work together but serve distinct purposes in the architecture.
+
+### Network Layer
+
+Peer-to-peer connectivity through Iroh:
+
+- **QUIC protocol** - Reliable, encrypted transport
+- **NAT traversal** - Works through firewalls and routers
+- **DHT discovery** - Find peers without centralized directories
+- **Relay servers** - Enable connections when direct P2P isn't possible
+
+Peer discovery happens through out-of-band key exchange (QR codes, text, email) for initial setup, then Iroh handles reachability automatically.
+
+### Authorization Layer
+
+Permits provide decentralized access control:
+
+- **Facts-only design** - All data in the `fct` field, no URIs
+- **Bearer tokens** - Possession proves authorization
+- **Document-level permissions** - Viewer, submitter, collaborator roles
+- **Dual-Permit validation** - Both sides of a sync must have valid Permits (SyncContext)
+- **Forward secrecy** - Re-encryption for each delegation
+
+Applications read Permit facts to determine what operations are allowed.
+
+### Data Layer
+
+Loro CRDTs handle conflict-free synchronization:
+
+- **Automatic merging** - Changes from multiple people merge without conflicts
+- **Eventually consistent** - All participants converge to the same state
+- **Offline-capable** - Works without connectivity, syncs when reconnected
+- **Efficient** - Only transmits deltas, not full documents
+
+Sync behavior is driven by Permit facts - applications read permissions to determine filtering and merge logic.
+
+### Application Layer
+
+HUML templates and CEL expressions define behavior:
+
+- **Declarative templates** - Human-readable layouts and configurations
+- **Custom documents** - Define your own document names and schemas
+- **Frontend-driven logic** - Merge behavior reads from Permits, not backend code
+- **WebAssembly compilation** - OCaml transpiler produces high-performance WASM
+
+This makes applications flexible, customizable, and user-controllable.
+
+## Key Differences from Traditional Web
+
+| Aspect | Traditional Web | Extended Web |
+|--------|----------------|--------------|
+| **Applications run** | In data centers | On your devices |
+| **Data stored** | Remote servers | Local storage |
+| **Identity** | Platform accounts | Cryptographic keys |
+| **Collaboration** | Through servers | Peer-to-peer |
+| **Authorization** | ACLs on servers | Cryptographic Permits |
+| **Configuration** | Hardcoded logic | Data-driven templates |
+| **Offline capability** | Limited/none | Full functionality |
+| **Who controls it** | Platform operators | You |
+
+## Why This Matters
+
+The Extended Web isn't just a technical architecture - it's an architecture that makes sovereignty possible.
+
+When applications run on your devices, data lives with you, and authorization comes from cryptography you control, you're no longer dependent on platforms staying online, staying solvent, or staying willing to serve you.
+
+You own your identity. You own your data. You own your relationships.
+
+That's the Extended Web.

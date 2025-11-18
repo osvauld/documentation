@@ -27,17 +27,27 @@ The biggest limitation of traditional P2P systems was synchronization gaps. You 
 
 This created frustrating scenarios where changes would get stuck on offline devices, requiring both peers to be online simultaneously to sync updates - massively affecting the user experience.
 
-**Sovereign nodes solve this with affordable always-on infrastructure.**
+**Personal nodes solve this with affordable always-on infrastructure.**
 
-With single-board computers like Raspberry Pi becoming incredibly cheap and capable, users can run their own dedicated devices for backup and synchronization. These aren't servers in the traditional sense - they're your personal infrastructure that you control completely.
+With single-board computers like the Orange Pi 6 Plus becoming incredibly cheap and capable, you can run your own dedicated device for backup and synchronization. These aren't servers in the traditional sense - they're your personal infrastructure that you control completely.
 
-A sovereign node can decrypt and store copies of your documents, which is exactly why documents always remain synced with the latest changes. It can buffer updates from offline collaborators, merge changes effectively, and help peers find each other. Multiple users can share a single sovereign node, splitting costs while maintaining individual data sovereignty.
+Your personal node can decrypt and store copies of your documents, ensuring everything stays synced with the latest changes. It buffers updates from offline collaborators, helps merge changes effectively, and assists peers in finding each other. Multiple users can share a single node, splitting costs while maintaining individual data sovereignty.
+
+The Orange Pi 6 Plus also includes an NPU (Neural Processing Unit) for future AI capabilities like image processing, video transcoding, and local voice commands - but these are enhancements, not requirements for core functionality.
 
 ## Cryptographically-Backed Permissions
 
-Traditional applications used Access Control Lists (ACLs) - simple lists of who can access what. These lists weren't cryptographically verified, meaning the server could modify permissions arbitrarily or administrators could bypass restrictions.
+Traditional applications use Access Control Lists (ACLs) - simple lists of who can access what. These lists aren't cryptographically verified, meaning servers can modify permissions arbitrarily or administrators can bypass restrictions.
 
-Osvauld uses User Controlled Authorization Networks (UCANs) where permissions are cryptographically signed tokens. When you grant someone access to a document, you're creating mathematical proof of that permission. The permission can't be forged, modified by third parties, or revoked without your cryptographic signature.
+Extended Web applications use **Permits** - cryptographically signed authorization tokens that work like smart contracts for permissions. When you grant someone access to a document, you're creating mathematical proof of that permission.
+
+Permits evolved from UCAN (User Controlled Authorization Networks) into a facts-only, data-driven design where:
+- All authorization logic is encoded in verifiable facts
+- Applications read Permit facts to determine behavior
+- No permission server is needed for validation
+- Permissions can't be forged or modified without your cryptographic signature
+
+This is decentralized authorization - the same concept as blockchain smart contracts, but for personal applications.
 
 ## Reliable Peer-to-Peer Connections
 
@@ -47,30 +57,55 @@ Modern networking protocols like Iroh solve this. Built on QUIC with sophisticat
 
 ## Conflict-Free Collaboration
 
-Real-time collaboration without servers required solving the fundamental problem of conflicting edits. When multiple people edit simultaneously, whose changes should win?
+Real-time collaboration without servers requires solving the fundamental problem of conflicting edits. When multiple people edit simultaneously, whose changes should win?
 
-Conflict-free Replicated Data Types (CRDTs) solve this mathematically. Systems like Yjs guarantee that all participants converge to identical states regardless of edit timing or network conditions. This enables Google Docs-level collaboration performance without Google.
+Conflict-free Replicated Data Types (CRDTs) solve this mathematically. Extended Web applications use **Loro** - a high-performance CRDT library that guarantees all participants converge to identical states regardless of edit timing or network conditions.
+
+Unlike traditional operational transforms that require server coordination, Loro CRDTs work entirely peer-to-peer. Your edits merge automatically with collaborators' changes, even when you're offline. This enables Google Docs-level collaboration performance without centralized servers.
+
+## High-Performance Rendering
+
+Traditional web applications interpret JavaScript on every page load, creating performance bottlenecks for complex interfaces. Extended Web applications take a different approach.
+
+**OCaml Transpiler**: Sthalam uses a custom OCaml-based transpiler that compiles HUML templates and CEL expressions directly to WebAssembly. This achieves:
+- **40x faster performance** than equivalent JavaScript
+- **60 FPS rendering** with 10,000+ expressions
+- **Zero-copy GPU upload** for efficient graphics
+- **Canvas shader compilation** where CEL expressions compile to GLSL shaders (500+ FPS)
+
+**Data-Driven Applications**: Instead of hardcoded business logic, applications read behavior from:
+- **HUML templates** - declarative, human-readable configurations that define layouts, document names, and merge behavior
+- **CEL expressions** - sandboxed, safe expressions for reactivity and control flow
+- **Permit facts** - authorization data that drives sync and permission logic
+
+This means you can customize applications by editing templates, not rewriting code.
 
 ## Why Now?
 
-Several factors have converged to make sovereign applications practical:
+Several factors have converged to make Extended Web applications practical:
 
-**AI Development Tools**: With AI assistance, small teams can build sophisticated applications without the massive engineering overhead that previously required venture funding and corporate infrastructure.
+**AI Development Tools**: With AI assistance, small teams can build sophisticated applications without massive engineering overhead. Users can even use cloud AI (ChatGPT, Claude) with HUML guides to generate custom templates.
 
 **Mature Desktop Frameworks**: Tools like Tauri enable building native desktop applications with web technologies, combining the best of both worlds without browser limitations.
 
-**Network Infrastructure Evolution**: Modern internet infrastructure better supports direct peer connections, making P2P protocols more reliable.
+**WebAssembly Maturity**: WASM enables near-native performance for compiled languages in browsers, making OCaml transpilation viable.
 
-**User Privacy Awareness**: After years of surveillance capitalism, users increasingly value applications that don't track or monetize their behavior.
+**Network Infrastructure Evolution**: Modern internet infrastructure better supports direct peer connections through protocols like Iroh, making P2P reliable.
+
+**User Privacy Awareness**: Individuals increasingly value applications that don't track or monetize their behavior.
 
 ## The Result
 
-Applications built on Osvauld work like traditional software but operate fundamentally differently:
+Extended Web applications work like traditional software but operate fundamentally differently:
 
-- Direct peer-to-peer connections instead of servers
-- Cryptographic identity instead of corporate authentication  
-- Mathematical conflict resolution instead of server arbitration
-- User-controlled permissions instead of platform policies
+- **Direct peer-to-peer connections** instead of centralized servers
+- **Cryptographic identity** instead of corporate authentication
+- **Loro CRDT merging** instead of server-mediated conflict resolution
+- **Permit-based authorization** instead of platform policies
+- **Data-driven configuration** instead of hardcoded business logic
+- **WebAssembly performance** instead of interpreted JavaScript
 
-This isn't limited to document editing. The same architecture enables secure messaging, file synchronization, password management, and any application where users need to collaborate or share data without corporate intermediaries.
+This architecture isn't limited to publishing. The same principles enable secure messaging, collaborative editing, file synchronization, and any application where individuals need to work together without surrendering control to intermediaries.
+
+**The technology is ready. The Extended Web is here.**
 

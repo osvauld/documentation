@@ -45,44 +45,37 @@ export default defineConfig({
       {
         label: "Introduction",
         items: [
-          { label: "Manifesto", link: "/introduction/manifesto" },
-          { label: "What makes this possible", link: "/introduction/what-makes-this-possible" },
+          { label: "The Extended Web", link: "/introduction/manifesto" },
+          { label: "What Makes This Possible", link: "/introduction/what-makes-this-possible" },
         ],
       },
       {
-        label: "Livnote",
+        label: "Core Architecture",
         items: [
-          { label: "Creating your identity", link: "/livnote/creating-your-identity" },
-          { label: "Connecting with peers", link: "/livnote/connecting-to-peers" },
-          { label: "Creating and sharing resources", link: "/livnote/creating-and-sharing" },
-          { label: "User Synchronization", link: "/livnote/user-synchronization" },
-          { label: "Resources Synchronization", link: "/livnote/resources-synchronization" },
-          { label: "Live Edit", link: "/livnote/live-edit" }
+          { label: "Extended Web Paradigm", link: "/core/extended-web" },
+          { label: "Identity & Key Systems", link: "/core/identity" },
+          { label: "Peer Discovery", link: "/core/peer-discovery" },
+          { label: "Handshake Mechanism", link: "/core/handshake" },
+          { label: "Permits - Authorization", link: "/core/permits" },
+          { label: "Synchronization Protocol", link: "/core/sync" },
         ],
       },
       {
-        label: "Libremot",
-        items: [
-          { label: "Introduction", link: "/libremot/introduction" },
-        ],
-      },
-      {
-        label: "Project Sthalam",
+        label: "Sthalam Application",
         items: [
           { label: "Introduction", link: "/sthalam/introduction" },
           { label: "Publishing Content", link: "/sthalam/publishing-content" },
           { label: "Viewer Connections", link: "/sthalam/viewer-connections" },
           { label: "Website Synchronization", link: "/sthalam/website-sync" },
-          { label: "UCAN Token Architecture", link: "/sthalam/ucan-architecture" },
           { label: "Forms & Submissions", link: "/sthalam/forms-and-submissions" },
           { label: "Comment Threads", link: "/sthalam/comment-threads" },
           { label: "Future Concepts", link: "/sthalam/future" },
         ],
       },
       {
-        label: "Sovereign node",
+        label: "Personal Node",
         items: [
-          { label: "Setting Up ", link: "/sovereign-node/setting-up" },
+          { label: "Setting Up", link: "/sovereign-node/setting-up" },
         ],
       },
     ],
