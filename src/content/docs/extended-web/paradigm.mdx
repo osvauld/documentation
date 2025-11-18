@@ -1,0 +1,203 @@
+---
+title: "Extended Web Paradigm"
+description: "Local-first peer-to-peer applications with cryptographic authorization"
+---
+
+## What Is the Extended Web?
+
+The Extended Web is a paradigm where there is no backend - all application logic is embedded in HUML templates and Permits. The Osvauld protocol executes this embedded logic. Data lives with you, and collaboration happens peer-to-peer.
+
+## The Extended Web Paradigm
+
+Extended Web applications work like this:
+
+1. **No backend** - Application logic is embedded in HUML templates (rendering logic) and Permits (merge logic). Permits are derivative of HUML. The Osvauld protocol executes this embedded logic.
+2. **Data lives with you** - Your content is stored locally, syncing peer-to-peer
+3. **Identity comes from cryptography** - You exist through Ed25519 keys you control
+4. **Collaboration is direct** - Peer-to-peer connections using Iroh protocol
+
+You run a personal node for always-on connectivity. It's your device, under your control - an extension of you, not a third-party server.
+
+**Essential infrastructure**: You need at least one personal node for flawless operation. The node handles all distribution between users.
+
+## How Extended Web Applications Work
+
+### Local-First Operation
+
+Extended Web applications work offline by default. There is no backend - all application logic is embedded in HUML templates and Permits. When you open an Extended Web app:
+
+- Reads HUML templates (rendering logic) and Permits (merge logic)
+- Reads data from your local storage
+- The Osvauld protocol executes the embedded logic to render the interface
+- Processes your edits locally - protocol executes merge logic from Permits
+- Connects to network when you want to sync or collaborate
+
+Everything works offline. Internet enables sharing, not basic functionality. No remote logic execution required.
+
+### Peer-to-Peer Synchronization
+
+When you collaborate, your devices connect directly using Iroh (built on QUIC). Peer-to-peer connections - no intermediary processes your content.
+
+Your personal node facilitates:
+- **Store-and-forward** - Buffers updates when you're offline
+- **Relay** - Helps establish direct connections through NAT traversal
+- **Public hosting** - Serves content to viewers
+- **CRDT sync hub** - Coordinates conflict-free merging
+- **Distribution** - Handles all distribution between users
+
+Your personal infrastructure. You own and control it.
+
+### Cryptographic Authorization
+
+Extended Web apps use **Permits** - cryptographically signed bearer tokens containing all authorization logic.
+
+When you share, you create a Permit that:
+- Specifies what the recipient can do (read, write, append)
+- Contains facts that applications read to determine behavior
+- Works as a bearer token (possession proves authorization)
+- Requires no permission server for validation
+
+Smart contracts for permissions - decentralized, cryptographic, programmable authorization.
+
+### Data-Driven Configuration
+
+Extended Web applications read their behavior from configurations:
+
+**HUML Templates** - Declarative configurations defining:
+- How content renders
+- Document names (custom, not hardcoded)
+- View behavior
+- User controls
+
+**Permit Facts** - Authorization data specifying:
+- Which documents this Permit grants access to
+- Permissions the holder has
+- Sync behavior to apply
+- Enabled capabilities
+
+**CEL Expressions** - Safe, sandboxed expressions for:
+- Reactive state updates
+- Conditional rendering
+- Data transformations
+- Control flow logic
+
+Applications interpret these configurations at runtime. Customize behavior by editing templates, not rewriting code.
+
+### CRDTs and Static Assets
+
+The Extended Web handles both **CRDTs** (Conflict-Free Replicated Data Types) and **static assets**:
+
+**CRDT Documents** - Real-time collaborative documents using Loro:
+- Text, lists, maps - automatically merge changes
+- Bidirectional sync for collaboration
+- Pull-only or push-only patterns for publishing/submissions
+
+**Static Assets** - Media files, images, videos, documents:
+- **Read-only static assets** - Videos hosted for viewers, images, files
+- **Collaborative static assets** - Comments attached to static content
+- Combined patterns - Static video with collaborative comments document
+
+Static assets can be served with CRDT documents (like comments) to create rich interactive experiences.
+
+## Architecture Layers
+
+The Extended Web stack consists of several layers:
+
+### Identity Layer
+
+**PGP certificates with Ed25519 keys** provide identity and encryption:
+
+- **PGP certificate** - Your main identity (Ed25519 internally), used for encryption/decryption, never leaves your device
+- **Permit signing keys** - Ed25519 keys derived from PGP using Argon2, converted to DIDs, sign Permits
+- **Device keys** - Ed25519 keys for Iroh P2P network layer, establishing connections
+
+These work together for encryption, authorization, and connectivity.
+
+See [Identity & Key Systems](/core/identity) for details.
+
+### Network Layer
+
+Peer-to-peer connectivity through Iroh:
+
+- **QUIC protocol** - Reliable, encrypted transport
+- **NAT traversal** - Works through firewalls and routers
+- **DHT discovery** - Find peers without centralized directories
+- **Connection strings** - Contain pub keys, username, Permit, node address
+
+Peer discovery happens through out-of-band exchange (QR codes, text, email) of connection strings containing everything needed to connect.
+
+See [Peer Discovery](/core/peer-discovery) for details.
+
+### Authorization Layer
+
+Permits provide decentralized access control:
+
+- **Extension of UCAN** - Adds embedded logic, origin tracking, facts-only design
+- **Bearer tokens** - Possession proves authorization
+- **Document-level permissions** - Viewer, submitter, collaborator roles
+- **No permission server** - Cryptographic validation only
+
+Applications read Permit facts to determine allowed operations.
+
+See [Permits](/core/permits) for details.
+
+### Data Layer
+
+Loro CRDTs handle conflict-free synchronization:
+
+- **Automatic merging** - Changes from multiple people merge conflict-free
+- **Eventually consistent** - All participants converge to identical state
+- **Offline-capable** - Works without connectivity, syncs when reconnected
+- **Efficient** - State vector exchange transmits only missing diffs
+
+Sync behavior driven by Permit facts - applications read permissions to determine filtering and merge logic.
+
+See [Synchronization Protocol](/core/sync) for details.
+
+### Application Layer
+
+HUML templates and CEL expressions define behavior:
+
+- **Declarative templates** - Human-readable layouts and configurations
+- **Custom documents** - Define your own document names and schemas
+- **Data-driven logic** - Merge behavior reads from Permits
+- **WebAssembly compilation** - OCaml transpiler produces high-performance WASM (40x faster than JavaScript)
+
+Makes applications flexible, customizable, and user-controllable.
+
+## Personal Node: Essential Infrastructure
+
+**You need at least one personal node** for flawless operation.
+
+**What node does** using Osvauld protocol:
+- Merges CRDT operations
+- Sends resource updates to users
+- Caches updates from users when offline
+- Distributes content between all users
+- Coordinates synchronization
+
+**Personal node capabilities**:
+- Handles CRDT operations and encryption
+- Supports multiple concurrent connections
+- Future AI capabilities
+- Affordable personal infrastructure
+- Low power, always-on operation
+
+You control the hardware, software, and network.
+
+See [Setting Up Personal Nodes](/sovereign-node/setting-up) for installation.
+
+## Why This Architecture
+
+This architecture makes sovereignty possible.
+
+When applications run on your devices, data lives with you, and authorization comes from cryptography you control - you own your identity, data, and relationships.
+
+**No dependence on**:
+- Platforms staying online
+- Companies staying solvent
+- Services staying willing to serve you
+
+You hold the keys. You control everything.
+
+That's the Extended Web.

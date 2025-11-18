@@ -43,46 +43,40 @@ export default defineConfig({
     customCss: ["./src/styles/custom.css"],
     sidebar: [
       {
-        label: "Introduction",
+        label: "Extended Web",
         items: [
-          { label: "Manifesto", link: "/introduction/manifesto" },
-          { label: "What makes this possible", link: "/introduction/what-makes-this-possible" },
+          { label: "Manifesto", link: "/extended-web/introduction" },
+          { label: "Paradigm", link: "/extended-web/paradigm" },
+        ],
+      },
+
+      {
+        label: "Protocol",
+        items: [
+          { label: "Identity, Discovery & Handshake", link: "/core/identity-and-connections" },
+          { label: "Authorization & Synchronization", link: "/core/authorization-and-sync" },
         ],
       },
       {
-        label: "Livnote",
-        items: [
-          { label: "Creating your identity", link: "/livnote/creating-your-identity" },
-          { label: "Connecting with peers", link: "/livnote/connecting-to-peers" },
-          { label: "Creating and sharing resources", link: "/livnote/creating-and-sharing" },
-          { label: "User Synchronization", link: "/livnote/user-synchronization" },
-          { label: "Resources Synchronization", link: "/livnote/resources-synchronization" },
-          { label: "Live Edit", link: "/livnote/live-edit" }
-        ],
-      },
-      {
-        label: "Libremot",
-        items: [
-          { label: "Introduction", link: "/libremot/introduction" },
-        ],
-      },
-      {
-        label: "Project Sthalam",
+        label: "Sthalam",
         items: [
           { label: "Introduction", link: "/sthalam/introduction" },
-          { label: "Publishing Content", link: "/sthalam/publishing-content" },
-          { label: "Viewer Connections", link: "/sthalam/viewer-connections" },
-          { label: "Website Synchronization", link: "/sthalam/website-sync" },
-          { label: "UCAN Token Architecture", link: "/sthalam/ucan-architecture" },
-          { label: "Forms & Submissions", link: "/sthalam/forms-and-submissions" },
-          { label: "Comment Threads", link: "/sthalam/comment-threads" },
-          { label: "Future Concepts", link: "/sthalam/future" },
-        ],
-      },
-      {
-        label: "Sovereign node",
-        items: [
-          { label: "Setting Up ", link: "/sovereign-node/setting-up" },
+          { label: "Examples", link: "/sthalam/examples" },
+          {
+            label: "Personal Node",
+            collapsed: true,
+            items: [
+              { label: "Setting Up", link: "/sovereign-node/setting-up" },
+            ],
+          },
+          {
+            label: "Future",
+            collapsed: true,
+            items: [
+              { label: "Blockchain Integration", link: "/future/blockchain" },
+              { label: "Planned Features", link: "/sthalam/future" },
+            ],
+          },
         ],
       },
     ],

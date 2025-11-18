@@ -1,0 +1,138 @@
+---
+title: "Identity, Discovery & Handshake"
+description: "How Extended Web applications establish cryptographic identity and trusted peer-to-peer connections"
+---
+
+## Ed25519-Based Identity
+
+Extended Web applications use PGP certificates with Ed25519 keys for all cryptographic operations. The same Ed25519 key material serves multiple purposes.
+
+**PGP Certificate** - Your root identity using Ed25519 internally. Used for encryption/decryption. Never leaves your device.
+
+**Permit Signing Key** - Ed25519 key derived from PGP using Argon2. Converted to DID (Decentralized Identifier). Signs Permits for authorization.
+
+**Device Keys** - Ed25519 keys generated per device for Iroh P2P network layer. Each device (laptop, phone, node) has its own. Used for establishing connections.
+
+One identity, many devices. Your PGP identity and Permit signing key stay consistent. Only device keys change per device.
+
+## Connection Strings
+
+When connecting to a personal node or peer, you exchange a **connection string** (base64-encoded) containing:
+
+- **Public keys** - Ed25519 public keys for encryption
+- **Username** - Human-readable identifier
+- **Permit** - Cryptographic authorization to connect
+- **Node address** - Iroh network information
+- **DID** - Decentralized identifier
+
+This connection string is shared out-of-band and contains everything needed to establish trusted P2P connection.
+
+## Peer Discovery
+
+Peer discovery happens through **out-of-band exchange** of connection strings. Share via:
+
+- **QR codes** - Scan in person or via video call
+- **Text message** - Send the connection string directly
+- **Email** - Share via encrypted email
+- **Any trusted channel** - Whatever method you trust for initial exchange
+
+This is a one-time setup. Once connection strings are exchanged, Iroh handles all future connectivity automatically.
+
+### Iroh Handles Reachability
+
+After connection string exchange, Iroh's networking layer takes over:
+
+1. **DHT Lookup** - Queries Distributed Hash Table to find peer location
+2. **Direct Connection** - Tries to establish direct QUIC connection
+3. **NAT Traversal** - Uses techniques to punch through firewalls
+4. **Relay Fallback** - Routes through relay servers if direct connection fails
+
+All automatic. Your application says "connect to peer X" and Iroh handles the complexity.
+
+### Personal Nodes
+
+Your personal node enhances discovery by providing always-on reachability:
+
+- Peers can find your node even when your laptop is offline
+- Node buffers connections and messages
+- Multiple devices connect to your node, then coordinate with each other
+- Acts as hub for your personal infrastructure
+
+**Essential infrastructure**: You need at least one personal node for flawless operation. The node handles all distribution between users.
+
+## Handshake Mechanism
+
+When two peers connect, they go through a multi-layer handshake that establishes trust, verifies identity, and sets up authorization.
+
+### Layer 1: Network Connection
+
+Device keys (exchanged out-of-band) enable Iroh to find the peer on the network. QUIC connection established. Encrypted transport ready.
+
+This establishes **how to connect**, not **what you're authorized to do**.
+
+### Layer 2: Authentication
+
+Both sides create temporary bearer tokens (Permits) that prove identity through cryptographic signatures.
+
+Each side validates:
+- **Cryptographic signature** - Proves token came from claimed issuer
+- **DID extraction** - Gets public key from the DID
+- **Fact verification** - Checks authorization facts
+- **Bearer authentication** - Possession proves identity
+
+This is bearer token authentication - anyone holding a valid token is authorized. No database or server checks needed.
+
+### Layer 3: Trust Establishment
+
+After validating bearer tokens, both sides:
+
+1. Extract public keys from each other's DIDs
+2. Store user data locally (DID, PGP key, device ID, relationship type)
+3. Both sides persist - mutual trust establishment
+
+After this step, both sides can recognize and authenticate each other in future sessions.
+
+### Layer 4: Authorization Exchange
+
+Now that trust is established, long-lived Permits are exchanged for ongoing access. The owner delegates a Permit to the peer using the delegation template from their owner Permit.
+
+This establishes **what the peer is authorized to do** for ongoing collaboration.
+
+## Data-Driven Handshake
+
+The handshake logic reads behavior from Permit facts, not hardcoded rules. The protocol validates signatures cryptographically, extracts templates from Permits for delegation, and issues new Permits based on templates. No hardcoded role logic.
+
+Everything is driven by the data in the Permits.
+
+## Separation of Concerns
+
+The handshake involves multiple key systems working together:
+
+- **Network connection** (Device keys) - How to find and connect
+- **Authentication** (Permit signing keys) - Who you are
+- **Authorization** (Permit facts) - What you can do
+- **Encryption** (PGP keys) - Content security
+
+Each layer is separate but works together during handshake.
+
+## Security Properties
+
+**Out-of-Band Trust** - Exchanging connection strings through trusted channels (in-person QR, encrypted messaging) prevents man-in-the-middle attacks.
+
+**No Central Directory** - Discovery happens through direct connection string exchange (out-of-band), DHT queries (decentralized), and relay coordination (ephemeral). No one can surveil who you're connecting with.
+
+**Forward Secrecy** - Device keys can be rotated without changing identity. Compromise of old key doesn't affect new sessions.
+
+**Cryptographic Proof** - Every step verified through cryptographic signatures. No trust in servers required.
+
+**Mutual Authentication** - Both sides prove identity to each other. Symmetric, not one-way like client-server.
+
+**Bearer Token Security** - One-time bearer tokens are ephemeral, used only during handshake, then replaced with long-lived Permits.
+
+## Discovery vs Authorization
+
+**Discovery** (Device Keys + Iroh) - How to find a peer on the network. Network-layer concern.
+
+**Authorization** (Permits) - What a peer is allowed to do. Application-layer concern.
+
+Just because you can connect to someone doesn't mean you're authorized to access their content. These are separate layers with separate key systems.
