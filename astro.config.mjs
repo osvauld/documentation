@@ -20,6 +20,8 @@ const organization = {
 
 export default defineConfig({
   site: "https://docs.osvauld.com",
+  // Pages are served without a trailing slash (wrangler.jsonc html_handling).
+  trailingSlash: "never",
   integrations: [
     starlight({
       title: "Osvauld",
