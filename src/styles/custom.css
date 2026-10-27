@@ -32,3 +32,15 @@
 .sl-flex.social-icons {
 	gap: 25px;
 }
+
+/* Larger reading text for article body (Starlight default is 16px). */
+.sl-markdown-content {
+	font-size: 1.125rem;
+}
+
+.grant-note {
+	margin-top: 4rem;
+	font-size: 0.75rem;
+	color: var(--sl-color-gray-3);
+	text-align: center;
+}

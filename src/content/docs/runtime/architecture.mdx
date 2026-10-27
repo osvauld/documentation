@@ -1,0 +1,111 @@
+---
+title: Runtime architecture
+description: How the current Osvauld shell, Lua host, CRDT documents, identity, and encrypted storage fit together.
+---
+
+## Overview
+
+The current Osvauld implementation is a local-first, end-to-end-encrypted workspace of typed items: applications, documents, tables, and canvases. The desktop shell hosts applications authored in Lua—often intended to be written or modified by an AI agent—while Rust supplies the runtime, persistence, identity, and cryptographic substrate.
+
+`osvauld2` is currently local. Its document model is designed for synchronization, but peer networking, sovereign-node integration, and capability permits are not yet connected.
+
+## Rendering pipeline
+
+```text
+Lua app: view() ── ui.* tables ──► walk ──► El<LuaMsg> ──┐
+                                                           ├─► Taffy layout ─► Placed ─► Vello paint
+Rust screen: El builders (typed messages) ─────────────────┘
+```
+
+Native shell screens and Lua applications produce the same element vocabulary and pass through the same layout, paint, state, and input machinery.
+
+The interface is an immediate description with retained islands. A Lua `view()` function rebuilds the element description after interaction. Expensive or stateful controls, such as text editors, retain their internal state behind stable element IDs. There is no virtual DOM and no signal graph.
+
+Callbacks become plain message identifiers. The Lua VM does not leak into the core runtime, preserving a clean boundary between interpreted applications and rendering.
+
+## Application model
+
+An application is a folder of Lua files whose `main.lua` returns a view function. Its source files are held in one Loro source document. Application state lives in separate, named Loro documents.
+
+```text
+source document
+└── files: LoroMap
+    ├── main.lua: LoroText
+    ├── model.lua: LoroText
+    └── ui/widgets.lua: LoroText
+
+state documents
+├── board
+├── preferences
+└── any other name opened by the app
+```
+
+This separation matters: updating application code does not replace its data, and data edits do not rewrite source.
+
+The runtime opens a sandboxed Luau VM, resolves `require()` calls from the source document, calls `view()` to obtain an element tree, and dispatches callbacks after the frame. Reload creates and tests a second VM before swapping it in; a failed reload leaves the running application and its documents intact.
+
+Read [Writing Lua apps](/runtime/lua-apps) for the current application API.
+
+## Document flow
+
+`doc:open(name)` returns a JSON-like Lua mirror of a named Loro document. Reads are ordinary table access. Writes are explicit operations addressed by paths and stable IDs.
+
+```lua
+local tasks = doc:open("tasks")
+
+tasks:insert({ "items" }, doc.map({
+  id = uuid(),
+  title = "Ship the runtime",
+  done = false,
+}))
+
+tasks:set({ "items", task_id, "done" }, true)
+```
+
+A write lands in the CRDT immediately. The read mirror is patched at the beginning of the next view, so an application's own write is visible on its next frame. External writers must wake the event loop; the runtime already provides that seam for the future bridge and peer synchronization.
+
+## Identity, storage, and vault
+
+A BIP39 mnemonic is the root of an account. Domain-separated derivation produces independent signing, encryption, and device keypairs. The signing public key forms the account's self-authenticating DID.
+
+The storage crate is deliberately a small ordered byte store over redb. The vault composes identity and storage into account signup, unlock, workspaces, typed items, source snapshots, and application documents. Every record below the keystore is sealed to the account encryption key.
+
+```text
+account database
+├── identity/keystore
+├── identity/label
+└── ws/<workspace>/
+    ├── meta
+    └── item/<item>/
+        ├── meta
+        ├── src
+        └── doc/<name>
+```
+
+See [Identity](/runtime/identity), [Storage](/runtime/storage), and [Vault](/runtime/vault) for the detailed contracts.
+
+## Main crates
+
+| Crate | Responsibility |
+| --- | --- |
+| `runtime` | Element tree, layout, painting, input, retained state, animation, and the application event loop. |
+| `app_host` | Sandboxed Lua VM, `ui.*`, strict props, document bindings, modules, state, and staged reload. |
+| `shell2` | Accounts, workspaces, items, app upload, tabs, and the current desktop experience. |
+| `lua_tree` | Luau source parsing, semantic trees, stable source-node identities, and printing for surgical edits. |
+| `vault` | Headless account and workspace storage over identity and redb. |
+| `cryptography`, `identity`, `storage` | Cryptographic primitives, recoverable sovereign identity, and ordered byte persistence. |
+| `osvauld-rpc`, `osvauld-mcp` | Former-runtime bridge crates awaiting a port to the current shell. |
+
+## Architectural invariants
+
+- Application messages remain plain data; the VM does not enter the rendering runtime.
+- Paint order and reverse hit-test order derive from the same tree order.
+- Stable IDs preserve retained state and are namespaced per open item.
+- A reload stages a complete replacement VM before swapping.
+- Source and application data remain separate documents.
+- Document writes use explicit CRDT operations and stable IDs rather than list positions.
+- Ephemeral viewer state—scroll positions, active drags, and drafts—does not enter shared documents unless the application explicitly puts it there.
+
+## Toward Xnet
+
+The existing local architecture supplies one side of Xnet. The remaining distributed path adds peer discovery and synchronization, an owner-controlled sovereign node, and signed capability permits. Those layers must preserve the same application API: Lua code should continue to read shared state and make explicit writes without acquiring networking, database, or authentication code.

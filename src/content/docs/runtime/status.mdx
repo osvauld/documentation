@@ -1,0 +1,62 @@
+---
+title: Current status
+description: What exists in osvauld2 today and what remains to be built.
+---
+
+`osvauld2` is the current implementation of Osvauld. It is a ground-up runtime rebuild, not a continuation of the former Sthalam shell. This page separates code that runs today from the Xnet architecture still being assembled.
+
+## Built
+
+### Runtime and shell
+
+- A custom desktop UI runtime built with winit, wgpu, Vello, Parley, and Taffy.
+- Shared element trees for native Rust screens and interpreted Lua applications.
+- Layout, vector painting, shaped text, scrolling, hit testing, drag and drop, overlays, animation, fields, and text editing.
+- Account signup and unlock, workspace and item screens, app-folder upload, tabs, and theme support.
+- Retained state namespaced per open item and staged VM reloads that leave the current application running when replacement code fails.
+
+### Lua application layer
+
+- Sandboxed Luau VMs with execution budgets and source-level tracebacks.
+- Multi-file `require` over an application's shared source document.
+- `ui.*` elements, strict prop validation, callbacks, `ui.state`, and retained editor islands.
+- Named documents opened with `doc:open(name)`.
+- Plain-table document reads and explicit `set`, `insert`, `delete`, and `move` CRDT writes.
+- Separate source and state documents, persisted as Loro snapshots.
+- Kanban as the primary reference application, plus smaller tally and scratch examples.
+
+### Identity and storage
+
+- BIP39 mnemonic recovery.
+- Domain-separated Ed25519 signing, X25519 encryption, and Ed25519 device keys.
+- Self-authenticating `did:key` identities.
+- Argon2id and AES-GCM protected keystores.
+- One redb store per account, with workspace and item records sealed to the account key.
+- Workspaces, typed items, application source, and named application documents managed by the headless vault layer.
+
+### Agent-editing foundation
+
+- Parsing Luau into a semantic tree and printing it back to runnable source.
+- Stable node identifiers and round-trip tests, providing the basis for precise agent edits.
+
+## Not built yet
+
+### Networking and sovereign nodes
+
+Peer discovery, synchronization, and the authoritative workspace-node path are not integrated into the new shell. The CRDT and wake-on-external-write seams exist, but `osvauld2` is currently a local runtime.
+
+### Capability permits
+
+The signed permit system exists in the earlier Osvauld codebase and informs the current architecture. It has not yet been ported to `osvauld2`. Current local vault access must not be confused with the final distributed authorization model.
+
+### Agent bridge
+
+The existing RPC and MCP crates describe the former Sthalam runtime and are not connected to the current shell. The planned port will expose workspace, file, application-data, UI-tree, interaction, and console operations while keeping all shell mutation on the UI thread.
+
+### Richer item types
+
+The table/data plane, charts, document editor, and canvas remain later milestones. The current end-to-end item is a Lua application over named documents.
+
+## Source of truth
+
+Implementation details change quickly. The `docs/` directory in the `osvauld2` repository is the engineering source of truth, especially its `status.md`, `architecture.md`, and `lua-apps.md`. This public site presents the stable boundary and author-facing APIs.

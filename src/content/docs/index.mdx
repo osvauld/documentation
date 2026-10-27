@@ -1,48 +1,38 @@
 ---
-title: Osvauld - Privacy-First P2P Application Suit
-description: Osvauld brings peer-to-peer, end-to-end encrypted applications built for personal autonomy. MIT licensed and open source.
-i18nReady: true
+title: Osvauld documentation
+description: Documentation for Xnet and the current Osvauld runtime.
 tableOfContents: false
 editUrl: false
 next: false
 hero:
   title: Osvauld
-  tagline: Guides, resources, and API references to help you build with osvauld.
+  tagline: Sovereign, collaborative software for people and their AI.
   actions:
-    - text: Manifesto 
+    - text: Understand Xnet
       icon: open-book
-      link: /introduction/manifesto
+      link: /xnet/introduction
+      variant: primary
+    - text: Current status
+      icon: information
+      link: /runtime/status
       variant: secondary
-    - text: What makes this possible
-      icon: seti:code-search
-      link: /introduction/what-makes-this-possible
+    - text: Write a Lua app
+      icon: rocket
+      link: /runtime/lua-apps
       variant: secondary
-    - text: Website
-      icon: laptop
-      link: https://www.osvauld.com/livnote
-      variant: secondary
-      attrs:
-        target: _blank
-        rel: noopener noreferrer
-    - text: Github
-      icon: github
-      link: https://github.com/osvauld/osvauld
-      variant: secondary
-      attrs:
-        target: _blank
-        rel: noopener noreferrer
-    - text: Community
-      icon: telegram
-      link: https://t.me/+tjZLZK8JV8g0NTVl
-      variant: secondary
-      attrs:
-        target: _blank
-        rel: noopener noreferrer
 ---
-import { Image } from 'astro:assets';
-import art from '../../assets/osvauld-poster.webp';
 
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-<Image src={art} alt="Osvauld brings peer-to-peer, end-to-end encrypted applications built for personal autonomy"/>
+Osvauld is building **Xnet—the extended internet**: a private and programmable environment for shared software. Instead of depending on a platform's accounts, database, APIs, and application server, a workspace carries its own identity, data, application code, and authority.
 
-*This project has received funding from Kerala Startup Mission under productization grant 2024-25*
+The current implementation is **`osvauld2`**. It includes the new desktop runtime, sovereign identities, encrypted local storage, workspaces, sandboxed Lua applications, and CRDT-backed application data. Networking, sovereign-node integration, and signed capability permits are the next major layers and are not presented here as finished features.
+
+<CardGrid>
+  <LinkCard title="Xnet" href="/xnet/introduction" description="The model, the sovereign node, and where Osvauld is going." />
+  <LinkCard title="Architecture" href="/runtime/architecture" description="How the current Rust, Lua, Loro, identity, and storage layers fit together." />
+  <LinkCard title="Lua applications" href="/runtime/lua-apps" description="Build applications against the UI and document APIs that exist today." />
+  <LinkCard title="Status" href="/runtime/status" description="A candid boundary between what is running and what is still being built." />
+</CardGrid>
+
+<p class="grant-note">Osvauld has received grant support from FOSS United, Zerodha, and Kerala Startup Mission (KSUM).</p>

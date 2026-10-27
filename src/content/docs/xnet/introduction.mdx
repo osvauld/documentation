@@ -1,0 +1,97 @@
+---
+title: Xnet, the extended internet
+description: A private, sovereign, programmable environment for collaborative software.
+---
+
+The web made information universally addressable. Xnet extends that idea to private, collaborative software: workspaces where people and their AI can communicate, organize, calculate, publish, and build tools without handing authority to a software platform.
+
+A workspace is not a website and does not need to be organized around a domain, REST API, hosted database, or platform login. It combines:
+
+- cryptographic identities owned by participants;
+- shared, CRDT-backed data that can be used locally;
+- small Lua applications that describe interfaces and behavior;
+- signed capability permits that define who may do what; and
+- a sovereign node controlled by the workspace owners.
+
+## The workspace is the unit
+
+A workspace contains typed items such as applications, documents, tables, and canvases. An application is itself shared data: source files live separately from the documents the application operates on. This means application code can be distributed and updated through the same model as the rest of the workspace.
+
+People should not need to wait for a software vendor to add a workflow. They—or an AI acting with explicitly delegated authority—can create a small Lua application over the workspace's existing data. Osvauld supplies the difficult substrate: identity, storage, synchronization, permissions, and UI rendering.
+
+## Local writes, shared state
+
+Applications read a JSON-like mirror of shared documents. A write changes the local CRDT document; synchronization carries that change to authorized participants, and every view is rebuilt from the resulting state.
+
+Application authors do not write request handlers, database adapters, cache invalidation, or client synchronization code. They describe the interface and make explicit document writes:
+
+```lua
+local board = doc:open("board")
+
+return function()
+  local rows = {}
+  for _, card in ipairs(board.cards or {}) do
+    rows[#rows + 1] = ui.text({ card.title })
+  end
+
+  return ui.col({
+    gap = 12,
+    rows,
+    ui.button({
+      ui.text({ "Add card" }),
+      on_click = function()
+        board:insert({ "cards" }, doc.map({
+          id = uuid(),
+          title = "Untitled",
+        }))
+      end,
+    }),
+  })
+end
+```
+
+The current runtime already supports this local application model. Peer synchronization is still being integrated.
+
+## The sovereign node
+
+Each workspace is designed to have an authoritative node controlled by its owners. It may run on a Raspberry Pi, phone, laptop, home server, or VPS. A fixed public IP and traditional domain are not requirements of the model.
+
+The node is not absent authority. It is **owner-controlled authority**. It can retain changes for offline participants, synchronize permitted data, validate operations that require one shared checkpoint, and run workspace Lua for authoritative derivations.
+
+This is deliberate centralization at the scale of a community rather than a global platform. The people whose work depends on the node decide where it runs and who maintains it.
+
+## Identity and capability permits
+
+A participant's identity begins with a BIP39 mnemonic. Osvauld derives separate signing, encryption, and device keys; the signing key forms a self-authenticating `did:key`. There is no central account issuer.
+
+The intended authorization model uses cryptographically signed capability permits. A permit describes what its holder may do with a resource and supports delegation from an owner-controlled root of authority. The node enforces those permits when serving and synchronizing workspace data.
+
+The earlier Osvauld implementation contains the permit design and cryptographic implementation. **The current `osvauld2` runtime has not yet rebuilt this layer.** Until that integration lands, permit behavior described here is architecture and direction—not a claim about the shipping runtime.
+
+## Software that its owners can maintain
+
+Xnet is meant to change the economics of small software. A workspace should not become stranded because a vendor changes direction or a hosted service disappears. Its owners possess the data, choose the node, and can inspect or replace the small programs that operate on it.
+
+AI makes this practical: an agent can create and edit narrow Lua applications instead of generating another full web stack. Osvauld is being designed so those edits are constrained by the runtime, visible as source, and eventually authorized through the same capability system as every other action.
+
+## Current boundary
+
+Today, `osvauld2` provides the local foundation:
+
+- mnemonic-derived identity and encrypted keystores;
+- encrypted per-account storage;
+- workspaces and typed items;
+- a custom GPU-rendered desktop shell;
+- sandboxed, multi-file Lua applications;
+- CRDT-backed documents with explicit writes;
+- app upload, tabs, retained UI state, and staged reload.
+
+Still in progress:
+
+- peer synchronization and discovery;
+- sovereign-node integration;
+- signed capability permits in the new runtime;
+- the agent-facing RPC/MCP bridge;
+- richer tables, documents, charts, and canvases.
+
+See [Current status](/runtime/status) for the implementation-level boundary.
