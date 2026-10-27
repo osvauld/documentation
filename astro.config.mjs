@@ -24,6 +24,8 @@ const orgSchema = {
 
 // https://astro.build/config
 export default defineConfig({
+  // Pages are served without a trailing slash (wrangler.jsonc html_handling).
+  trailingSlash: "never",
   integrations: [starlight({
     title: "Documentation",
     favicon: '/favicon.ico',
